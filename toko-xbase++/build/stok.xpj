@@ -1,0 +1,49 @@
+[PROJECT]
+   DEBUG                 = no
+   TARGET_DIR            = ..\..\toko-64-bit
+   stok.xpj
+
+[stok.xpj]
+   stok.exe
+
+[stok.exe]
+   COMPILE               = xpp
+   COMPILE_FLAGS         = /q
+   GUI                   = no
+   LINKER                = alink
+   LINK_FLAGS            =
+   RC_COMPILE            = arc
+   RC_FLAGS              =
+   INTERMEDIATE_DEBUG    = .debug\stok
+   INTERMEDIATE_RELEASE  = .release\stok
+   MAIN_STOK.PRG
+   STOK.PRG
+   DAFKODE.PRG
+   PASWOD.PRG
+   BANT.PRG
+   LHUT.PRG
+   LPIU.PRG
+   KAS.PRG
+   IDENTS.PRG
+   LGN.PRG
+   SPL.PRG
+   MPB.PRG
+   MPO.PRG
+   RTB.PRG
+   KRM.PRG
+   ADJ.PRG
+   TF.PRG
+   POIN.PRG
+   LST1.PRG
+   LST2.PRG
+   LPJ1.PRG
+   LPJ2.PRG
+   LPJ12.PRG
+   LPJ13.PRG
+   LPB1.PRG
+   LPBX.PRG
+   LRTB.PRG
+   LPCH.PRG
+   LKSR.PRG
+   LKEU.PRG
+

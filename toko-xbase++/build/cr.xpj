@@ -1,0 +1,24 @@
+[PROJECT]
+   DEBUG                 = no
+   TARGET_DIR            = ..\..\toko-64-bit
+   cr.xpj
+
+[cr.xpj]
+   cr.exe
+
+[cr.exe]
+   COMPILE               = xpp
+   COMPILE_FLAGS         = /q
+   GUI                   = no
+   LINKER                = alink
+   LINK_FLAGS            =
+   RC_COMPILE            = arc
+   RC_FLAGS              =
+   INTERMEDIATE_DEBUG    = .debug\cr
+   INTERMEDIATE_RELEASE  = .release\cr
+   MAIN_CR.PRG
+   CR.PRG
+   CRX.PRG
+   KAS.PRG
+   IDENTS.PRG
+

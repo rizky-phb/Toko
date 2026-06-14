@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MR. FAUZI ZAMI - Prototype</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 14px/1.35 Consolas, "Courier New", monospace;
+      color: #061313;
+      background: #d9e8ef;
+    }
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      background:
+        repeating-linear-gradient(115deg, rgba(0,0,0,.06) 0 1px, transparent 1px 4px),
+        #048d86;
+    }
+    .topbar, .statusbar {
+      background: #071887;
+      color: #fff;
+      padding: 5px 14px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 3px solid #62d6d0;
+    }
+    .menubar {
+      background: #07958e;
+      border-bottom: 2px solid #111;
+      display: flex;
+      gap: 4px;
+      padding: 0 26px;
+      overflow-x: auto;
+    }
+    .menubar button {
+      color: #001817;
+      background: transparent;
+      border: 0;
+      padding: 7px 16px;
+      min-width: 110px;
+      text-align: center;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .menubar button.active, .menubar button:hover {
+      background: #8d0606;
+      color: #fff;
+    }
+    main { padding: 20px 26px 18px; min-width: 0; }
+    .workarea {
+      border: 2px solid #031d1b;
+      min-height: calc(100vh - 148px);
+      background:
+        repeating-linear-gradient(115deg, rgba(0,0,0,.07) 0 1px, transparent 1px 4px),
+        #048d86;
+    }
+    .pos-screen {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 14px;
+      padding: 14px;
+      background:
+        linear-gradient(180deg, rgba(7, 24, 135, .18), transparent 140px),
+        #032c30;
+      color: #f5fffb;
+    }
+    .pos-main, .pos-side {
+      border: 2px solid #3adbd1;
+      background: #078981;
+      min-width: 0;
+    }
+    .pos-head {
+      background: #071887;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 10px;
+      font-weight: 700;
+    }
+    .scan-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 8px;
+      padding: 12px;
+      background: #0a9f96;
+      border-bottom: 2px solid #052827;
+    }
+    .scan-row input {
+      font-size: 20px;
+      min-width: 0;
+    }
+    .pos-table-wrap {
+      min-height: 380px;
+      overflow: auto;
+    }
+    .pos-side {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .total-panel {
+      background: #eafaf6;
+      color: #061313;
+      padding: 14px;
+      border-bottom: 2px solid #052827;
+    }
+    .total-panel .grand {
+      margin-top: 10px;
+      background: #8d0606;
+      color: #fff;
+      padding: 12px;
+      text-align: right;
+      font-size: 34px;
+      font-weight: 800;
+    }
+    .payment-panel {
+      padding: 14px;
+      background: #076f69;
+    }
+    .payment-panel label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+    .payment-panel input {
+      width: 100%;
+      font-size: 22px;
+      text-align: right;
+      margin-bottom: 12px;
+    }
+    .pos-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 12px;
+      background: #032c30;
+    }
+    .section-title {
+      background: #8d0606;
+      color: #fff;
+      padding: 4px 10px;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 2px solid #031d1b;
+      font-weight: 700;
+    }
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      padding: 12px;
+      border-bottom: 2px solid #031d1b;
+      background: #0a9f96;
+      flex-wrap: wrap;
+    }
+    input, select, .action {
+      font: inherit;
+      border: 2px solid #063230;
+      background: #eafffb;
+      padding: 7px 9px;
+    }
+    .action {
+      background: #071887;
+      color: #fff;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .danger { background: #8d0606; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #078981;
+    }
+    th, td {
+      border-bottom: 1px solid #064340;
+      padding: 6px 8px;
+      white-space: nowrap;
+    }
+    th {
+      text-align: left;
+      background: #2bc2b7;
+      border-bottom: 2px solid #062625;
+    }
+    tr.selected td {
+      background: #071887;
+      color: #fff;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+      padding: 14px;
+    }
+    .tile {
+      border: 2px solid #052827;
+      background: #dff8f3;
+      padding: 16px;
+      min-height: 96px;
+    }
+    .tile strong {
+      display: block;
+      font-size: 20px;
+      margin-top: 8px;
+    }
+    .totals {
+      margin-left: auto;
+      width: min(360px, 100%);
+      padding: 14px;
+      background: #eafaf6;
+      border-left: 2px solid #052827;
+    }
+    .totals div {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+    }
+    .dialog-backdrop {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: rgba(0, 0, 0, .36);
+      padding: 18px;
+      z-index: 10;
+    }
+    .dialog {
+      width: min(780px, 100%);
+      border: 3px solid #031d1b;
+      background: #078981;
+      box-shadow: 10px 10px 0 rgba(0, 0, 0, .35);
+    }
+    .dialog-title {
+      background: #071887;
+      color: #fff;
+      padding: 6px 10px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      gap: 10px 14px;
+      padding: 14px;
+    }
+    .field label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+    .field input, .field select {
+      width: 100%;
+    }
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 12px 14px;
+      border-top: 2px solid #031d1b;
+      background: #0a9f96;
+    }
+    .total {
+      font-size: 24px;
+      color: #8d0606;
+      font-weight: 800;
+    }
+    .shortcut {
+      background: #8d0606;
+      color: #fff;
+      padding: 5px 14px;
+      display: flex;
+      gap: 22px;
+      overflow-x: auto;
+      border-top: 2px solid #062625;
+    }
+    body[data-page="kasir"] .app {
+      background: #032c30;
+    }
+    body[data-page="kasir"] main {
+      padding: 0;
+    }
+    body[data-page="kasir"] .menubar {
+      background: #032c30;
+      border-bottom-color: #3adbd1;
+    }
+    body[data-page="kasir"] .menubar button {
+      color: #d8fffb;
+    }
+    body[data-page="kasir"] .menubar button.active {
+      background: #8d0606;
+      color: #fff;
+    }
+    .hidden { display: none; }
+    @media (max-width: 760px) {
+      main { padding: 10px; }
+      .menubar { padding: 0; }
+      .menubar button { min-width: max-content; }
+      table { font-size: 12px; }
+      .pos-screen { grid-template-columns: 1fr; padding: 10px; }
+      .scan-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <span>MR. FAUZI ZAMI</span>
+      <span>Minggu, 31-05-2026</span>
+    </header>
+    <nav class="menubar">
+      <button class="active" data-page="dashboard" data-url="/">Dashboard</button>
+      <button data-page="kasir" data-url="/kasir">Kasir</button>
+      <button data-page="barang" data-url="/stok-barang">Stok Barang</button>
+      <button data-page="pembelian" data-url="/pembelian">Pembelian</button>
+      <button data-page="laporan" data-url="/laporan">Laporan</button>
+      <button data-page="pengaturan" data-url="/pengaturan">Pengaturan</button>
+    </nav>
+    <main>
+      <section id="dashboard" class="workarea">
+        <div class="section-title"><span>Dashboard</span><span>Ringkasan Hari Ini</span></div>
+        <div class="grid">
+          <div class="tile">Penjualan Hari Ini<strong>Rp 0</strong></div>
+          <div class="tile">Transaksi<strong>0 Nota</strong></div>
+          <div class="tile">Barang Stok Minus<strong>0 Item</strong></div>
+          <div class="tile">Margin<strong>Rp 0</strong></div>
+        </div>
+      </section>
+
+      <section id="kasir" class="workarea hidden">
+        <div class="pos-screen">
+          <div class="pos-main">
+            <div class="pos-head">
+              <span>KASIR / POS</span>
+              <span>Nota: 000001 | Shift: Pagi | Kasir: Admin</span>
+            </div>
+            <div class="scan-row">
+              <input placeholder="Scan barcode atau ketik nama barang" autofocus>
+              <button class="action">F2 Cari</button>
+              <button class="action">Enter</button>
+            </div>
+            <div class="pos-table-wrap">
+              <table>
+                <thead><tr><th>Nama Barang</th><th>Qty</th><th>Harga</th><th>Diskon</th><th>Jumlah</th></tr></thead>
+                <tbody>
+                  <tr class="selected"><td>BERAS SPHP / KG</td><td>2</td><td>14.000</td><td>0</td><td>28.000</td></tr>
+                  <tr><td>ABC SAMBAL ASLI 135ML</td><td>1</td><td>6.500</td><td>0</td><td>6.500</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="shortcut">F4=Qty F5=Diskon F8=Hapus Item F9=Bayar F10=Cetak</div>
+          </div>
+          <aside class="pos-side">
+            <div class="total-panel">
+              <div><span>Subtotal</span><strong>34.500</strong></div>
+              <div><span>Diskon</span><strong>0</strong></div>
+              <div><span>Item</span><strong>2</strong></div>
+              <div class="grand">34.500</div>
+            </div>
+            <div class="payment-panel">
+              <label>Bayar</label>
+              <input value="50000">
+              <label>Kembali</label>
+              <input value="15500" readonly>
+            </div>
+            <div class="pos-actions">
+              <button class="action">F9 Bayar</button>
+              <button class="action">F10 Cetak</button>
+              <button class="action">Tunda</button>
+              <button class="action danger">Batal</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="barang" class="workarea hidden">
+        <div class="section-title"><span>Stok Barang</span><span>Semua Kelompok Barang</span></div>
+        <div class="toolbar">
+          <input placeholder="Cari barcode / nama barang" size="34">
+          <select><option>Semua Kelompok</option><option>Sembako</option><option>Minuman</option></select>
+          <button class="action">F2 Sortir</button>
+          <button class="action" id="add-product">F4 Tambah</button>
+          <button class="action">F5 Edit</button>
+          <button class="action danger">F8 Hapus</button>
+        </div>
+        <table>
+          <thead><tr><th>Barcode</th><th>Klp</th><th>Nama Barang</th><th>Sisa Stk</th><th>Sat</th><th>Hrg.Bakul</th><th>Hrg.Ecer</th></tr></thead>
+          <tbody>
+            <tr class="selected"><td>BN</td><td>00</td><td>BERAS SPHP / KG</td><td>-606</td><td>PCS</td><td>13.500</td><td>14.000</td></tr>
+            <tr><td>8991906106311</td><td>00</td><td>APEL ROYAL</td><td>-3</td><td>PCS</td><td>15.000</td><td>15.500</td></tr>
+            <tr><td>7118441200327</td><td>11</td><td>ABC SAMBAL ASLI 135ML</td><td>0</td><td>PCS</td><td>6.200</td><td>6.500</td></tr>
+            <tr><td>7118441200872</td><td>11</td><td>ABC SAMBAL EXT.PDS 135ML</td><td>-358</td><td>PCS</td><td>7.500</td><td>8.000</td></tr>
+          </tbody>
+        </table>
+        <div class="shortcut">BN 00 BERAS SPHP / KG -606 PCS F6=Mutasi F10=Cetak</div>
+      </section>
+
+      <section id="pembelian" class="workarea hidden">
+        <div class="section-title"><span>Pembelian</span><span>Input Transaksi Pembelian</span></div>
+        <div class="toolbar">
+          <input value="PB-000001">
+          <input value="31-05-2026">
+          <select><option>Supplier Umum</option></select>
+          <input placeholder="Cari barang">
+          <button class="action">Simpan</button>
+        </div>
+        <table>
+          <thead><tr><th>Barang</th><th>Qty</th><th>Harga Beli</th><th>Total</th></tr></thead>
+          <tbody>
+            <tr class="selected"><td>INDOMIE GORENG</td><td>40</td><td>2.850</td><td>114.000</td></tr>
+            <tr><td>GULA PASIR / KG</td><td>25</td><td>16.500</td><td>412.500</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="laporan" class="workarea hidden">
+        <div class="section-title"><span>Laporan</span><span>Penjualan, Pembelian, Stok</span></div>
+        <div class="grid">
+          <div class="tile">Laporan Barang<strong>Stok & Harga</strong></div>
+          <div class="tile">Laporan Penjualan<strong>Harian / Bulanan</strong></div>
+          <div class="tile">Laporan Pembelian<strong>Supplier</strong></div>
+          <div class="tile">Retur & Mutasi<strong>Audit Stok</strong></div>
+        </div>
+      </section>
+
+      <section id="pengaturan" class="workarea hidden">
+        <div class="section-title"><span>Utility</span><span>Setup User, Password, Tanggal</span></div>
+        <div class="grid">
+          <div class="tile">Setup User<strong>Admin / Kasir</strong></div>
+          <div class="tile">Pembulatan<strong>Aturan Rupiah</strong></div>
+          <div class="tile">Ganti Password<strong>Keamanan</strong></div>
+          <div class="tile">Printer Nota<strong>POS-80 / Epson</strong></div>
+        </div>
+      </section>
+    </main>
+    <div class="dialog-backdrop hidden" id="product-dialog">
+      <form class="dialog" id="product-form">
+        <div class="dialog-title">
+          <span>Tambah Barang</span>
+          <span>ESC=Batal</span>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="barcode">Barcode</label>
+            <input id="barcode" name="barcode" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="group">Klp</label>
+            <input id="group" name="group" value="00" maxlength="4">
+          </div>
+          <div class="field" style="grid-column: 1 / -1">
+            <label for="name">Nama Barang</label>
+            <input id="name" name="name" required autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="stock">Sisa Stok</label>
+            <input id="stock" name="stock" value="0" inputmode="decimal">
+          </div>
+          <div class="field">
+            <label for="unit">Satuan</label>
+            <select id="unit" name="unit">
+              <option>PCS</option>
+              <option>KG</option>
+              <option>PAK</option>
+              <option>DUS</option>
+              <option>BTL</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="buy">Harga Bakul</label>
+            <input id="buy" name="buy" value="0" inputmode="numeric">
+          </div>
+          <div class="field">
+            <label for="sell">Harga Ecer</label>
+            <input id="sell" name="sell" value="0" inputmode="numeric">
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="action" type="submit">Simpan</button>
+          <button class="action danger" type="button" id="cancel-product">Batal</button>
+        </div>
+      </form>
+    </div>
+    <footer class="statusbar">
+      <span>F2 Cari/Sortir &nbsp; F4 Tambah &nbsp; F5 Edit &nbsp; F8 Hapus &nbsp; F10 Cetak</span>
+      <span>Preview HTML</span>
+    </footer>
+  </div>
+  <script>
+    const routes = {
+      "/": "dashboard",
+      "/kasir": "kasir",
+      "/stok-barang": "barang",
+      "/barang": "barang",
+      "/pembelian": "pembelian",
+      "/laporan": "laporan",
+      "/pengaturan": "pengaturan"
+    };
+    const buttons = [...document.querySelectorAll("[data-page]")];
+    const pages = [...document.querySelectorAll(".workarea")];
+    const productDialog = document.querySelector("#product-dialog");
+    const productForm = document.querySelector("#product-form");
+    const productRows = document.querySelector("#barang tbody");
+    const addProduct = document.querySelector("#add-product");
+    const cancelProduct = document.querySelector("#cancel-product");
+
+    const formatNumber = (value) => {
+      const raw = String(value || "0").replace(/[^\d-]/g, "");
+      const number = Number(raw || 0);
+      return new Intl.NumberFormat("id-ID").format(number);
+    };
+
+    const openProductDialog = () => {
+      productForm.reset();
+      productForm.elements.group.value = "00";
+      productForm.elements.stock.value = "0";
+      productForm.elements.buy.value = "0";
+      productForm.elements.sell.value = "0";
+      productDialog.classList.remove("hidden");
+      productForm.elements.barcode.focus();
+    };
+
+    const closeProductDialog = () => {
+      productDialog.classList.add("hidden");
+      addProduct.focus();
+    };
+
+    const showPage = (pageId, pushUrl = true) => {
+      const targetButton = buttons.find((button) => button.dataset.page === pageId) || buttons[0];
+      buttons.forEach((item) => item.classList.toggle("active", item === targetButton));
+      pages.forEach((page) => page.classList.toggle("hidden", page.id !== pageId));
+      document.body.dataset.page = pageId;
+      if (pushUrl) {
+        history.pushState({ page: pageId }, "", targetButton.dataset.url);
+      }
+    };
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => showPage(button.dataset.page));
+    });
+
+    addProduct.addEventListener("click", openProductDialog);
+    cancelProduct.addEventListener("click", closeProductDialog);
+
+    productForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const data = new FormData(productForm);
+      productRows.querySelectorAll("tr").forEach((row) => row.classList.remove("selected"));
+      const row = document.createElement("tr");
+      row.className = "selected";
+      row.innerHTML = `
+        <td>${data.get("barcode") || "-"}</td>
+        <td>${data.get("group") || "00"}</td>
+        <td>${data.get("name")}</td>
+        <td>${data.get("stock") || "0"}</td>
+        <td>${data.get("unit") || "PCS"}</td>
+        <td>${formatNumber(data.get("buy"))}</td>
+        <td>${formatNumber(data.get("sell"))}</td>
+      `;
+      productRows.prepend(row);
+      closeProductDialog();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "F4" && !document.querySelector("#barang").classList.contains("hidden")) {
+        event.preventDefault();
+        openProductDialog();
+      }
+      if (event.key === "Escape" && !productDialog.classList.contains("hidden")) {
+        event.preventDefault();
+        closeProductDialog();
+      }
+    });
+
+    window.addEventListener("popstate", () => {
+      showPage(routes[location.pathname] || "dashboard", false);
+    });
+
+    showPage(routes[location.pathname] || "dashboard", false);
+  </script>
+</body>
+</html>
