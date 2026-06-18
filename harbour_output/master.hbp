@@ -1,0 +1,54 @@
+# ============================================================
+# Harbour Project File (master.hbp)
+# Compile with: hbmk2 master.hbp
+# Output: master.exe
+# ============================================================
+
+# Main executable output name
+-o{hb_basename(master)}
+
+# Harbour libraries needed
+-lhbct          # Classic Tools (DbEdit, etc.)
+-lhbrddbfcdx    # DBFCDX RDD for .DBF/.NDX files
+
+# RDD settings
+-D__HARBOUR__
+
+# Source files - main programs (pick your entry point)
+CR.PRG
+CRX.PRG
+KEU.PRG
+STOK.PRG
+INDEK.PRG
+
+# Support/utility PRG files
+GETE_FIX.PRG
+ADJ.PRG
+BANT.PRG
+DAFKODE.PRG
+IDENTS.PRG
+KAS.PRG
+KRM.PRG
+LGN.PRG
+LHUT.PRG
+LKEU.PRG
+LKSR.PRG
+LPB1.PRG
+LPBX.PRG
+LPCH.PRG
+LPIU.PRG
+LPJ1.PRG
+LPJ12.PRG
+LPJ13.PRG
+LPJ2.PRG
+LRTB.PRG
+LST1.PRG
+LST2.PRG
+MPB.PRG
+MPO.PRG
+PASWOD.PRG
+PASWOD2.PRG
+POIN.PRG
+RTB.PRG
+SPL.PRG
+TF.PRG
