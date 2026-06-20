@@ -436,8 +436,10 @@ Retu .T.
 ***Buka File di LAN
 Func UseLan
 Para Arg1,arg2,arg3,arg4,arg5,arg6
+Local cAlias
 Do while (.T.)
-   Use &arg1
+   cAlias=HBALIAS(arg1)
+   Use (arg1) Alias (cAlias)
    If (!neterr())
       Exit
    Endi
@@ -452,8 +454,10 @@ Retu(.T.)
 ***Buka File u/ Reindex-Exclusive
 Func UseIdx
 Para Arg1
+Local cAlias
 Do whil .t.
-   Use &arg1 exclusive
+   cAlias=HBALIAS(arg1)
+   Use (arg1) Alias (cAlias) exclusive
    If (!neterr())
       Exit
    Endi
@@ -472,7 +476,26 @@ Do whil .t.
    Inkey(0.5)
 Endd
 Retu(.T.)
-
+Func HBALIAS
+Para cFile
+Local cAlias,nPos
+cAlias=upper(cFile)
+nPos=rat('\',cAlias)
+If nPos>0
+   cAlias=substr(cAlias,nPos+1)
+Endi
+nPos=rat('/',cAlias)
+If nPos>0
+   cAlias=substr(cAlias,nPos+1)
+Endi
+nPos=rat('.',cAlias)
+If nPos>0
+   cAlias=left(cAlias,nPos-1)
+Endi
+cAlias=strtran(cAlias,'-','_')
+cAlias=strtran(cAlias,'.','_')
+cAlias=strtran(cAlias,' ','_')
+Retu cAlias
 Func RLOK
 Do while .not. RLock()
    If rlock()

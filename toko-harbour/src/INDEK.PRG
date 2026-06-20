@@ -279,21 +279,23 @@ Retu
 ***Indeks File
 Func Indx
 Para Arg4,arg5,arg6,arg3
+Local cData,cIndex,cAlias
 Set colo to w+*/r
 @17,28 clea to 21,52
 @17,28 to 21,52
 Set colo to w+/r
 @19,30 say 'File: '+spac(16)
 If arg4#' '
-   Arg4='&arg4'+'.DTA'
-   Arg6='&arg6'+'.NDX'
+   cData=iif('.' $ arg4,arg4,arg4+'.DTA')
+   cIndex=iif('.' $ arg6,arg6,arg6+'.NDX')
+   cAlias=HBALIAS(cData)
    Tot=tot+arg3
    @17,40 say ltri(str(tot))+' %'
-   @19,36 say arg6
-   Use &arg4 exclusive
+   @19,36 say cIndex
+   Use (cData) Alias (cAlias) exclusive
    If !neterr()
-      Dele file &arg6
-      Inde on &arg5 to &arg6
+      Dele file &cIndex
+      Inde on &arg5 to &cIndex
       Clos all
    Endi
 Endi
@@ -302,7 +304,9 @@ Retu .T.
 ***Buka File u/ Reindex-Exclusive
 Func UseIdx
 Para Arg1
+Local cAlias,lOpened
 Batal=.f.
+lOpened=.f.
 Do whil .t.
    If .not. file('&arg1')
       Tone(700,6)
@@ -310,8 +314,10 @@ Do whil .t.
       Wait''
       Exit
    Endi
-   Use &arg1 exclusive
+   cAlias=HBALIAS(arg1)
+   Use (arg1) Alias (cAlias) exclusive
    If (!neterr())
+      lOpened=.t.
       Exit
    Endi
    Tone(700,6)
@@ -320,11 +326,12 @@ Do whil .t.
    Batal=.t.
    Exit
 Endd
-Retu(.T.)
+Retu(lOpened)
 
 ***Buka File di LAN
 Func UseLan
 Para Arg1,arg2,arg3,arg4,arg5,arg6
+Local cAlias
 Do while (.T.)
    If .not. file('&arg1')
       Tone(700,6)
@@ -332,8 +339,10 @@ Do while (.T.)
       Wait''
       Exit
    Endi
-   Use &arg1
+   cAlias=HBALIAS(arg1)
+   Use (arg1) Alias (cAlias)
    If (!neterr())
+      lOpened=.t.
       Exit
    Endi
    Do pesan with 'Tunggu, File '+&arg1 +'Sedang Dipakai'
@@ -343,7 +352,26 @@ Do while (.T.)
 Endd
 Set inde to &arg2,&arg3,&arg4,&arg5,&arg6
 Retu(.T.)
-
+Func HBALIAS
+Para cFile
+Local cAlias,nPos
+cAlias=upper(cFile)
+nPos=rat('\',cAlias)
+If nPos>0
+   cAlias=substr(cAlias,nPos+1)
+Endi
+nPos=rat('/',cAlias)
+If nPos>0
+   cAlias=substr(cAlias,nPos+1)
+Endi
+nPos=rat('.',cAlias)
+If nPos>0
+   cAlias=left(cAlias,nPos-1)
+Endi
+cAlias=strtran(cAlias,'-','_')
+cAlias=strtran(cAlias,'.','_')
+cAlias=strtran(cAlias,' ','_')
+Retu cAlias
 Proc pesan
 Para psn
 Set colo to /r
@@ -418,45 +446,53 @@ Do whil .t.
    Endd
    If yt='Y' .and. ket='DIHAPUS'
       Do konvtgl
-      Useidx('FAKTURP.DTA')
-      Dele for (tanggal>=tgl .and. tanggal<=tgl2)
-      Pack
-      Close
+      If Useidx('FAKTURP.DTA')
+         Dele for (tanggal>=tgl .and. tanggal<=tgl2)
+         Pack
+         Close
+      Endi
       *
-      Useidx('BAYARP.DTA')
-      Dele for (tanggal>=tgl .and. tanggal<=tgl2)
-      Pack
-      Close
+      If Useidx('BAYARP.DTA')
+         Dele for (tanggal>=tgl .and. tanggal<=tgl2)
+         Pack
+         Close
+      Endi
       *
-      Useidx('BELIIN.DTA')
-      Dele for (tanggal>=tgl .and. tanggal<=tgl2)
-      Pack
-      Close
+      If Useidx('BELIIN.DTA')
+         Dele for (tanggal>=tgl .and. tanggal<=tgl2)
+         Pack
+         Close
+      Endi
       *
-      Useidx('FAKTURH.DTA')
-      Dele for (tanggal>=tgl .and. tanggal<=tgl2)
-      Pack
-      Close
+      If Useidx('FAKTURH.DTA')
+         Dele for (tanggal>=tgl .and. tanggal<=tgl2)
+         Pack
+         Close
+      Endi
       *
-      Useidx('BAYARH.DTA')
-      Dele for (tanggal>=tgl .and. tanggal<=tgl2)
-      Pack
-      Close
+      If Useidx('BAYARH.DTA')
+         Dele for (tanggal>=tgl .and. tanggal<=tgl2)
+         Pack
+         Close
+      Endi
       *
-      Useidx('KIRIMIN.DTA')
-      Dele for (tanggal>=tgl .and. tanggal<=tgl2)
-      Pack
-      Close
+      If Useidx('KIRIMIN.DTA')
+         Dele for (tanggal>=tgl .and. tanggal<=tgl2)
+         Pack
+         Close
+      Endi
       *
-      Useidx('RETURBN.DTA')
-      Dele for (tanggal>=tgl .and. tanggal<=tgl2)
-      Pack
-      Close
+      If Useidx('RETURBN.DTA')
+         Dele for (tanggal>=tgl .and. tanggal<=tgl2)
+         Pack
+         Close
+      Endi
       *
-      Useidx('RETURJN.DTA')
-      Dele for (tanggal>=tgl .and. tanggal<=tgl2)
-      Pack
-      Close
+      If Useidx('RETURJN.DTA')
+         Dele for (tanggal>=tgl .and. tanggal<=tgl2)
+         Pack
+         Close
+      Endi
       *
       Do whil tgl<=tgl2
          Stor ' ' to bln,thn
@@ -491,53 +527,63 @@ Do whil .t.
       @6,15 to 20,58
       @13,24 say 'Tunggu, sedang proses...'
       Do konvtgl
-      Useidx('FAKTURP.DTA')
-      Dele all
-      Pack
-      Close
+      If Useidx('FAKTURP.DTA')
+         Dele all
+         Pack
+         Close
+      Endi
       *
-      Useidx('BAYARP.DTA')
-      Dele all
-      Pack
-      Close
+      If Useidx('BAYARP.DTA')
+         Dele all
+         Pack
+         Close
+      Endi
       *
-      Useidx('BELIIN.DTA')
-      Dele all
-      Pack
-      Close
+      If Useidx('BELIIN.DTA')
+         Dele all
+         Pack
+         Close
+      Endi
       *
-      Useidx('FAKTURH.DTA')
-      Dele all
-      Pack
-      Close
+      If Useidx('FAKTURH.DTA')
+         Dele all
+         Pack
+         Close
+      Endi
       *
-      Useidx('BAYARH.DTA')
-      Dele all
-      Pack
-      Close
+      If Useidx('BAYARH.DTA')
+         Dele all
+         Pack
+         Close
+      Endi
       *
-      Useidx('KIRIMIN.DTA')
-      Dele all
-      Pack
-      Close
+      If Useidx('KIRIMIN.DTA')
+         Dele all
+         Pack
+         Close
+      Endi
       *
-      Useidx('RETURBN.DTA')
-      Dele all
-      Pack
-      Close
+      If Useidx('RETURBN.DTA')
+         Dele all
+         Pack
+         Close
+      Endi
       *
-      Useidx('RETURJN.DTA')
-      Dele all
-      Pack
-      Close
+      If Useidx('RETURJN.DTA')
+         Dele all
+         Pack
+         Close
+      Endi
       *
       Uselan('STOK.DTA','','','','','')
-      Flock()
-      Repl all stok_a with (stok_a+stok_m)-stok_k,stok_m with 0,stok_k with 0,stok_ag with 0,stok_mg with 0,stok_kg with 0
-      Repl all tanggal_1 with ctod('  -  -    '),tanggal_2 with ctod('  -  -    ')
-      Unlock
-      Commit
-      Close
+      If used()
+         Flock()
+         Repl all stok_a with (stok_a+stok_m)-stok_k,stok_m with 0,stok_k with 0,stok_ag with 0,stok_mg with 0,stok_kg with 0
+         Repl all tanggal_1 with ctod('  -  -    '),tanggal_2 with ctod('  -  -    ')
+         Unlock
+         Commit
+         Close
+      Endi
       *
       Dele file TOP-RANK.QTY
       Dele file TOP-RANK.RPH

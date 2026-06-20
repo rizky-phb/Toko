@@ -43,9 +43,10 @@
 *Aidi1=subs(empunya,32,10)    &&& 75 + 8
 *Aidi2=subs(empunya,43,9)
 *
-Empunya='YONEV-Computer-Tegal-0817289414MR.FAUZI ZAMI-BANDUNG'
-Aidi1=subs(empunya,32,13)    &&& 74 + 33
-Aidi2=subs(empunya,46,7)
+Empunya='DUA PUTRA JAYA-KOTA TEGAL'
+Aidi1='DUA PUTRA JAYA'
+Aidi2='KOTA TEGAL'
+Retu
 *
 Stor 0 to tgl,tgl2
 Do whil (tgl< Len(empunya))
