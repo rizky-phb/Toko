@@ -2,6 +2,7 @@ import os
 import sqlite3
 from pathlib import Path
 from functools import wraps
+from datetime import date
 
 from flask import Flask, g, jsonify, redirect, render_template, request, session, url_for
 
@@ -110,7 +111,187 @@ def create_app():
             paid=50000,
             change_amount=50000 - total,
             print_receipt=session.get("print_receipt", "1") == "1",
+            today_label=clipper_date_label(date.today()),
         )
+
+    @app.route("/kasir/kas", methods=["GET", "POST"])
+    @cashier_required
+    def kas_harian():
+        db = get_db()
+        trans_date = request.values.get("tanggal", date.today().isoformat())
+        cashier_name = session.get("cashier_name", "")
+
+        if request.method == "POST":
+            account = db.execute(
+                "SELECT * FROM cash_accounts WHERE code = ?",
+                (request.form.get("account_code", "").strip(),),
+            ).fetchone()
+            if not account:
+                return redirect(url_for("kas_harian", tanggal=trans_date, error="kode"))
+
+            amount = parse_int(request.form.get("amount", "0"))
+            db.execute(
+                """
+                INSERT INTO cash_transactions
+                  (trans_date, cashier_name, account_code, account_name, description, amount, side, profit_loss)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    trans_date,
+                    cashier_name,
+                    account["code"],
+                    account["name"],
+                    request.form.get("description", "").strip(),
+                    amount,
+                    account["side"],
+                    account["profit_loss"],
+                ),
+            )
+            db.commit()
+            return redirect(url_for("kas_harian", tanggal=trans_date))
+
+        accounts = db.execute("SELECT * FROM cash_accounts ORDER BY code").fetchall()
+        transactions = db.execute(
+            """
+            SELECT * FROM cash_transactions
+            WHERE trans_date = ? AND cashier_name = ?
+            ORDER BY id
+            """,
+            (trans_date, cashier_name),
+        ).fetchall()
+        error = request.args.get("error")
+        return render_template(
+            "kas_harian.html",
+            accounts=accounts,
+            transactions=transactions,
+            trans_date=trans_date,
+            date_label=iso_to_dmy(trans_date),
+            error=error,
+        )
+
+    @app.route("/kasir/kas/<int:transaction_id>/edit", methods=["POST"])
+    @cashier_required
+    def kas_harian_edit(transaction_id):
+        trans_date = request.form.get("tanggal", date.today().isoformat())
+        get_db().execute(
+            """
+            UPDATE cash_transactions
+            SET description = ?, amount = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ? AND cashier_name = ?
+            """,
+            (
+                request.form.get("description", "").strip(),
+                parse_int(request.form.get("amount", "0")),
+                transaction_id,
+                session.get("cashier_name", ""),
+            ),
+        )
+        get_db().commit()
+        return redirect(url_for("kas_harian", tanggal=trans_date))
+
+    @app.route("/kasir/kas/<int:transaction_id>/delete", methods=["POST"])
+    @cashier_required
+    def kas_harian_delete(transaction_id):
+        trans_date = request.form.get("tanggal", date.today().isoformat())
+        get_db().execute(
+            "DELETE FROM cash_transactions WHERE id = ? AND cashier_name = ?",
+            (transaction_id, session.get("cashier_name", "")),
+        )
+        get_db().commit()
+        return redirect(url_for("kas_harian", tanggal=trans_date))
+
+    @app.route("/kasir/kas/laporan")
+    @cashier_required
+    def laporan_kas_harian():
+        db = get_db()
+        trans_date = request.args.get("tanggal", date.today().isoformat())
+        cashier_name = session.get("cashier_name", "")
+        sale_total = db.execute(
+            """
+            SELECT COALESCE(SUM(total), 0)
+            FROM sales
+            WHERE sale_date = ? AND cashier_id = ?
+            """,
+            (trans_date, session.get("cashier_id")),
+        ).fetchone()[0]
+        debit_rows = db.execute(
+            """
+            SELECT account_name, description, amount
+            FROM cash_transactions
+            WHERE trans_date = ? AND cashier_name = ? AND side = 'D'
+            ORDER BY account_code, id
+            """,
+            (trans_date, cashier_name),
+        ).fetchall()
+        credit_rows = db.execute(
+            """
+            SELECT account_name, description, amount
+            FROM cash_transactions
+            WHERE trans_date = ? AND cashier_name = ? AND side = 'K'
+            ORDER BY account_code, id
+            """,
+            (trans_date, cashier_name),
+        ).fetchall()
+        total_debit = sale_total + sum(row["amount"] for row in debit_rows)
+        total_credit = sum(row["amount"] for row in credit_rows)
+        return render_template(
+            "laporan_kas.html",
+            trans_date=trans_date,
+            date_label=iso_to_dmy(trans_date),
+            sale_total=sale_total,
+            debit_rows=debit_rows,
+            credit_rows=credit_rows,
+            total_debit=total_debit,
+            total_credit=total_credit,
+            cash_balance=total_debit - total_credit,
+        )
+
+    @app.route("/kasir/kas/perkiraan", methods=["GET", "POST"])
+    @cashier_required
+    def perkiraan_kas():
+        db = get_db()
+        error = ""
+        if request.method == "POST":
+            code = request.form.get("code", "").strip().upper()
+            name = request.form.get("name", "").strip().upper()
+            side = request.form.get("side", "").strip().upper()
+            profit_loss = request.form.get("profit_loss", "").strip().upper()
+            if side not in {"D", "K"}:
+                error = "D/K = Harus diisi dengan D=Debet atau K=Kredit"
+            elif profit_loss not in {"Y", "T"}:
+                error = "L/R = diisi Y=Masuk Lap.L/R atau T=Transaksi Kas saja"
+            elif not code or not name:
+                error = "Kode dan Pos Perkiraan wajib diisi"
+            else:
+                db.execute(
+                    """
+                    INSERT INTO cash_accounts (code, name, side, profit_loss)
+                    VALUES (?, ?, ?, ?)
+                    ON CONFLICT(code) DO UPDATE SET
+                      name = excluded.name,
+                      side = excluded.side,
+                      profit_loss = excluded.profit_loss
+                    """,
+                    (code, name, side, profit_loss),
+                )
+                db.commit()
+                return redirect(url_for("perkiraan_kas"))
+
+        accounts = db.execute("SELECT * FROM cash_accounts ORDER BY code").fetchall()
+        return render_template("perkiraan_kas.html", accounts=accounts, error=error)
+
+    @app.route("/kasir/kas/perkiraan/<code>/delete", methods=["POST"])
+    @cashier_required
+    def perkiraan_kas_delete(code):
+        db = get_db()
+        used = db.execute(
+            "SELECT COUNT(*) FROM cash_transactions WHERE account_code = ?",
+            (code,),
+        ).fetchone()[0]
+        if used == 0:
+            db.execute("DELETE FROM cash_accounts WHERE code = ?", (code,))
+            db.commit()
+        return redirect(url_for("perkiraan_kas"))
 
     @app.route("/stok", methods=["GET", "POST"])
     def stok():
@@ -245,6 +426,22 @@ def seed(db):
         registers,
     )
 
+    accounts = [
+        ("10", "PEMASUKAN", "D", "T"),
+        ("20", "PENGELUARAN", "K", "T"),
+        ("30", "BIAYA ADM/UMUM", "K", "Y"),
+        ("40", "BIAYA GAJI", "K", "Y"),
+        ("50", "BIAYA LISTIK", "K", "Y"),
+    ]
+    db.executemany(
+        """
+        INSERT OR IGNORE INTO cash_accounts
+          (code, name, side, profit_loss)
+        VALUES (?, ?, ?, ?)
+        """,
+        accounts,
+    )
+
     product_count = db.execute("SELECT COUNT(*) FROM products").fetchone()[0]
     if product_count == 0:
         products = [
@@ -342,6 +539,19 @@ def parse_float(value):
         return float(normalized)
     except ValueError:
         return 0.0
+
+
+def iso_to_dmy(value):
+    try:
+        year, month, day = value.split("-")
+    except ValueError:
+        return date.today().strftime("%d-%m-%Y")
+    return f"{day}-{month}-{year}"
+
+
+def clipper_date_label(value):
+    days = ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"]
+    return f"{days[value.weekday()]}, {value.strftime('%d-%m-%Y')}"
 
 
 app = create_app()

@@ -8,15 +8,11 @@
 </head>
 <body data-page="{{ active_path.strip('/') or 'dashboard' }}">
   <div class="app">
+    {% if not active_path.startswith('/kasir') %}
     <header class="topbar">
       <span>{{ app_name }}</span>
       <span>Kassa: {{ register_no }} | Kasir: {{ cashier_name }}</span>
     </header>
-    {% if active_path == '/kasir' %}
-    <nav class="menubar single-menu">
-      <a class="active" href="{{ url_for('kasir') }}">Kasir</a>
-    </nav>
-    {% else %}
     <nav class="menubar">
       <a class="{{ 'active' if active_path == '/dashboard' else '' }}" href="{{ url_for('dashboard') }}">Dashboard</a>
       <a class="{{ 'active' if active_path == '/kasir' else '' }}" href="{{ url_for('kasir') }}">Kasir</a>
@@ -29,10 +25,12 @@
     </nav>
     {% endif %}
     <main>{% block content %}{% endblock %}</main>
+    {% if not active_path.startswith('/kasir') %}
     <footer class="statusbar">
       <span>F2 Cari/Sortir &nbsp; F4 Tambah &nbsp; F5 Edit &nbsp; F8 Hapus &nbsp; F10 Cetak</span>
       <span>Flask Port</span>
     </footer>
+    {% endif %}
   </div>
 </body>
 </html>

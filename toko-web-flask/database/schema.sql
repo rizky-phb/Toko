@@ -68,3 +68,31 @@ CREATE TABLE IF NOT EXISTS sale_items (
   FOREIGN KEY (sale_id) REFERENCES sales(id),
   FOREIGN KEY (product_id) REFERENCES products(id)
 );
+
+CREATE TABLE IF NOT EXISTS cash_accounts (
+  code TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  side TEXT NOT NULL CHECK (side IN ('D', 'K')),
+  profit_loss TEXT NOT NULL DEFAULT 'T' CHECK (profit_loss IN ('Y', 'T'))
+);
+
+CREATE TABLE IF NOT EXISTS cash_transactions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  trans_date TEXT NOT NULL,
+  cashier_name TEXT NOT NULL,
+  account_code TEXT NOT NULL,
+  account_name TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  amount INTEGER NOT NULL DEFAULT 0,
+  side TEXT NOT NULL CHECK (side IN ('D', 'K')),
+  profit_loss TEXT NOT NULL DEFAULT 'T' CHECK (profit_loss IN ('Y', 'T')),
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (account_code) REFERENCES cash_accounts(code)
+);
+
+CREATE INDEX IF NOT EXISTS idx_cash_transactions_day_cashier
+  ON cash_transactions (trans_date, cashier_name);
+
+CREATE INDEX IF NOT EXISTS idx_cash_transactions_account_day
+  ON cash_transactions (account_code, trans_date);

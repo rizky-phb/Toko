@@ -312,10 +312,26 @@ tr.selected td {
 
 body[data-page="kasir"] .app {
   background: #032c30;
+  display: block;
+}
+
+body[data-page^="kasir/"] .app {
+  background: #032c30;
+  display: block;
 }
 
 body[data-page="kasir"] main {
-  padding: 0;
+  min-height: 100vh;
+  padding: 10px;
+  display: grid;
+  place-items: center;
+}
+
+body[data-page^="kasir/"] main {
+  min-height: 100vh;
+  padding: 10px;
+  display: grid;
+  place-items: center;
 }
 
 body[data-page="kasir"] .menubar {
@@ -330,6 +346,652 @@ body[data-page="kasir"] .menubar a {
 body[data-page="kasir"] .menubar a.active {
   background: var(--red);
   color: #fff;
+}
+
+.dos-cr,
+.dos-stok {
+  width: min(100%, 1024px);
+  min-height: 640px;
+  margin: 0 auto;
+  background: #0000aa;
+  color: #e7e7e7;
+  font: 18px/1.18 "Courier New", Consolas, monospace;
+  letter-spacing: 0;
+  border: 2px solid #000;
+  box-shadow: 0 0 0 4px #111;
+  overflow: hidden;
+}
+
+.dos-cr {
+  position: relative;
+  padding: 0 0 34px;
+}
+
+.dos-line {
+  height: 22px;
+  white-space: pre;
+  padding: 1px 12px;
+}
+
+.top-line {
+  background: #008080;
+  color: #fff;
+  display: flex;
+  justify-content: space-between;
+}
+
+.brand-line {
+  background: #0000aa;
+  color: #fff;
+  padding-left: 12px;
+  position: relative;
+}
+
+.brand-line.second,
+.brand-line.third {
+  color: #ffff55;
+}
+
+.nota-box {
+  position: absolute;
+  right: 18px;
+  color: #fff;
+}
+
+.dos-table {
+  color: #fff;
+}
+
+.dos-table .rule,
+.dos-table .head {
+  color: #ffff55;
+  white-space: pre;
+  padding-left: 0;
+}
+
+.dos-table .head {
+  background: #0000aa;
+}
+
+.dos-table .row {
+  height: 22px;
+  white-space: nowrap;
+}
+
+.dos-table .row span {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+}
+
+.dos-table .cursor-row {
+  background: #00aa00;
+  color: #fff;
+}
+
+.c-code {
+  width: 8ch;
+}
+
+.c-name {
+  width: 30ch;
+}
+
+.c-qty {
+  width: 12ch;
+  text-align: right;
+  padding-right: 1ch;
+}
+
+.c-price {
+  width: 10ch;
+  text-align: right;
+}
+
+.c-disc {
+  width: 5ch;
+  text-align: right;
+}
+
+.c-total {
+  width: 10ch;
+  text-align: right;
+}
+
+.dos-total-block {
+  position: absolute;
+  right: 6px;
+  bottom: 58px;
+  width: 28ch;
+  color: #ffff55;
+}
+
+.dos-total-block div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.dos-customer {
+  position: absolute;
+  left: 8px;
+  bottom: 58px;
+  width: 30ch;
+  color: #fff;
+}
+
+.dos-input-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 34px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  background: #0000aa;
+  color: #fff;
+}
+
+.dos-input-line label,
+.input-hint {
+  color: #ffff55;
+}
+
+.dos-input {
+  width: 30ch;
+  height: 22px;
+  padding: 0 4px;
+  border: 0;
+  outline: 0;
+  background: #e7e7e7;
+  color: #000;
+  font: inherit;
+}
+
+.dos-message {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 34px;
+  padding: 6px 8px;
+  background: #aa0000;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.dos-stok {
+  position: relative;
+  min-height: 640px;
+  background: #008080;
+}
+
+.stok-title {
+  height: 28px;
+  padding-top: 4px;
+  background: #0000aa;
+  color: #fff;
+  text-align: center;
+  font-weight: 700;
+}
+
+.stok-frame {
+  position: relative;
+  min-height: 568px;
+  border-top: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, .10) 0 1px, transparent 1px 8px),
+    #008080;
+}
+
+.stok-menubar {
+  height: 30px;
+  padding-left: 48px;
+  background: #aa0000;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stok-menubar button,
+.stok-window button {
+  background: transparent;
+  color: #fff;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+.stok-menubar button.active,
+.stok-menubar button:hover {
+  color: #ffff55;
+  background: #0000aa;
+}
+
+.stok-window {
+  position: absolute;
+  z-index: 4;
+  display: none;
+  padding: 8px 10px;
+  background: #aa0000;
+  border: 2px solid #fff;
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, .35);
+}
+
+.stok-window.open {
+  display: grid;
+  gap: 3px;
+}
+
+.stok-window button {
+  text-align: left;
+  color: #fff;
+  white-space: pre;
+}
+
+.stok-window button:hover,
+.stok-window button:focus {
+  color: #000;
+  background: #e7e7e7;
+}
+
+.file-menu {
+  top: 42px;
+  left: 38px;
+}
+
+.transaksi-menu {
+  top: 42px;
+  left: 188px;
+}
+
+.laporan-menu {
+  top: 42px;
+  left: 396px;
+}
+
+.utility-menu {
+  top: 42px;
+  left: 560px;
+}
+
+.exit-menu {
+  top: 42px;
+  left: 730px;
+}
+
+.stok-products {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: 250px;
+  max-height: 290px;
+  overflow: auto;
+  border: 2px solid #031d1b;
+  background: #078981;
+  font-size: 14px;
+}
+
+.stok-footer {
+  height: 44px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 0 24px;
+  background: #0000aa;
+  color: #fff;
+}
+
+.cr-wvt-screen {
+  width: min(100%, 1280px);
+  height: min(720px, calc(100vh - 20px));
+  min-height: 620px;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  background: #00aaa5;
+  color: #ddd2ff;
+  font: 28px/1.08 "Courier New", Consolas, monospace;
+  border: 1px solid #111;
+}
+
+.cr-redbar {
+  height: 38px;
+  padding: 2px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #c00000;
+  color: #fff;
+  font-size: 30px;
+}
+
+.cr-header {
+  height: 100px;
+  display: grid;
+  grid-template-columns: 1fr 140px 260px;
+  align-items: center;
+  padding: 0 18px;
+  background: #0000a8;
+  color: #b8b2ff;
+}
+
+.cr-note {
+  color: #b8b2ff;
+}
+
+.cr-note span {
+  display: inline-block;
+  min-width: 110px;
+  text-align: right;
+}
+
+.cr-yellow-block {
+  width: 48px;
+  height: 72px;
+  margin: 0 auto;
+  border: 14px solid #ffff33;
+  background: #0000a8;
+}
+
+.cr-yellow-block.small {
+  width: 48px;
+  height: 64px;
+  border-width: 13px;
+}
+
+.cr-cyan-strip {
+  height: 27px;
+  border-top: 12px solid #00c8c1;
+  border-bottom: 4px solid #111;
+  background: #00aaa5;
+  box-shadow: inset 0 -6px 0 #111;
+}
+
+.cr-marquee {
+  height: 40px;
+  padding: 2px 0;
+  text-align: center;
+  background: #b000b0;
+  color: #ffff33;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.cr-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 205px;
+  bottom: 148px;
+  display: grid;
+  grid-template-columns: 10.6% 38.8% 16.3% 13.8% 7.5% 13%;
+  background: #0aa9a5;
+  border-top: 3px solid #111;
+  border-bottom: 3px solid #111;
+}
+
+.cr-col {
+  border-right: 3px solid #111;
+}
+
+.cr-col:last-child {
+  border-right: 0;
+}
+
+.cr-bottom-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 38px;
+  height: 110px;
+  display: grid;
+  grid-template-columns: 1fr 110px 360px;
+  align-items: center;
+  padding: 0 16px;
+  background: #0000a8;
+  color: #b8b2ff;
+  border-top: 3px solid #111;
+}
+
+.cr-customer-lines {
+  display: grid;
+  gap: 2px;
+}
+
+.cr-totals {
+  display: grid;
+  gap: 2px;
+}
+
+.cr-hidden-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cr-status {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 38px;
+  padding: 1px 0;
+  background: #c00000;
+  color: #fff;
+  white-space: pre;
+  overflow: hidden;
+}
+
+.cash-screen,
+.cash-report {
+  width: min(100%, 1024px);
+  min-height: 650px;
+  margin: 0 auto;
+  background: #0000a8;
+  color: #fff;
+  font: 18px/1.2 "Courier New", Consolas, monospace;
+  border: 2px solid #111;
+  position: relative;
+  overflow: hidden;
+}
+
+.cash-title {
+  height: 32px;
+  padding: 5px 8px;
+  text-align: center;
+  background: #c00000;
+  color: #fff;
+}
+
+.cash-table {
+  margin: 0;
+  height: 520px;
+  background: #0000a8;
+  border-top: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+}
+
+.cash-head,
+.cash-row {
+  display: grid;
+  grid-template-columns: 11ch 6ch 25ch 26ch 12ch 6ch 7ch;
+  align-items: center;
+}
+
+.cash-head {
+  color: #ffff33;
+  border-bottom: 2px solid #fff;
+}
+
+.cash-head span,
+.cash-row span,
+.cash-row input {
+  min-height: 24px;
+  padding: 1px 4px;
+  border-right: 1px solid #fff;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.cash-row input {
+  width: 100%;
+  border-top: 0;
+  border-left: 0;
+  border-bottom: 0;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+}
+
+.cash-row .amount {
+  text-align: right;
+}
+
+.cash-row button,
+.cash-entry button,
+.cash-actions a,
+.cash-actions button {
+  border: 0;
+  background: #c00000;
+  color: #fff;
+  font: inherit;
+  text-decoration: none;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.cash-row.empty {
+  grid-template-columns: 11ch 6ch 25ch 26ch 12ch;
+}
+
+.cash-entry {
+  display: grid;
+  grid-template-columns: 13ch 7ch 25ch 26ch 12ch 13ch;
+  gap: 4px;
+  padding: 8px;
+  background: #0000a8;
+}
+
+.cash-entry input {
+  min-width: 0;
+  border: 0;
+  background: #e7e7e7;
+  color: #000;
+  font: inherit;
+  padding: 2px 4px;
+}
+
+.cash-actions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 8px;
+  background: #c00000;
+  color: #fff;
+}
+
+.cash-actions span {
+  flex: 1;
+  text-align: center;
+}
+
+.cash-report {
+  padding-bottom: 42px;
+}
+
+.cash-report pre {
+  margin: 0;
+  padding: 20px 28px;
+  white-space: pre-wrap;
+  color: #fff;
+  font: inherit;
+}
+
+.account-screen {
+  width: min(100%, 1024px);
+  min-height: 650px;
+  margin: 0 auto;
+  padding: 26px 0 48px;
+  position: relative;
+  background: #0000a8;
+  color: #fff;
+  font: 18px/1.2 "Courier New", Consolas, monospace;
+  border: 2px solid #111;
+}
+
+.account-box {
+  width: 620px;
+  max-width: calc(100% - 24px);
+  margin: 0 auto;
+  border: 2px solid #fff;
+}
+
+.account-head,
+.account-row,
+.account-entry {
+  display: grid;
+  grid-template-columns: 7ch 31ch 5ch 5ch 16ch;
+  align-items: center;
+}
+
+.account-head {
+  color: #ffff33;
+  border-bottom: 2px solid #fff;
+}
+
+.account-head span,
+.account-row input {
+  min-height: 25px;
+  padding: 2px 4px;
+  border-right: 1px solid #fff;
+}
+
+.account-row input,
+.account-entry input {
+  width: 100%;
+  background: transparent;
+  color: #fff;
+  border-top: 0;
+  border-left: 0;
+  border-bottom: 0;
+  font: inherit;
+}
+
+.account-row button,
+.account-entry button {
+  background: #c00000;
+  color: #fff;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+  min-height: 25px;
+}
+
+.account-entry {
+  width: 620px;
+  max-width: calc(100% - 24px);
+  margin: 14px auto 0;
+  border: 2px solid #fff;
+}
+
+.account-entry input {
+  background: #e7e7e7;
+  color: #000;
+  border-right: 1px solid #111;
+  padding: 2px 4px;
 }
 
 .desktop-body {
@@ -641,5 +1303,32 @@ body[data-page="kasir"] .menubar a.active {
 
   .dos-row {
     grid-template-columns: 1fr;
+  }
+
+  .dos-cr,
+  .dos-stok {
+    font-size: 13px;
+    min-height: 560px;
+  }
+
+  .dos-message {
+    white-space: normal;
+  }
+
+  .stok-menubar {
+    padding-left: 4px;
+    gap: 6px;
+    overflow-x: auto;
+  }
+
+  .stok-window {
+    left: 12px !important;
+    top: 46px;
+  }
+
+  .stok-products {
+    left: 8px;
+    right: 8px;
+    top: 230px;
   }
 }

@@ -1,40 +1,180 @@
 {% extends "base.html" %}
-{% block title %}Stok Barang - {{ app_name }}{% endblock %}
+{% block title %}Stok - {{ app_name }}{% endblock %}
 {% block content %}
-<section class="workarea">
-  <div class="section-title"><span>Stok Barang</span><span>Master Produk</span></div>
-  <form method="get" class="toolbar">
-    <input name="q" value="{{ q }}" placeholder="Cari barcode / nama barang" size="34">
-    <button class="action">F2 Sortir</button>
-  </form>
-  <form method="post" class="toolbar compact">
-    <input name="barcode" placeholder="Barcode">
-    <input name="group_code" placeholder="Klp" value="00" size="4">
-    <input name="name" placeholder="Nama barang" required size="34">
-    <input name="stock" placeholder="Stok" value="0" size="6">
-    <input name="unit" placeholder="Satuan" value="PCS" size="6">
-    <input name="cost_price" placeholder="Harga beli" value="0" size="10">
-    <input name="retail_price" placeholder="Harga ecer" value="0" size="10">
-    <button class="action">F4 Tambah</button>
-  </form>
-  <table>
-    <thead>
-      <tr><th>Barcode</th><th>Klp</th><th>Nama Barang</th><th>Sisa Stk</th><th>Sat</th><th>Hrg.Bakul</th><th>Hrg.Ecer</th></tr>
-    </thead>
-    <tbody>
-      {% for product in products %}
-      <tr class="{{ 'selected' if loop.first else '' }}">
-        <td>{{ product.barcode or "-" }}</td>
-        <td>{{ product.group_code }}</td>
-        <td>{{ product.name }}</td>
-        <td>{{ product.stock|rupiah }}</td>
-        <td>{{ product.unit }}</td>
-        <td>{{ product.cost_price|rupiah }}</td>
-        <td>{{ product.retail_price|rupiah }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  <div class="shortcut">F4=Tambah &nbsp; F5=Edit &nbsp; F8=Hapus &nbsp; F10=Cetak</div>
+<section class="dos-stok" data-menu="none">
+  <div class="stok-title">{{ app_name }}</div>
+  <div class="stok-frame">
+    <div class="stok-menubar">
+      <button data-menu="file">[ File ]</button>
+      <button data-menu="transaksi">[ Transaksi ]</button>
+      <button data-menu="laporan">[ Laporan ]</button>
+      <button data-menu="utility">[ Utility ]</button>
+      <button data-menu="exit">[ Exit ]</button>
+    </div>
+
+    <div class="stok-window file-menu" data-panel="file">
+      <button data-action="barang">[ Barang.... ]</button>
+      <button>[ Kelompok.. ]</button>
+      <button>[ Lokasi/Rak ]</button>
+      <button>[ Pelanggan. ]</button>
+      <button>[ Supplier.. ]</button>
+      <button>[ Perkiraan. ]</button>
+    </div>
+
+    <div class="stok-window transaksi-menu" data-panel="transaksi">
+      <button>[ P O ........... ]</button>
+      <button>[ Pembelian...... ]</button>
+      <button>[ Retur Pembelian ]</button>
+      <button>[ Stok Opname.... ]</button>
+    </div>
+
+    <div class="stok-window laporan-menu" data-panel="laporan">
+      <button>[ Barang.......>]</button>
+      <button>[ Pembelian....>]</button>
+      <button>[ Penjualan....>]</button>
+      <button>[ R e t u r....>]</button>
+      <button>[ Opname/Mutasi>]</button>
+      <button>[ Point Belanja>]</button>
+      <button>[ Pelanggan....>]</button>
+      <button>[ Supplier.....>]</button>
+    </div>
+
+    <div class="stok-window utility-menu" data-panel="utility">
+      <button>[ Posting Data.. ]</button>
+      <button>[ Password Login]</button>
+      <button>[ Tanggal....... ]</button>
+      <button>[ Setup Kassa... ]</button>
+    </div>
+
+    <div class="stok-window exit-menu" data-panel="exit">
+      <button>[ Selesai/Keluar ]</button>
+      <button>[ Kembali....... ]</button>
+    </div>
+
+    <div class="stok-products" id="stok-products">
+      <div class="section-title"><span>Tabel Barang</span><span>F4=Tambah F5=Edit F8=Hapus F10=Cetak</span></div>
+      <form method="get" class="toolbar">
+        <input name="q" value="{{ q }}" placeholder="Cari barcode / nama barang" size="34">
+        <button class="action">F2 Sortir</button>
+      </form>
+      <form method="post" class="toolbar compact">
+        <input name="barcode" placeholder="Barcode">
+        <input name="group_code" placeholder="Klp" value="00" size="4">
+        <input name="name" placeholder="Nama barang" required size="34">
+        <input name="stock" placeholder="Stok" value="0" size="6">
+        <input name="unit" placeholder="Satuan" value="PCS" size="6">
+        <input name="cost_price" placeholder="Harga beli" value="0" size="10">
+        <input name="retail_price" placeholder="Harga ecer" value="0" size="10">
+        <button class="action">F4 Tambah</button>
+      </form>
+      <table>
+        <thead>
+          <tr><th>Barcode</th><th>Klp</th><th>Nama Barang</th><th>Sisa Stk</th><th>Sat</th><th>Hrg.Bakul</th><th>Hrg.Ecer</th></tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+          <tr class="{{ 'selected' if loop.first else '' }}">
+            <td>{{ product.barcode or "-" }}</td>
+            <td>{{ product.group_code }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.stock|rupiah }}</td>
+            <td>{{ product.unit }}</td>
+            <td>{{ product.cost_price|rupiah }}</td>
+            <td>{{ product.retail_price|rupiah }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="stok-footer">
+    <span id="stok-message">File: Tabel Barang, Kelompok, Pelanggan, Supplier dan Perkiraan Kas/Biaya</span>
+    <span>24-06-2026&nbsp;&nbsp;18:35</span>
+  </div>
 </section>
+
+<script>
+  const stok = document.querySelector(".dos-stok");
+  const topButtons = [...document.querySelectorAll(".stok-menubar button")];
+  const panels = [...document.querySelectorAll(".stok-window")];
+  const stokMessage = document.querySelector("#stok-message");
+  const messages = {
+    file: "Tabel Barang, Kelompok, Pelanggan, Supplier dan Perkiraan Kas/Biaya",
+    transaksi: "Input Transaksi PO, Pembelian dan Retur",
+    laporan: "Laporan Barang, Penjualan, Pembelian, Retur, Transfer",
+    utility: "Posting, Password-Login dan Tanggal",
+    exit: "Exit Program"
+  };
+  let menuIndex = 0;
+
+  const openMenu = (name) => {
+    stok.dataset.menu = name;
+    topButtons.forEach((button, index) => {
+      const active = button.dataset.menu === name;
+      button.classList.toggle("active", active);
+      if (active) menuIndex = index;
+    });
+    panels.forEach((panel) => panel.classList.toggle("open", panel.dataset.panel === name));
+    stokMessage.textContent = messages[name] || "ESC=Menu Selanjutnya";
+  };
+
+  topButtons.forEach((button) => {
+    button.addEventListener("click", () => openMenu(button.dataset.menu));
+    button.addEventListener("mouseenter", () => {
+      if (stok.dataset.menu !== "none") openMenu(button.dataset.menu);
+    });
+  });
+
+  document.querySelector("[data-action='barang']").addEventListener("click", () => {
+    document.querySelector("#stok-products").scrollIntoView({ block: "nearest" });
+    stokMessage.textContent = "F4=Tambah   F5=Edit   F8=Hapus   F10=Cetak";
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      menuIndex = (menuIndex + 1) % topButtons.length;
+      openMenu(topButtons[menuIndex].dataset.menu);
+    }
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      menuIndex = (menuIndex + topButtons.length - 1) % topButtons.length;
+      openMenu(topButtons[menuIndex].dataset.menu);
+    }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      if (stok.dataset.menu === "none") {
+        openMenu("exit");
+      } else {
+        stok.dataset.menu = "none";
+        topButtons.forEach((button) => button.classList.remove("active"));
+        panels.forEach((panel) => panel.classList.remove("open"));
+        stokMessage.textContent = "ESC=Menu Selanjutnya";
+      }
+    }
+    if (event.key === "Enter" && stok.dataset.menu !== "none") {
+      event.preventDefault();
+      const first = document.querySelector(`.stok-window[data-panel="${stok.dataset.menu}"] button`);
+      if (first) first.click();
+    }
+    if (event.key === "F4") {
+      event.preventDefault();
+      stokMessage.textContent = "F4=Tambah";
+    }
+    if (event.key === "F5") {
+      event.preventDefault();
+      stokMessage.textContent = "F5=Edit";
+    }
+    if (event.key === "F8") {
+      event.preventDefault();
+      stokMessage.textContent = "F8=Hapus";
+    }
+    if (event.key === "F10") {
+      event.preventDefault();
+      stokMessage.textContent = "F10=Cetak";
+    }
+  });
+
+  openMenu("file");
+</script>
 {% endblock %}
