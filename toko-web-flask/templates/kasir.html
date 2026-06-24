@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Kasir - {{ app_name }}{% endblock %}
+{% block content %}
+<section class="pos-screen">
+  <div class="pos-main">
+    <div class="pos-head">
+      <span>KASIR / POS</span>
+      <span>Nota: {{ sale_no }} | Shift: Pagi | Kasir: {{ cashier_name }}</span>
+    </div>
+    <div class="scan-row">
+      <input placeholder="Scan barcode atau ketik nama barang" autofocus>
+      <button class="action">F2 Cari</button>
+      <button class="action">Enter</button>
+    </div>
+    <div class="pos-table-wrap">
+      <table>
+        <thead>
+          <tr><th>Nama Barang</th><th>Qty</th><th>Harga</th><th>Diskon</th><th>Jumlah</th></tr>
+        </thead>
+        <tbody>
+          {% for item in items %}
+          <tr class="{{ 'selected' if loop.first else '' }}">
+            <td>{{ item.name }}</td>
+            <td>{{ item.qty }}</td>
+            <td>{{ item.price|rupiah }}</td>
+            <td>{{ item.discount|rupiah }}</td>
+            <td>{{ item.line_total|rupiah }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="shortcut">F4=Qty F5=Diskon F8=Hapus Item F9=Bayar F10=Cetak</div>
+  </div>
+  <aside class="pos-side">
+    <div class="total-panel">
+      <div><span>Subtotal</span><strong>{{ subtotal|rupiah }}</strong></div>
+      <div><span>Pembulatan</span><strong>{{ rounding|rupiah }}</strong></div>
+      <div><span>Item</span><strong>{{ items|length }}</strong></div>
+      <div class="grand">{{ total|rupiah }}</div>
+    </div>
+    <div class="payment-panel">
+      <label>Bayar</label>
+      <input value="{{ paid|rupiah }}">
+      <label>Kembali</label>
+      <input value="{{ change_amount|rupiah }}" readonly>
+    </div>
+    <div class="pos-actions">
+      <button class="action">F9 Bayar</button>
+      <button class="action">F10 Cetak</button>
+      <button class="action">Tunda</button>
+      <button class="action danger">Batal</button>
+    </div>
+  </aside>
+</section>
+{% endblock %}

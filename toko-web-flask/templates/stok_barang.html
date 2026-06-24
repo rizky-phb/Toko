@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Stok Barang - {{ app_name }}{% endblock %}
+{% block content %}
+<section class="workarea">
+  <div class="section-title"><span>Stok Barang</span><span>Master Produk</span></div>
+  <form method="get" class="toolbar">
+    <input name="q" value="{{ q }}" placeholder="Cari barcode / nama barang" size="34">
+    <button class="action">F2 Sortir</button>
+  </form>
+  <form method="post" class="toolbar compact">
+    <input name="barcode" placeholder="Barcode">
+    <input name="group_code" placeholder="Klp" value="00" size="4">
+    <input name="name" placeholder="Nama barang" required size="34">
+    <input name="stock" placeholder="Stok" value="0" size="6">
+    <input name="unit" placeholder="Satuan" value="PCS" size="6">
+    <input name="cost_price" placeholder="Harga beli" value="0" size="10">
+    <input name="retail_price" placeholder="Harga ecer" value="0" size="10">
+    <button class="action">F4 Tambah</button>
+  </form>
+  <table>
+    <thead>
+      <tr><th>Barcode</th><th>Klp</th><th>Nama Barang</th><th>Sisa Stk</th><th>Sat</th><th>Hrg.Bakul</th><th>Hrg.Ecer</th></tr>
+    </thead>
+    <tbody>
+      {% for product in products %}
+      <tr class="{{ 'selected' if loop.first else '' }}">
+        <td>{{ product.barcode or "-" }}</td>
+        <td>{{ product.group_code }}</td>
+        <td>{{ product.name }}</td>
+        <td>{{ product.stock|rupiah }}</td>
+        <td>{{ product.unit }}</td>
+        <td>{{ product.cost_price|rupiah }}</td>
+        <td>{{ product.retail_price|rupiah }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="shortcut">F4=Tambah &nbsp; F5=Edit &nbsp; F8=Hapus &nbsp; F10=Cetak</div>
+</section>
+{% endblock %}

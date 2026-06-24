@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body data-page="{{ active_path.strip('/') or 'dashboard' }}">
+  <div class="app">
+    <header class="topbar">
+      <span>{{ app_name }}</span>
+      <span>Kassa: {{ register_no }} | Kasir: {{ cashier_name }}</span>
+    </header>
+    {% if active_path == '/kasir' %}
+    <nav class="menubar single-menu">
+      <a class="active" href="{{ url_for('kasir') }}">Kasir</a>
+    </nav>
+    {% else %}
+    <nav class="menubar">
+      <a class="{{ 'active' if active_path == '/dashboard' else '' }}" href="{{ url_for('dashboard') }}">Dashboard</a>
+      <a class="{{ 'active' if active_path == '/kasir' else '' }}" href="{{ url_for('kasir') }}">Kasir</a>
+      <a class="{{ 'active' if active_path in ['/stok', '/stok-barang'] else '' }}" href="{{ url_for('stok') }}">Stok</a>
+      <a class="{{ 'active' if active_path == '/pembelian' else '' }}" href="{{ url_for('pembelian') }}">Pembelian</a>
+      <a class="{{ 'active' if active_path == '/laporan' else '' }}" href="{{ url_for('laporan') }}">Laporan</a>
+      <a class="{{ 'active' if active_path == '/pengaturan' else '' }}" href="{{ url_for('pengaturan') }}">Pengaturan</a>
+      <a href="{{ url_for('desktop') }}">Desktop</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </nav>
+    {% endif %}
+    <main>{% block content %}{% endblock %}</main>
+    <footer class="statusbar">
+      <span>F2 Cari/Sortir &nbsp; F4 Tambah &nbsp; F5 Edit &nbsp; F8 Hapus &nbsp; F10 Cetak</span>
+      <span>Flask Port</span>
+    </footer>
+  </div>
+</body>
+</html>

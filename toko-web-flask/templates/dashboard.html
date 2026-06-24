@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - {{ app_name }}{% endblock %}
+{% block content %}
+<section class="workarea">
+  <div class="section-title"><span>Dashboard</span><span>Ringkasan Hari Ini</span></div>
+  <div class="grid">
+    <div class="tile">Penjualan Hari Ini<strong>Rp 0</strong></div>
+    <div class="tile">Transaksi<strong>0 Nota</strong></div>
+    <div class="tile">Barang Stok Minus<strong>{{ minus_count }} Item</strong></div>
+    <div class="tile">Master Barang<strong>{{ product_count }} Item</strong></div>
+  </div>
+</section>
+{% endblock %}

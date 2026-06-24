@@ -1,0 +1,264 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="3160" height="1120" viewBox="0 0 3160 1120">
+  <defs>
+    <style>
+      .bg { fill: #d9e8ef; }
+      .teal { fill: #048d86; }
+      .teal2 { fill: #078981; }
+      .teal3 { fill: #0a9f96; }
+      .cyan { fill: #2bc2b7; }
+      .blue { fill: #071887; }
+      .red { fill: #8d0606; }
+      .dark { fill: #032c30; }
+      .panel { fill: #eafaf6; }
+      .field { fill: #eafffb; }
+      .line { stroke: #031d1b; stroke-width: 2; }
+      .thin { stroke: #064340; stroke-width: 1; }
+      .cyan-line { stroke: #3adbd1; stroke-width: 2; }
+      .white { fill: #ffffff; }
+      .ink { fill: #061313; }
+      .muted { fill: #4c6664; }
+      .mono { font-family: Consolas, "Courier New", monospace; }
+      .label { font-size: 18px; }
+      .small { font-size: 15px; }
+      .xs { font-size: 13px; }
+      .title { font-size: 22px; font-weight: 700; }
+      .h1 { font-size: 34px; font-weight: 800; }
+      .nav { font-size: 16px; font-weight: 700; }
+      .tableh { font-size: 15px; font-weight: 700; }
+      .shadow { filter: drop-shadow(8px 8px 0 rgba(0,0,0,.18)); }
+    </style>
+    <pattern id="old-pos-stripe" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(25)">
+      <rect width="8" height="8" fill="#048d86"/>
+      <rect width="1" height="8" fill="#000000" opacity=".09"/>
+    </pattern>
+  </defs>
+
+  <rect class="bg" width="3160" height="1120"/>
+  <text x="80" y="62" class="mono h1 ink">Toko POS Porting Reference</text>
+  <text x="80" y="92" class="mono label muted">Editable SVG untuk import Figma. Sumber: toko-web-php dan toko-web-rust, nuansa POS lama dirapikan untuk port berikutnya.</text>
+
+  <g id="screen-kasir" transform="translate(80 140)">
+    <text x="0" y="-24" class="mono title ink">Screen utama kasir</text>
+    <rect class="dark shadow" width="1440" height="900" rx="0"/>
+    <rect class="blue" width="1440" height="34"/>
+    <text x="18" y="23" class="mono small white">MR. FAUZI ZAMI</text>
+    <text x="1182" y="23" class="mono small white">Kassa: 1 | Kasir: MAKSUM</text>
+
+    <rect class="dark" y="34" width="1440" height="42"/>
+    <g class="mono nav">
+      <rect class="dark" x="24" y="34" width="118" height="42"/>
+      <text x="45" y="61" fill="#d8fffb">Dashboard</text>
+      <rect class="red" x="146" y="34" width="110" height="42"/>
+      <text x="178" y="61" class="white">Kasir</text>
+      <text x="286" y="61" fill="#d8fffb">Stok Barang</text>
+      <text x="430" y="61" fill="#d8fffb">Pembelian</text>
+      <text x="560" y="61" fill="#d8fffb">Laporan</text>
+      <text x="672" y="61" fill="#d8fffb">Pengaturan</text>
+    </g>
+    <line x1="0" y1="76" x2="1440" y2="76" class="cyan-line"/>
+
+    <g transform="translate(18 94)">
+      <rect width="1022" height="718" class="teal2 cyan-line"/>
+      <rect width="1022" height="42" class="blue"/>
+      <text x="14" y="27" class="mono title white">KASIR / POS</text>
+      <text x="690" y="27" class="mono small white">Nota: 000001 | Shift: Pagi</text>
+      <rect x="0" y="42" width="1022" height="66" class="teal3"/>
+      <rect x="14" y="55" width="666" height="40" class="field line"/>
+      <text x="28" y="81" class="mono label muted">Scan barcode atau ketik nama barang</text>
+      <rect x="696" y="55" width="110" height="40" class="blue line"/>
+      <text x="721" y="81" class="mono label white">F2 Cari</text>
+      <rect x="818" y="55" width="96" height="40" class="blue line"/>
+      <text x="840" y="81" class="mono label white">Enter</text>
+
+      <g transform="translate(0 108)">
+        <rect width="1022" height="44" class="cyan"/>
+        <text x="14" y="28" class="mono tableh ink">Nama Barang</text>
+        <text x="546" y="28" class="mono tableh ink">Qty</text>
+        <text x="632" y="28" class="mono tableh ink">Harga</text>
+        <text x="756" y="28" class="mono tableh ink">Diskon</text>
+        <text x="890" y="28" class="mono tableh ink">Jumlah</text>
+        <rect y="44" width="1022" height="42" class="blue"/>
+        <text x="14" y="71" class="mono label white">BERAS SPHP / KG</text>
+        <text x="556" y="71" class="mono label white">2</text>
+        <text x="632" y="71" class="mono label white">14.000</text>
+        <text x="778" y="71" class="mono label white">0</text>
+        <text x="890" y="71" class="mono label white">28.000</text>
+        <text x="14" y="113" class="mono label white">ABC SAMBAL ASLI 135ML</text>
+        <text x="556" y="113" class="mono label white">1</text>
+        <text x="642" y="113" class="mono label white">6.500</text>
+        <text x="778" y="113" class="mono label white">0</text>
+        <text x="900" y="113" class="mono label white">6.500</text>
+        <line x1="0" y1="128" x2="1022" y2="128" class="thin"/>
+        <line x1="0" y1="170" x2="1022" y2="170" class="thin"/>
+        <line x1="0" y1="212" x2="1022" y2="212" class="thin"/>
+        <line x1="0" y1="254" x2="1022" y2="254" class="thin"/>
+      </g>
+      <rect x="0" y="676" width="1022" height="42" class="red"/>
+      <text x="14" y="702" class="mono small white">F4=Qty   F5=Diskon   F8=Hapus Item   F9=Bayar   F10=Cetak</text>
+    </g>
+
+    <g transform="translate(1060 94)">
+      <rect width="362" height="718" class="teal2 cyan-line"/>
+      <rect width="362" height="216" class="panel"/>
+      <text x="18" y="36" class="mono label ink">Subtotal</text>
+      <text x="252" y="36" class="mono label ink">34.500</text>
+      <text x="18" y="72" class="mono label ink">Diskon</text>
+      <text x="312" y="72" class="mono label ink">0</text>
+      <text x="18" y="108" class="mono label ink">Item</text>
+      <text x="312" y="108" class="mono label ink">2</text>
+      <rect x="16" y="132" width="330" height="62" class="red"/>
+      <text x="180" y="174" class="mono h1 white">34.500</text>
+
+      <g transform="translate(16 244)">
+        <text x="0" y="0" class="mono label white">Bayar</text>
+        <rect x="0" y="12" width="330" height="44" class="field line"/>
+        <text x="226" y="41" class="mono title ink">50.000</text>
+        <text x="0" y="90" class="mono label white">Kembali</text>
+        <rect x="0" y="102" width="330" height="44" class="field line"/>
+        <text x="226" y="131" class="mono title ink">15.500</text>
+      </g>
+      <g transform="translate(16 548)">
+        <rect width="156" height="44" class="blue line"/>
+        <text x="36" y="29" class="mono label white">F9 Bayar</text>
+        <rect x="174" width="156" height="44" class="blue line"/>
+        <text x="208" y="29" class="mono label white">F10 Cetak</text>
+        <rect y="58" width="156" height="44" class="blue line"/>
+        <text x="52" y="87" class="mono label white">Tunda</text>
+        <rect x="174" y="58" width="156" height="44" class="red line"/>
+        <text x="226" y="87" class="mono label white">Batal</text>
+      </g>
+    </g>
+
+    <rect y="846" width="1440" height="54" class="blue"/>
+    <text x="18" y="879" class="mono small white">F2 Cari/Sortir | F4 Tambah | F5 Edit | F8 Hapus | F10 Cetak</text>
+    <text x="1276" y="879" class="mono small white">Target port web</text>
+  </g>
+
+  <g id="screen-stok-barang" transform="translate(1580 140)">
+    <text x="0" y="-24" class="mono title ink">Screen stok barang</text>
+    <rect width="1440" height="900" fill="url(#old-pos-stripe)" class="shadow"/>
+    <rect class="blue" width="1440" height="34"/>
+    <text x="18" y="23" class="mono small white">MR. FAUZI ZAMI</text>
+    <text x="1156" y="23" class="mono small white">Minggu, 31-05-2026</text>
+    <rect class="teal3" y="34" width="1440" height="42"/>
+    <g class="mono nav">
+      <text x="45" y="61" class="ink">Dashboard</text>
+      <text x="178" y="61" class="ink">Kasir</text>
+      <rect class="red" x="270" y="34" width="150" height="42"/>
+      <text x="295" y="61" class="white">Stok Barang</text>
+      <text x="450" y="61" class="ink">Pembelian</text>
+      <text x="580" y="61" class="ink">Laporan</text>
+      <text x="692" y="61" class="ink">Pengaturan</text>
+    </g>
+    <line x1="0" y1="76" x2="1440" y2="76" class="line"/>
+
+    <g transform="translate(26 104)">
+      <rect width="1388" height="710" class="teal2 line"/>
+      <rect width="1388" height="40" class="red"/>
+      <text x="14" y="26" class="mono title white">Stok Barang</text>
+      <text x="1118" y="26" class="mono small white">Semua Kelompok Barang</text>
+      <rect y="40" width="1388" height="68" class="teal3"/>
+      <rect x="14" y="54" width="374" height="40" class="field line"/>
+      <text x="28" y="80" class="mono label muted">Cari barcode / nama barang</text>
+      <rect x="402" y="54" width="214" height="40" class="field line"/>
+      <text x="416" y="80" class="mono label ink">Semua Kelompok</text>
+      <rect x="634" y="54" width="112" height="40" class="blue line"/>
+      <text x="657" y="80" class="mono label white">F2 Sortir</text>
+      <rect x="758" y="54" width="118" height="40" class="blue line"/>
+      <text x="780" y="80" class="mono label white">F4 Tambah</text>
+      <rect x="888" y="54" width="100" height="40" class="blue line"/>
+      <text x="914" y="80" class="mono label white">F5 Edit</text>
+      <rect x="1000" y="54" width="110" height="40" class="red line"/>
+      <text x="1022" y="80" class="mono label white">F8 Hapus</text>
+
+      <g transform="translate(0 108)">
+        <rect width="1388" height="44" class="cyan"/>
+        <text x="14" y="28" class="mono tableh ink">Barcode</text>
+        <text x="206" y="28" class="mono tableh ink">Klp</text>
+        <text x="270" y="28" class="mono tableh ink">Nama Barang</text>
+        <text x="790" y="28" class="mono tableh ink">Sisa Stk</text>
+        <text x="930" y="28" class="mono tableh ink">Sat</text>
+        <text x="1038" y="28" class="mono tableh ink">Hrg.Bakul</text>
+        <text x="1210" y="28" class="mono tableh ink">Hrg.Ecer</text>
+
+        <rect y="44" width="1388" height="42" class="blue"/>
+        <text x="14" y="71" class="mono label white">BN</text>
+        <text x="206" y="71" class="mono label white">00</text>
+        <text x="270" y="71" class="mono label white">BERAS SPHP / KG</text>
+        <text x="812" y="71" class="mono label white">-606</text>
+        <text x="930" y="71" class="mono label white">PCS</text>
+        <text x="1052" y="71" class="mono label white">13.500</text>
+        <text x="1224" y="71" class="mono label white">14.000</text>
+
+        <text x="14" y="113" class="mono label white">8991906106311</text>
+        <text x="206" y="113" class="mono label white">00</text>
+        <text x="270" y="113" class="mono label white">APEL ROYAL</text>
+        <text x="836" y="113" class="mono label white">-3</text>
+        <text x="930" y="113" class="mono label white">PCS</text>
+        <text x="1052" y="113" class="mono label white">15.000</text>
+        <text x="1224" y="113" class="mono label white">15.500</text>
+
+        <text x="14" y="155" class="mono label white">7118441200327</text>
+        <text x="206" y="155" class="mono label white">11</text>
+        <text x="270" y="155" class="mono label white">ABC SAMBAL ASLI 135ML</text>
+        <text x="848" y="155" class="mono label white">0</text>
+        <text x="930" y="155" class="mono label white">PCS</text>
+        <text x="1064" y="155" class="mono label white">6.200</text>
+        <text x="1236" y="155" class="mono label white">6.500</text>
+
+        <text x="14" y="197" class="mono label white">7118441200872</text>
+        <text x="206" y="197" class="mono label white">11</text>
+        <text x="270" y="197" class="mono label white">ABC SAMBAL EXT.PDS 135ML</text>
+        <text x="812" y="197" class="mono label white">-358</text>
+        <text x="930" y="197" class="mono label white">PCS</text>
+        <text x="1064" y="197" class="mono label white">7.500</text>
+        <text x="1236" y="197" class="mono label white">8.000</text>
+        <line x1="0" y1="212" x2="1388" y2="212" class="thin"/>
+        <line x1="0" y1="254" x2="1388" y2="254" class="thin"/>
+        <line x1="0" y1="296" x2="1388" y2="296" class="thin"/>
+      </g>
+      <rect x="0" y="668" width="1388" height="42" class="red"/>
+      <text x="14" y="694" class="mono small white">BN | 00 | BERAS SPHP / KG | -606 PCS | F6=Mutasi | F10=Cetak</text>
+    </g>
+
+    <g id="dialog-tambah-barang" transform="translate(360 254)">
+      <rect x="-38" y="-38" width="780" height="448" fill="#000000" opacity=".22"/>
+      <rect width="704" height="372" class="teal2 line shadow"/>
+      <rect width="704" height="42" class="blue"/>
+      <text x="14" y="27" class="mono title white">Tambah Barang</text>
+      <text x="596" y="27" class="mono small white">ESC=Batal</text>
+      <g transform="translate(18 68)">
+        <text x="0" y="0" class="mono small white">Barcode</text>
+        <rect x="0" y="10" width="314" height="38" class="field line"/>
+        <text x="352" y="0" class="mono small white">Klp</text>
+        <rect x="352" y="10" width="314" height="38" class="field line"/>
+        <text x="366" y="35" class="mono label ink">00</text>
+        <text x="0" y="84" class="mono small white">Nama Barang</text>
+        <rect x="0" y="94" width="666" height="38" class="field line"/>
+        <text x="0" y="168" class="mono small white">Sisa Stok</text>
+        <rect x="0" y="178" width="150" height="38" class="field line"/>
+        <text x="164" y="168" class="mono small white">Satuan</text>
+        <rect x="164" y="178" width="150" height="38" class="field line"/>
+        <text x="178" y="203" class="mono label ink">PCS</text>
+        <text x="330" y="168" class="mono small white">Harga Bakul</text>
+        <rect x="330" y="178" width="150" height="38" class="field line"/>
+        <text x="496" y="168" class="mono small white">Harga Ecer</text>
+        <rect x="496" y="178" width="170" height="38" class="field line"/>
+      </g>
+      <rect x="0" y="316" width="704" height="56" class="teal3"/>
+      <rect x="476" y="326" width="92" height="36" class="blue line"/>
+      <text x="496" y="350" class="mono small white">Simpan</text>
+      <rect x="582" y="326" width="92" height="36" class="red line"/>
+      <text x="604" y="350" class="mono small white">Batal</text>
+    </g>
+
+    <rect y="846" width="1440" height="54" class="blue"/>
+    <text x="18" y="879" class="mono small white">F2 Cari/Sortir | F4 Tambah | F5 Edit | F8 Hapus | F10 Cetak</text>
+    <text x="1262" y="879" class="mono small white">Stok master</text>
+  </g>
+
+  <g id="porting-notes" transform="translate(80 1060)">
+    <rect x="0" y="-20" width="2940" height="48" fill="#ffffff" opacity=".76"/>
+    <text x="16" y="11" class="mono small ink">Token: blue #071887, teal #048d86/#078981, toolbar #0a9f96, active red #8d0606, field #eafffb, panel #eafaf6, font Consolas/Courier. Data fields: products barcode, group_code, name, unit, stock, cost_price, wholesale_price, retail_price; sales subtotal, discount, rounding, total, paid, change_amount.</text>
+  </g>
+</svg>
