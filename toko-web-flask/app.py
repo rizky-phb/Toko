@@ -9,7 +9,7 @@ from flask import Flask, g, jsonify, redirect, render_template, request, session
 
 APP_NAME = "MR. FAUZI ZAMI"
 BASE_DIR = Path(__file__).resolve().parent
-DATABASE = BASE_DIR / "storage" / "toko.sqlite"
+DATABASE = Path(os.environ.get("TOKO_DATABASE", BASE_DIR / "storage" / "toko.sqlite"))
 SCHEMA = BASE_DIR / "database" / "schema.sql"
 
 
@@ -53,6 +53,10 @@ def create_app():
     @app.route("/")
     def desktop():
         return render_template("desktop.html")
+
+    @app.route("/healthz")
+    def healthz():
+        return jsonify({"ok": True, "app": "toko-web-flask"})
 
     @app.route("/dashboard")
     @cashier_required

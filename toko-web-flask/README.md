@@ -39,6 +39,10 @@ Login awal:
 
 Untuk kasir cukup isi ID kasir, misalnya `1`. Untuk stok isi password `00`.
 
+## Deploy
+
+Project ini sudah disiapkan untuk auto-deploy ke Render dari GitHub. Lihat langkahnya di [DEPLOY.md](DEPLOY.md).
+
 ## Catatan
 
 Ini belum konversi penuh semua file `.PRG`; ini fondasi Flask yang mengambil struktur dan aturan penting dari port Harbour/PHP sebelumnya agar modul berikutnya bisa dipindahkan bertahap.
