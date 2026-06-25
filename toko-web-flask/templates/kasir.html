@@ -4,32 +4,40 @@
 <section class="cr-wvt-screen" data-mode="standby">
   <div class="cr-redbar">
     <span>{{ today_label }}</span>
-    <span>07:08:29</span>
+    <span id="cr-clock" data-server-now="{{ server_now }}">--:--:--</span>
   </div>
 
   <div class="cr-header">
     <div>
-      <div>DUA PUTRA JAYA</div>
-      <div>KOTA TEGAL</div>
+      <div>{{ store.name }}</div>
+      <div>{{ store.city }}</div>
       <div>Kasir: {{ cashier_name }}</div>
     </div>
     <div class="cr-yellow-block"></div>
     <div class="cr-note">
       <div>Nota: <span>{{ sale_no.split('-')[0] }}</span></div>
-      <div>Item: <span id="cr-item-count"></span></div>
+      <div>Item: <span id="cr-item-count">0</span></div>
     </div>
   </div>
 
   <div class="cr-cyan-strip"></div>
-  <div class="cr-marquee">. DUA PUTRA JAYA . KOTA TEGAL . {{ today_label }} . R</div>
+  <div class="cr-marquee" aria-label="Informasi toko berjalan">
+    <span>. {{ store.name }} . {{ store.city }} . {{ today_label }} . R . {{ store.name }} . {{ store.city }} .</span>
+  </div>
 
-  <div class="cr-grid">
-    <div class="cr-col cr-code"></div>
-    <div class="cr-col cr-name"></div>
-    <div class="cr-col cr-qty"></div>
-    <div class="cr-col cr-price"></div>
-    <div class="cr-col cr-disc"></div>
-    <div class="cr-col cr-total"></div>
+  <div class="cr-grid" id="cr-grid" tabindex="0" aria-label="Daftar belanja kasir">
+    <div class="cr-grid-head cr-code">Kode</div>
+    <div class="cr-grid-head cr-name">Nama Barang</div>
+    <div class="cr-grid-head cr-qty">Qty</div>
+    <div class="cr-grid-head cr-price">Harga</div>
+    <div class="cr-grid-head cr-disc">Disc</div>
+    <div class="cr-grid-head cr-total">Jumlah</div>
+    <div class="cr-grid-body" id="cr-grid-body"></div>
+  </div>
+
+  <div class="cr-picker" id="cr-picker" hidden>
+    <div class="cr-picker-title" id="cr-picker-title">Pilih barang</div>
+    <div class="cr-picker-list" id="cr-picker-list"></div>
   </div>
 
   <div class="cr-bottom-panel">
@@ -41,9 +49,9 @@
     </div>
     <div class="cr-yellow-block small"></div>
     <div class="cr-totals">
-      <div>Jml.Belanja:<span id="cr-total-belanja"></span></div>
+      <div>Jml.Belanja:<span id="cr-total-belanja">0</span></div>
       <div>Disc:  0,00%</div>
-      <div>Jml.Bayar  :</div>
+      <div>Jml.Bayar  :<span id="cr-jml-bayar">0</span></div>
       <div>Donasi     :</div>
     </div>
   </div>
@@ -58,12 +66,168 @@
 <script>
   const statusLine = document.querySelector("#cr-status");
   const barcode = document.querySelector("#barcode");
+  const grid = document.querySelector("#cr-grid");
+  const gridBody = document.querySelector("#cr-grid-body");
+  const itemCount = document.querySelector("#cr-item-count");
+  const totalBelanja = document.querySelector("#cr-total-belanja");
+  const jmlBayar = document.querySelector("#cr-jml-bayar");
+  const picker = document.querySelector("#cr-picker");
+  const pickerTitle = document.querySelector("#cr-picker-title");
+  const pickerList = document.querySelector("#cr-picker-list");
+  const clock = document.querySelector("#cr-clock");
+  const serverStart = new Date(clock.dataset.serverNow);
+  const localStart = Date.now();
+  const cart = [];
+  let pendingQty = 1;
+  let mode = "code";
+  let suggestions = [];
+  let selectedSuggestion = 0;
+
+  const formatNumber = (value) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(value || 0);
   const setStatus = (text) => { statusLine.textContent = text; };
   const openKas = () => { window.location.href = "{{ url_for('kas_harian') }}"; };
+  const defaultStatus = () => setStatus("F3=Kas    F4=Rekap    F5=Set_Print    F10=Ctk_Ulang    F11=CekPoin    ENTER=Transaksi");
+  const scanStatus = () => setStatus("BarCode/Nama?   n*=Qty   Up/Down=Pilih   ENTER=Ambil   F1=Member   F2=Cek_Hrg   F9=Tunda   ESC=Selesai");
+
+  function tickClock() {
+    const now = new Date(serverStart.getTime() + (Date.now() - localStart));
+    clock.textContent = now.toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+      timeZone: "Asia/Jakarta",
+    }).replace(/\./g, ":");
+  }
+
+  function renderCart() {
+    gridBody.innerHTML = "";
+    let total = 0;
+    cart.forEach((item, index) => {
+      const lineTotal = Math.max(0, Math.round(item.qty * item.price) - item.discount);
+      total += lineTotal;
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = "cr-grid-row";
+      row.innerHTML = `
+        <span class="cr-code">${item.barcode}</span>
+        <span class="cr-name">${item.name}</span>
+        <span class="cr-qty">${formatNumber(item.qty)}</span>
+        <span class="cr-price">${formatNumber(item.price)}</span>
+        <span class="cr-disc">${formatNumber(item.discount)}</span>
+        <span class="cr-total">${formatNumber(lineTotal)}</span>
+      `;
+      row.addEventListener("click", () => removeCartItem(index));
+      gridBody.appendChild(row);
+    });
+    itemCount.textContent = cart.length;
+    totalBelanja.textContent = formatNumber(total);
+    jmlBayar.textContent = formatNumber(total);
+  }
+
+  function removeCartItem(index) {
+    cart.splice(index, 1);
+    renderCart();
+    setStatus("Item dihapus. ENTER=Transaksi");
+  }
+
+  function addProduct(product) {
+    const existing = cart.find((item) => item.id === product.id);
+    if (existing) {
+      existing.qty += pendingQty;
+    } else {
+      cart.push({
+        id: product.id,
+        barcode: product.barcode || product.legacy_code || "",
+        name: product.name,
+        qty: pendingQty,
+        price: Number(product.price || 0),
+        discount: 0,
+      });
+    }
+    pendingQty = 1;
+    barcode.value = "";
+    closePicker();
+    renderCart();
+    scanStatus();
+  }
+
+  function renderPicker() {
+    picker.hidden = suggestions.length === 0;
+    pickerTitle.textContent = suggestions.length ? "Pilih barang lalu ENTER" : "Barang tidak ditemukan";
+    pickerList.innerHTML = "";
+    suggestions.forEach((product, index) => {
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = `cr-picker-row${index === selectedSuggestion ? " selected" : ""}`;
+      row.innerHTML = `
+        <span>${product.barcode || "-"}</span>
+        <span>${product.name}</span>
+        <span>${formatNumber(product.price)}</span>
+      `;
+      row.addEventListener("click", () => addProduct(product));
+      pickerList.appendChild(row);
+    });
+  }
+
+  function closePicker() {
+    suggestions = [];
+    selectedSuggestion = 0;
+    picker.hidden = true;
+    pickerList.innerHTML = "";
+  }
+
+  async function searchProduct(query) {
+    const response = await fetch(`{{ url_for('api_products_search') }}?mode=${encodeURIComponent(mode)}&q=${encodeURIComponent(query)}`);
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.items || [];
+  }
+
+  async function submitLookup() {
+    const value = barcode.value.trim();
+    if (!value) return;
+    const qtyMatch = value.match(/^(\d+(?:[.,]\d+)?)\*$/);
+    if (qtyMatch) {
+      pendingQty = Number(qtyMatch[1].replace(",", ".")) || 1;
+      barcode.value = "";
+      setStatus(`${formatNumber(pendingQty)}*=Qty terbaca, lanjut masukan barcode atau nama barang`);
+      return;
+    }
+
+    suggestions = await searchProduct(value);
+    selectedSuggestion = 0;
+    if (suggestions.length === 1) {
+      addProduct(suggestions[0]);
+      return;
+    }
+    renderPicker();
+    setStatus(suggestions.length ? "Barang mirip ditemukan. Up/Down=Pilih   ENTER=Ambil   ESC=Batal" : "Barang tidak ditemukan. Ketik kode/nama lain atau ESC");
+  }
+
+  grid.addEventListener("click", (event) => {
+    const targetClass = event.target.className || "";
+    mode = String(targetClass).includes("cr-name") ? "name" : "code";
+    barcode.focus();
+    scanStatus();
+  });
 
   document.addEventListener("keydown", (event) => {
     if (["F1", "F2", "F3", "F4", "F5", "F8", "F9", "F10", "F11"].includes(event.key)) {
       event.preventDefault();
+    }
+
+    if (!picker.hidden && event.key === "ArrowDown") {
+      event.preventDefault();
+      selectedSuggestion = Math.min(suggestions.length - 1, selectedSuggestion + 1);
+      renderPicker();
+      return;
+    }
+    if (!picker.hidden && event.key === "ArrowUp") {
+      event.preventDefault();
+      selectedSuggestion = Math.max(0, selectedSuggestion - 1);
+      renderPicker();
+      return;
     }
 
     if (event.key === "F3") openKas();
@@ -73,19 +237,34 @@
     if (event.key === "F11") setStatus("Cek Point Belanja");
     if (event.key === "Enter") {
       event.preventDefault();
-      setStatus("BarCode?   n*=Qty   Up=Koreksi   F1=Member   F2=Cek_Hrg   F9=Tunda   ESC=Selesai");
+      if (!picker.hidden && suggestions[selectedSuggestion]) {
+        addProduct(suggestions[selectedSuggestion]);
+        return;
+      }
+      if (document.activeElement === barcode && barcode.value.trim()) {
+        submitLookup();
+        return;
+      }
+      scanStatus();
       barcode.focus();
     }
     if (event.key === "Escape") {
       event.preventDefault();
-      setStatus("F3=Kas    F4=Rekap    F5=Set_Print    F10=Ctk_Ulang    F11=CekPoin    ENTER=Transaksi");
+      barcode.value = "";
+      pendingQty = 1;
+      closePicker();
+      defaultStatus();
     }
   });
 
   barcode.addEventListener("input", () => {
-    if (/^\d+\*$/.test(barcode.value)) {
-      setStatus("n*=Qty terbaca, lanjut masukan barcode barang");
+    if (/^\d+(?:[.,]\d+)?\*$/.test(barcode.value)) {
+      setStatus("n*=Qty terbaca, lanjut tekan ENTER lalu masukan barcode barang");
     }
   });
+
+  tickClock();
+  setInterval(tickClock, 1000);
+  renderCart();
 </script>
 {% endblock %}

@@ -2,7 +2,8 @@ import os
 import sqlite3
 from pathlib import Path
 from functools import wraps
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from flask import Flask, g, jsonify, redirect, render_template, request, session, url_for
 
@@ -11,6 +12,10 @@ APP_NAME = "MR. FAUZI ZAMI"
 BASE_DIR = Path(__file__).resolve().parent
 DATABASE = Path(os.environ.get("TOKO_DATABASE", BASE_DIR / "storage" / "toko.sqlite"))
 SCHEMA = BASE_DIR / "database" / "schema.sql"
+try:
+    WIB = ZoneInfo("Asia/Jakarta")
+except ZoneInfoNotFoundError:
+    WIB = timezone(timedelta(hours=7), "WIB")
 
 
 def create_app():
@@ -94,10 +99,9 @@ def create_app():
         if "cashier_id" not in session:
             return render_template("kasir_login.html", error="", cashiers=cashier_map())
 
-        items = [
-            {"name": "BERAS SPHP / KG", "qty": 2, "price": 14000, "discount": 0},
-            {"name": "ABC SAMBAL ASLI 135ML", "qty": 1, "price": 6500, "discount": 0},
-        ]
+        db = get_db()
+        store = store_settings()
+        items = []
         subtotal = 0
         for item in items:
             item["line_total"] = int(item["qty"] * item["price"]) - int(item["discount"])
@@ -105,6 +109,7 @@ def create_app():
 
         total, rounding = round_total(subtotal)
         sale_no = next_sale_no(session["cashier_id"], register_no())
+        server_now = datetime.now(WIB)
         return render_template(
             "kasir.html",
             items=items,
@@ -115,7 +120,9 @@ def create_app():
             paid=50000,
             change_amount=50000 - total,
             print_receipt=session.get("print_receipt", "1") == "1",
-            today_label=clipper_date_label(date.today()),
+            today_label=clipper_date_label(server_now.date()),
+            server_now=server_now.isoformat(),
+            store=store,
         )
 
     @app.route("/kasir/kas", methods=["GET", "POST"])
@@ -387,6 +394,50 @@ def create_app():
             return jsonify({"found": False, "name": ""}), 404
         return jsonify({"found": True, "name": cashier["name"]})
 
+    @app.route("/api/products/search")
+    @cashier_required
+    def api_products_search():
+        q = request.args.get("q", "").strip()
+        mode = request.args.get("mode", "code").strip()
+        if not q:
+            return jsonify({"items": []})
+
+        db = get_db()
+        like = f"%{q}%"
+        prefix = f"{q}%"
+        if mode == "name":
+            rows = db.execute(
+                """
+                SELECT id, barcode, legacy_code, group_code, name, unit, stock, retail_price
+                FROM products
+                WHERE name LIKE ?
+                ORDER BY
+                  CASE WHEN name LIKE ? THEN 0 ELSE 1 END,
+                  name
+                LIMIT 12
+                """,
+                (like, prefix),
+            ).fetchall()
+        else:
+            rows = db.execute(
+                """
+                SELECT id, barcode, legacy_code, group_code, name, unit, stock, retail_price
+                FROM products
+                WHERE barcode = ? OR legacy_code = ? OR barcode LIKE ? OR legacy_code LIKE ? OR name LIKE ?
+                ORDER BY
+                  CASE
+                    WHEN barcode = ? OR legacy_code = ? THEN 0
+                    WHEN barcode LIKE ? OR legacy_code LIKE ? THEN 1
+                    ELSE 2
+                  END,
+                  name
+                LIMIT 12
+                """,
+                (q, q, prefix, prefix, like, q, q, prefix, prefix),
+            ).fetchall()
+
+        return jsonify({"items": [product_to_json(row) for row in rows]})
+
     return app
 
 
@@ -405,6 +456,18 @@ def init_db():
 
 
 def seed(db):
+    settings = [
+        ("store_name", "DUA PUTRA JAYA"),
+        ("store_city", "KOTA TEGAL"),
+    ]
+    db.executemany(
+        """
+        INSERT OR IGNORE INTO store_settings (key, value)
+        VALUES (?, ?)
+        """,
+        settings,
+    )
+
     cashiers = [
         ("01", "1", "ROYANI", 63),
         ("02", "2", "MAKSUM", 26),
@@ -463,6 +526,28 @@ def seed(db):
             products,
         )
     db.commit()
+
+
+def store_settings():
+    rows = get_db().execute("SELECT key, value FROM store_settings").fetchall()
+    values = {row["key"]: row["value"] for row in rows}
+    return {
+        "name": values.get("store_name", "DUA PUTRA JAYA"),
+        "city": values.get("store_city", "KOTA TEGAL"),
+    }
+
+
+def product_to_json(row):
+    return {
+        "id": row["id"],
+        "barcode": row["barcode"] or row["legacy_code"] or "",
+        "legacy_code": row["legacy_code"] or "",
+        "group_code": row["group_code"] or "00",
+        "name": row["name"],
+        "unit": row["unit"] or "PCS",
+        "stock": row["stock"],
+        "price": row["retail_price"] or 0,
+    }
 
 
 def cashier_required(view):
