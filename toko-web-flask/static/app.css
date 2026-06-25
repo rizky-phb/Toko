@@ -321,10 +321,12 @@ body[data-page^="kasir/"] .app {
 }
 
 body[data-page="kasir"] main {
-  min-height: 100vh;
-  padding: 10px;
+  height: 100vh;
+  min-height: 0;
+  padding: 0;
   display: grid;
   place-items: center;
+  overflow: hidden;
 }
 
 body[data-page^="kasir/"] main {
@@ -649,8 +651,8 @@ body[data-page="kasir"] .menubar a.active {
 
 .cr-wvt-screen {
   width: min(100%, 1280px);
-  height: min(720px, calc(100vh - 20px));
-  min-height: 620px;
+  height: 100vh;
+  min-height: 0;
   margin: 0 auto;
   position: relative;
   overflow: hidden;
