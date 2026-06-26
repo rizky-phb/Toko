@@ -39,8 +39,11 @@ def create_app():
 
     @app.context_processor
     def inject_globals():
+        store = store_settings()
         return {
-            "app_name": APP_NAME,
+            "app_name": store["name"],
+            "store_name": store["name"],
+            "store_city": store["city"],
             "cashier_name": session.get("cashier_name", "-"),
             "register_no": register_no(),
             "active_path": request.path,
