@@ -12,6 +12,7 @@ APP_NAME = "MR. FAUZI ZAMI"
 BASE_DIR = Path(__file__).resolve().parent
 DATABASE = Path(os.environ.get("TOKO_DATABASE", BASE_DIR / "storage" / "toko.sqlite"))
 SCHEMA = BASE_DIR / "database" / "schema.sql"
+LEGACY_STOK_MIN_ROWS = 9000
 try:
     WIB = ZoneInfo("Asia/Jakarta")
 except ZoneInfoNotFoundError:
@@ -594,6 +595,7 @@ def init_db():
     db = get_db()
     db.executescript(SCHEMA.read_text(encoding="utf-8"))
     migrate_db(db)
+    import_legacy_stock_if_needed(db)
     seed(db)
 
 
@@ -614,6 +616,214 @@ def ensure_columns(db, table, columns):
     for name, definition in columns.items():
         if name not in existing:
             db.execute(f"ALTER TABLE {table} ADD COLUMN {name} {definition}")
+
+
+def import_legacy_stock_if_needed(db):
+    product_count = db.execute("SELECT COUNT(*) FROM products").fetchone()[0]
+    if product_count >= LEGACY_STOK_MIN_ROWS:
+        return
+
+    stok_path = legacy_stock_path()
+    if not stok_path:
+        return
+
+    rows = read_legacy_stock(stok_path)
+    if len(rows) < LEGACY_STOK_MIN_ROWS:
+        return
+
+    for row in rows:
+        existing = None
+        if row["legacy_code"]:
+            existing = db.execute(
+                "SELECT id FROM products WHERE legacy_code = ? ORDER BY id LIMIT 1",
+                (row["legacy_code"],),
+            ).fetchone()
+        if existing is None and row["barcode"]:
+            existing = db.execute(
+                """
+                SELECT id FROM products
+                WHERE barcode = ? AND (legacy_code IS NULL OR legacy_code = '')
+                ORDER BY id LIMIT 1
+                """,
+                (row["barcode"],),
+            ).fetchone()
+
+        values = (
+            row["barcode"],
+            row["legacy_code"],
+            row["group_code"],
+            row["name"],
+            row["unit"],
+            row["stock"],
+            row["cost_price"],
+            row["wholesale_price"],
+            row["retail_price"],
+            row["supplier_code"],
+        )
+        if existing:
+            db.execute(
+                """
+                UPDATE products
+                SET barcode = ?, legacy_code = ?, group_code = ?, name = ?, unit = ?,
+                    stock = ?, cost_price = ?, wholesale_price = ?, retail_price = ?,
+                    supplier_code = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """,
+                values + (existing["id"],),
+            )
+        else:
+            db.execute(
+                """
+                INSERT INTO products
+                  (barcode, legacy_code, group_code, name, unit, stock, cost_price,
+                   wholesale_price, retail_price, supplier_code)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                values,
+            )
+
+    remove_unreferenced_duplicate_products(db)
+    db.commit()
+
+
+def legacy_stock_path():
+    candidates = []
+    env_path = os.environ.get("TOKO_STOK_DTA", "").strip()
+    if env_path:
+        candidates.append(Path(env_path))
+    candidates.extend(
+        [
+            BASE_DIR.parent / "Toko" / "STOK.DTA",
+            BASE_DIR.parent / "toko-harbour-build" / "STOK.DTA",
+            BASE_DIR / "data" / "STOK.DTA",
+        ]
+    )
+    for path in candidates:
+        if path.is_file():
+            return path
+    return None
+
+
+def read_legacy_stock(path):
+    data = path.read_bytes()
+    if len(data) < 32:
+        return []
+
+    record_count = int.from_bytes(data[4:8], "little")
+    header_len = int.from_bytes(data[8:10], "little")
+    record_len = int.from_bytes(data[10:12], "little")
+    fields = dbf_fields(data, header_len)
+    rows = []
+
+    for index in range(record_count):
+        start = header_len + (index * record_len)
+        record = data[start : start + record_len]
+        if len(record) < record_len or record[:1] == b"*":
+            continue
+        values = {field["name"]: dbf_value(record, field) for field in fields}
+        name = values.get("NAMA_BRG", "").strip()
+        legacy_code = values.get("KODE_BRG", "").strip()
+        if not name or not legacy_code:
+            continue
+        rows.append(
+            {
+                "barcode": values.get("KODE_BAR", "").strip() or legacy_code,
+                "legacy_code": legacy_code,
+                "group_code": values.get("KODE_KLB", "").strip() or "00",
+                "name": name,
+                "unit": values.get("SATUAN", "").strip() or values.get("SATUAN_B", "").strip() or "PCS",
+                "stock": dbf_number(values.get("STOK_K")),
+                "cost_price": int(round(dbf_number(values.get("HARGA_B")))),
+                "wholesale_price": int(round(dbf_number(values.get("HARGA_21")))),
+                "retail_price": int(round(dbf_number(values.get("HARGA_2")))),
+                "supplier_code": values.get("KODE_SPL", "").strip(),
+            }
+        )
+    return rows
+
+
+def dbf_fields(data, header_len):
+    fields = []
+    offset = 1
+    position = 32
+    while position < header_len and data[position] != 0x0D:
+        name = data[position : position + 11].split(b"\0", 1)[0].decode("ascii", "ignore")
+        field_type = chr(data[position + 11])
+        length = data[position + 16]
+        decimal_count = data[position + 17]
+        fields.append(
+            {
+                "name": name,
+                "type": field_type,
+                "length": length,
+                "decimal_count": decimal_count,
+                "offset": offset,
+            }
+        )
+        offset += length
+        position += 32
+    return fields
+
+
+def dbf_value(record, field):
+    start = field["offset"]
+    end = start + field["length"]
+    raw = record[start:end]
+    return raw.decode("cp437", "replace").strip()
+
+
+def dbf_number(value):
+    try:
+        return float(str(value or "0").strip() or 0)
+    except ValueError:
+        return 0.0
+
+
+def remove_unreferenced_duplicate_products(db):
+    duplicates = db.execute(
+        """
+        SELECT legacy_code
+        FROM products
+        WHERE legacy_code IS NOT NULL AND legacy_code <> ''
+        GROUP BY legacy_code
+        HAVING COUNT(*) > 1
+        """
+    ).fetchall()
+    for duplicate in duplicates:
+        rows = db.execute(
+            """
+            SELECT id FROM products
+            WHERE legacy_code = ?
+            ORDER BY id
+            """,
+            (duplicate["legacy_code"],),
+        ).fetchall()
+        for row in rows[1:]:
+            used = db.execute(
+                "SELECT COUNT(*) FROM sale_items WHERE product_id = ?",
+                (row["id"],),
+            ).fetchone()[0]
+            if used:
+                continue
+            db.execute("DELETE FROM products WHERE id = ?", (row["id"],))
+
+    db.execute(
+        """
+        DELETE FROM products
+        WHERE (legacy_code IS NULL OR legacy_code = '')
+          AND id NOT IN (SELECT COALESCE(product_id, 0) FROM sale_items)
+          AND EXISTS (
+            SELECT 1 FROM products p2
+            WHERE p2.id <> products.id
+              AND p2.legacy_code IS NOT NULL
+              AND p2.legacy_code <> ''
+              AND (
+                (products.barcode IS NOT NULL AND products.barcode <> '' AND p2.barcode = products.barcode)
+                OR p2.name = products.name
+              )
+          )
+        """
+    )
 
 
 def seed(db):

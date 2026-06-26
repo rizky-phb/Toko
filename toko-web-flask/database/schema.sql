@@ -39,6 +39,15 @@ CREATE TABLE IF NOT EXISTS products (
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE INDEX IF NOT EXISTS idx_products_legacy_code
+  ON products (legacy_code);
+
+CREATE INDEX IF NOT EXISTS idx_products_barcode
+  ON products (barcode);
+
+CREATE INDEX IF NOT EXISTS idx_products_name
+  ON products (name);
+
 CREATE TABLE IF NOT EXISTS sales (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   sale_no TEXT NOT NULL UNIQUE,
