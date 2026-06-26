@@ -438,6 +438,144 @@ def create_app():
 
         return jsonify({"items": [product_to_json(row) for row in rows]})
 
+    @app.route("/api/sales", methods=["POST"])
+    @cashier_required
+    def api_sales_create():
+        payload = request.get_json(silent=True) or {}
+        raw_items = payload.get("items") or []
+        if not raw_items:
+            return jsonify({"ok": False, "error": "Belum ada item transaksi."}), 400
+
+        db = get_db()
+        sale_items = []
+        subtotal = 0
+        for raw in raw_items:
+            product_id = raw.get("id")
+            qty = parse_float(raw.get("qty", 1))
+            discount = parse_int(raw.get("discount", 0))
+            if not product_id or qty <= 0:
+                return jsonify({"ok": False, "error": "Item transaksi tidak valid."}), 400
+
+            product = db.execute(
+                """
+                SELECT id, barcode, legacy_code, name, unit, cost_price, retail_price
+                FROM products
+                WHERE id = ?
+                """,
+                (product_id,),
+            ).fetchone()
+            if not product:
+                return jsonify({"ok": False, "error": "Produk tidak ditemukan."}), 404
+
+            price = int(product["retail_price"] or 0)
+            line_total = max(0, int(round(qty * price)) - discount)
+            subtotal += line_total
+            sale_items.append(
+                {
+                    "product": product,
+                    "qty": qty,
+                    "price": price,
+                    "discount": discount,
+                    "subtotal": line_total,
+                }
+            )
+
+        total, rounding = round_total(subtotal)
+        paid = parse_int(payload.get("paid", 0))
+        if paid < total:
+            return jsonify({"ok": False, "error": "Uang pembayaran kurang."}), 400
+
+        member = payload.get("member") or {}
+        member_code = str(member.get("code", "")).strip()
+        member_name = str(member.get("name", "")).strip()
+        member_address = str(member.get("address", "")).strip()
+        now = datetime.now(WIB)
+        sale_no = next_sale_no(session["cashier_id"], register_no())
+        note_no = int(sale_no.split("-")[0])
+
+        cursor = db.execute(
+            """
+            INSERT INTO sales
+              (sale_no, register_no, cashier_id, sale_date, member_code, member_name,
+               member_address, subtotal, discount, donation, rounding, total, paid,
+               change_amount, print_receipt, status)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?, ?, ?, 'paid')
+            """,
+            (
+                sale_no,
+                register_no(),
+                session["cashier_id"],
+                now.date().isoformat(),
+                member_code or None,
+                member_name or None,
+                member_address or None,
+                subtotal,
+                rounding,
+                total,
+                paid,
+                paid - total,
+                1 if payload.get("receipt_action", "print") == "print" else 0,
+            ),
+        )
+        sale_id = cursor.lastrowid
+
+        for item in sale_items:
+            product = item["product"]
+            db.execute(
+                """
+                INSERT INTO sale_items
+                  (sale_id, product_id, barcode, product_name, qty, unit, cost_price,
+                   price, discount, subtotal)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    sale_id,
+                    product["id"],
+                    product["barcode"] or product["legacy_code"] or "",
+                    product["name"],
+                    item["qty"],
+                    product["unit"] or "PCS",
+                    product["cost_price"] or 0,
+                    item["price"],
+                    item["discount"],
+                    item["subtotal"],
+                ),
+            )
+            db.execute(
+                "UPDATE products SET stock = stock - ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                (item["qty"], product["id"]),
+            )
+
+        db.execute(
+            "UPDATE cashiers SET last_note = ? WHERE id = ?",
+            (note_no, session["cashier_id"]),
+        )
+        db.commit()
+
+        receipt = build_receipt(
+            sale_no=sale_no,
+            cashier=session.get("cashier_name", "-"),
+            register=register_no(),
+            store=store_settings(),
+            trans_time=now,
+            member={"code": member_code, "name": member_name, "address": member_address},
+            items=sale_items,
+            subtotal=subtotal,
+            rounding=rounding,
+            total=total,
+            paid=paid,
+            change_amount=paid - total,
+        )
+        return jsonify(
+            {
+                "ok": True,
+                "sale_id": sale_id,
+                "sale_no": sale_no,
+                "receipt": receipt,
+                "next_sale_no": next_sale_no(session["cashier_id"], register_no()),
+            }
+        )
+
     return app
 
 
@@ -452,7 +590,27 @@ def init_db():
     DATABASE.parent.mkdir(parents=True, exist_ok=True)
     db = get_db()
     db.executescript(SCHEMA.read_text(encoding="utf-8"))
+    migrate_db(db)
     seed(db)
+
+
+def migrate_db(db):
+    ensure_columns(
+        db,
+        "sales",
+        {
+            "member_code": "TEXT",
+            "member_name": "TEXT",
+            "member_address": "TEXT",
+        },
+    )
+
+
+def ensure_columns(db, table, columns):
+    existing = {row["name"] for row in db.execute(f"PRAGMA table_info({table})")}
+    for name, definition in columns.items():
+        if name not in existing:
+            db.execute(f"ALTER TABLE {table} ADD COLUMN {name} {definition}")
 
 
 def seed(db):
@@ -548,6 +706,65 @@ def product_to_json(row):
         "stock": row["stock"],
         "price": row["retail_price"] or 0,
     }
+
+
+def build_receipt(
+    sale_no,
+    cashier,
+    register,
+    store,
+    trans_time,
+    member,
+    items,
+    subtotal,
+    rounding,
+    total,
+    paid,
+    change_amount,
+):
+    width = 42
+    lines = [
+        store["name"].center(width),
+        store["city"].center(width),
+        "-" * width,
+        f"Nota : {sale_no}",
+        f"Kassa: {register}  Kasir: {cashier}",
+        trans_time.strftime("%d-%m-%Y %H:%M:%S"),
+    ]
+    if member.get("code") or member.get("name"):
+        lines.extend(
+            [
+                f"Member: {member.get('code', '')} {member.get('name', '')}".strip(),
+                f"Almt  : {member.get('address', '')}".rstrip(),
+            ]
+        )
+    lines.append("-" * width)
+    for item in items:
+        product = item["product"]
+        name = product["name"][:width]
+        qty_price = f"{format_rupiah(item['qty'])} x {format_rupiah(item['price'])}"
+        amount = format_rupiah(item["subtotal"])
+        lines.extend(
+            [
+                name,
+                f"{qty_price:<28}{amount:>14}",
+            ]
+        )
+        if item["discount"]:
+            lines.append(f"Disc{'':<24}{format_rupiah(item['discount']):>14}")
+    lines.extend(
+        [
+            "-" * width,
+            f"{'Subtotal':<28}{format_rupiah(subtotal):>14}",
+            f"{'Pembulatan':<28}{format_rupiah(rounding):>14}",
+            f"{'Total':<28}{format_rupiah(total):>14}",
+            f"{'Bayar':<28}{format_rupiah(paid):>14}",
+            f"{'Kembali':<28}{format_rupiah(change_amount):>14}",
+            "-" * width,
+            "TERIMA KASIH".center(width),
+        ]
+    )
+    return "\n".join(lines)
 
 
 def cashier_required(view):

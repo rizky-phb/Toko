@@ -746,7 +746,7 @@ body[data-page="kasir"] .menubar a.active {
   left: 0;
   right: 0;
   top: 205px;
-  bottom: 148px;
+  bottom: 186px;
   display: grid;
   grid-template-columns: 10.6% 38.8% 16.3% 13.8% 7.5% 13%;
   grid-template-rows: 32px 1fr;
@@ -876,7 +876,7 @@ body[data-page="kasir"] .menubar a.active {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 38px;
+  bottom: 76px;
   height: 110px;
   display: grid;
   grid-template-columns: 1fr 110px 360px;
@@ -897,12 +897,36 @@ body[data-page="kasir"] .menubar a.active {
   gap: 2px;
 }
 
-.cr-hidden-input {
+.cr-input-line {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
+  left: 0;
+  right: 0;
+  bottom: 38px;
+  height: 38px;
+  display: grid;
+  grid-template-columns: 18ch 1fr;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  background: #0000a8;
+  color: #ffff33;
+  border-top: 3px solid #111;
+}
+
+.cr-input-line label {
+  white-space: nowrap;
+}
+
+.cr-input-line input {
+  width: 100%;
+  min-width: 0;
+  height: 30px;
+  border: 0;
+  outline: 0;
+  padding: 0 8px;
+  background: #ffffcc;
+  color: #000;
+  font: inherit;
 }
 
 .cr-status {
