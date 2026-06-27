@@ -650,11 +650,29 @@ body[data-page="kasir"] .menubar a.active {
 }
 
 .cr-wvt-screen {
+  --cr-redbar-h: 32px;
+  --cr-header-h: 86px;
+  --cr-strip-h: 22px;
+  --cr-marquee-h: 34px;
+  --cr-grid-head-h: 28px;
+  --cr-bottom-h: 108px;
+  --cr-input-h: 33px;
+  --cr-status-h: 33px;
   width: min(100%, 1280px);
-  height: 100vh;
+  height: 100dvh;
   min-height: 0;
   margin: 0 auto;
   position: relative;
+  display: grid;
+  grid-template-rows:
+    var(--cr-redbar-h)
+    var(--cr-header-h)
+    var(--cr-strip-h)
+    var(--cr-marquee-h)
+    minmax(96px, 1fr)
+    var(--cr-bottom-h)
+    var(--cr-input-h)
+    var(--cr-status-h);
   overflow: hidden;
   background: #00aaa5;
   color: #ddd2ff;
@@ -663,7 +681,7 @@ body[data-page="kasir"] .menubar a.active {
 }
 
 .cr-redbar {
-  height: 32px;
+  min-height: 0;
   padding: 1px 16px;
   display: flex;
   justify-content: space-between;
@@ -674,7 +692,7 @@ body[data-page="kasir"] .menubar a.active {
 }
 
 .cr-header {
-  height: 86px;
+  min-height: 0;
   display: grid;
   grid-template-columns: 1fr 120px 230px;
   align-items: center;
@@ -708,7 +726,7 @@ body[data-page="kasir"] .menubar a.active {
 }
 
 .cr-cyan-strip {
-  height: 22px;
+  min-height: 0;
   border-top: 9px solid #00c8c1;
   border-bottom: 3px solid #111;
   background: #00aaa5;
@@ -716,7 +734,7 @@ body[data-page="kasir"] .menubar a.active {
 }
 
 .cr-marquee {
-  height: 34px;
+  min-height: 0;
   padding: 1px 0;
   background: #b000b0;
   color: #ffff33;
@@ -742,14 +760,10 @@ body[data-page="kasir"] .menubar a.active {
 }
 
 .cr-grid {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 174px;
-  bottom: 158px;
+  min-height: 0;
   display: grid;
   grid-template-columns: 10.6% 38.8% 16.3% 13.8% 7.5% 13%;
-  grid-template-rows: 28px 1fr;
+  grid-template-rows: var(--cr-grid-head-h) minmax(0, 1fr);
   background: #0aa9a5;
   border-top: 3px solid #111;
   border-bottom: 3px solid #111;
@@ -873,11 +887,7 @@ body[data-page="kasir"] .menubar a.active {
 }
 
 .cr-bottom-panel {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 66px;
-  height: 92px;
+  min-height: 0;
   display: grid;
   grid-template-columns: 1fr 96px 330px;
   align-items: center;
@@ -898,11 +908,7 @@ body[data-page="kasir"] .menubar a.active {
 }
 
 .cr-input-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 33px;
-  height: 33px;
+  min-height: 0;
   display: grid;
   grid-template-columns: 18ch 1fr;
   align-items: center;
@@ -930,17 +936,91 @@ body[data-page="kasir"] .menubar a.active {
 }
 
 .cr-status {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 33px;
+  min-height: 0;
   padding: 1px 0;
   background: #c00000;
   color: #fff;
   white-space: pre;
   overflow: hidden;
   font-size: 21px;
+}
+
+@media (max-height: 760px) {
+  .cr-wvt-screen {
+    --cr-redbar-h: 28px;
+    --cr-header-h: 74px;
+    --cr-strip-h: 18px;
+    --cr-marquee-h: 29px;
+    --cr-grid-head-h: 24px;
+    --cr-bottom-h: 90px;
+    --cr-input-h: 30px;
+    --cr-status-h: 30px;
+    font-size: 19px;
+  }
+
+  .cr-redbar {
+    font-size: 21px;
+  }
+
+  .cr-header {
+    grid-template-columns: 1fr 92px 190px;
+    padding: 0 12px;
+  }
+
+  .cr-yellow-block {
+    width: 34px;
+    height: 50px;
+    border-width: 10px;
+  }
+
+  .cr-yellow-block.small {
+    width: 32px;
+    height: 46px;
+    border-width: 9px;
+  }
+
+  .cr-cyan-strip {
+    border-top-width: 7px;
+    border-bottom-width: 2px;
+    box-shadow: inset 0 -4px 0 #111;
+  }
+
+  .cr-grid-row {
+    height: 24px;
+  }
+
+  .cr-input-line input {
+    height: 24px;
+  }
+
+  .cr-status {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 900px) {
+  .cr-wvt-screen {
+    font-size: 18px;
+  }
+
+  .cr-header {
+    grid-template-columns: 1fr 74px 158px;
+    padding: 0 8px;
+  }
+
+  .cr-bottom-panel {
+    grid-template-columns: 1fr 56px 230px;
+    padding: 0 8px;
+  }
+
+  .cr-input-line {
+    grid-template-columns: 13ch 1fr;
+    padding: 0 8px;
+  }
+
+  .cr-status {
+    font-size: 16px;
+  }
 }
 
 .cash-screen,
