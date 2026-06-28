@@ -699,7 +699,7 @@ body[data-page="kasir"] .menubar a.active {
 .cr-header {
   min-height: 0;
   display: grid;
-  grid-template-columns: 1fr 120px 230px;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 22vw) 230px;
   align-items: center;
   padding: 0 18px;
   background: #0000a8;
@@ -716,26 +716,23 @@ body[data-page="kasir"] .menubar a.active {
   text-align: right;
 }
 
-.cr-yellow-block {
-  width: 42px;
-  height: 60px;
-  margin: 0 auto;
-  display: grid;
-  place-items: center;
-  border: 3px solid #ffff33;
-  background: #0000a8;
+.cr-live-total {
+  width: 100%;
+  min-width: 0;
+  justify-self: end;
+  align-self: center;
   color: #ffff33;
-  font-size: 48px;
+  font-size: clamp(24px, 3vw, 42px);
   line-height: 1;
   font-weight: 700;
+  text-align: right;
   overflow: hidden;
+  white-space: nowrap;
+  text-overflow: clip;
 }
 
-.cr-yellow-block.small {
-  width: 38px;
-  height: 54px;
-  border-width: 3px;
-  font-size: 42px;
+.cr-live-total.small {
+  font-size: clamp(22px, 2.6vw, 38px);
 }
 
 .cr-cyan-strip {
@@ -903,7 +900,7 @@ body[data-page="kasir"] .menubar a.active {
 .cr-bottom-panel {
   min-height: 0;
   display: grid;
-  grid-template-columns: 1fr 96px 330px;
+  grid-template-columns: minmax(0, 1fr) minmax(170px, 22vw) 330px;
   align-items: center;
   padding: 0 16px;
   background: #0000a8;
@@ -977,22 +974,16 @@ body[data-page="kasir"] .menubar a.active {
   }
 
   .cr-header {
-    grid-template-columns: 1fr 92px 190px;
+    grid-template-columns: minmax(0, 1fr) minmax(130px, 22vw) 190px;
     padding: 0 12px;
   }
 
-  .cr-yellow-block {
-    width: 34px;
-    height: 50px;
-    border-width: 3px;
-    font-size: 38px;
+  .cr-live-total {
+    font-size: 28px;
   }
 
-  .cr-yellow-block.small {
-    width: 32px;
-    height: 46px;
-    border-width: 3px;
-    font-size: 34px;
+  .cr-live-total.small {
+    font-size: 26px;
   }
 
   .cr-cyan-strip {
@@ -1025,7 +1016,7 @@ body[data-page="kasir"] .menubar a.active {
   }
 
   .cr-bottom-panel {
-    grid-template-columns: 1fr 56px 230px;
+    grid-template-columns: minmax(0, 1fr) minmax(130px, 22vw) 230px;
     padding: 0 8px;
   }
 

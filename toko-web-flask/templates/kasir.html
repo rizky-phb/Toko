@@ -13,7 +13,7 @@
       <div>{{ store.city }}</div>
       <div>Kasir: {{ cashier_name }}</div>
     </div>
-    <div class="cr-yellow-block cr-live-count" id="cr-header-live-count">0</div>
+    <div class="cr-live-total" id="cr-header-live-total">0</div>
     <div class="cr-note">
       <div>Nota: <span id="cr-note-no">{{ sale_no.split('-')[0] }}</span></div>
       <div>Item: <span id="cr-item-count">0</span></div>
@@ -47,7 +47,7 @@
       <div>Almt:<span id="cr-member-address"></span></div>
       <div>Poin:</div>
     </div>
-    <div class="cr-yellow-block small cr-live-count" id="cr-bottom-live-count">0</div>
+    <div class="cr-live-total small" id="cr-bottom-live-total">0</div>
     <div class="cr-totals">
       <div>Jml.Belanja:<span id="cr-total-belanja">0</span></div>
       <div>Disc:       <span id="cr-sale-discount">0</span></div>
@@ -70,8 +70,8 @@
   const grid = document.querySelector("#cr-grid");
   const gridBody = document.querySelector("#cr-grid-body");
   const itemCount = document.querySelector("#cr-item-count");
-  const headerLiveCount = document.querySelector("#cr-header-live-count");
-  const bottomLiveCount = document.querySelector("#cr-bottom-live-count");
+  const headerLiveTotal = document.querySelector("#cr-header-live-total");
+  const bottomLiveTotal = document.querySelector("#cr-bottom-live-total");
   const noteNo = document.querySelector("#cr-note-no");
   const totalBelanja = document.querySelector("#cr-total-belanja");
   const saleDiscountText = document.querySelector("#cr-sale-discount");
@@ -150,8 +150,8 @@
     subtotalAmount = total;
     cartTotal = Math.max(0, subtotalAmount - saleDiscount);
     itemCount.textContent = formatNumber(totalQty);
-    headerLiveCount.textContent = formatNumber(totalQty);
-    bottomLiveCount.textContent = formatNumber(totalQty);
+    headerLiveTotal.textContent = formatNumber(cartTotal);
+    bottomLiveTotal.textContent = formatNumber(cartTotal);
     totalBelanja.textContent = formatNumber(subtotalAmount);
     saleDiscountText.textContent = formatNumber(saleDiscount);
     jmlBayar.textContent = formatNumber(cartTotal);
