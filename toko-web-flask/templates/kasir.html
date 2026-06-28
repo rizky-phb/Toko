@@ -50,7 +50,7 @@
     <div class="cr-yellow-block small"></div>
     <div class="cr-totals">
       <div>Jml.Belanja:<span id="cr-total-belanja">0</span></div>
-      <div>Disc:  0,00%</div>
+      <div>Disc:       <span id="cr-sale-discount">0</span></div>
       <div>Jml.Bayar  :<span id="cr-jml-bayar">0</span></div>
       <div>Kembali    :<span id="cr-kembali">0</span></div>
     </div>
@@ -72,6 +72,7 @@
   const itemCount = document.querySelector("#cr-item-count");
   const noteNo = document.querySelector("#cr-note-no");
   const totalBelanja = document.querySelector("#cr-total-belanja");
+  const saleDiscountText = document.querySelector("#cr-sale-discount");
   const jmlBayar = document.querySelector("#cr-jml-bayar");
   const kembali = document.querySelector("#cr-kembali");
   const inputLabel = document.querySelector("#cr-input-label");
@@ -92,6 +93,8 @@
   let inputMode = "scan";
   let suggestions = [];
   let selectedSuggestion = 0;
+  let subtotalAmount = 0;
+  let saleDiscount = 0;
   let cartTotal = 0;
   let paidAmount = 0;
   let lastReceipt = "";
@@ -140,11 +143,13 @@
       row.addEventListener("click", () => removeCartItem(index));
       gridBody.appendChild(row);
     });
-    cartTotal = total;
+    subtotalAmount = total;
+    cartTotal = Math.max(0, subtotalAmount - saleDiscount);
     itemCount.textContent = cart.length;
-    totalBelanja.textContent = formatNumber(total);
-    jmlBayar.textContent = formatNumber(total);
-    kembali.textContent = formatNumber(Math.max(0, paidAmount - total));
+    totalBelanja.textContent = formatNumber(subtotalAmount);
+    saleDiscountText.textContent = formatNumber(saleDiscount);
+    jmlBayar.textContent = formatNumber(cartTotal);
+    kembali.textContent = formatNumber(Math.max(0, paidAmount - cartTotal));
   }
 
   function renderMember() {
@@ -228,6 +233,7 @@
       body: JSON.stringify({
         items: cart,
         member,
+        discount: saleDiscount,
         paid: paidAmount,
         receipt_action: receiptAction,
       }),
@@ -368,6 +374,13 @@
         setInputMode("scan", "BarCode/Nama:", `Member ${foundMember.name} ditemukan.`);
         return;
       }
+      if (inputMode === "saleDiscount") {
+        saleDiscount = Number(barcode.value.replace(/\./g, "").replace(",", "")) || 0;
+        saleDiscount = Math.max(0, Math.min(saleDiscount, subtotalAmount));
+        renderCart();
+        setInputMode("payment", "Uang Bayar:", "Isi uang pembayaran lalu ENTER.");
+        return;
+      }
       if (inputMode === "payment") {
         paidAmount = Number(barcode.value.replace(/\./g, "").replace(",", "")) || 0;
         renderCart();
@@ -406,7 +419,7 @@
         return;
       }
       if (cart.length > 0) {
-        setInputMode("payment", "Uang Bayar:", "Isi uang pembayaran lalu ENTER.");
+        setInputMode("saleDiscount", "Diskon:", "Isi diskon transaksi, ENTER jika 0.");
         return;
       }
       setInputMode("scan", "BarCode/Nama:");

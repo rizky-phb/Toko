@@ -561,7 +561,9 @@ def create_app():
                 }
             )
 
-        total, rounding = round_total(subtotal)
+        sale_discount = max(0, min(parse_int(payload.get("discount", 0)), subtotal))
+        discounted_subtotal = subtotal - sale_discount
+        total, rounding = round_total(discounted_subtotal)
         paid = parse_int(payload.get("paid", 0))
         if paid < total:
             return jsonify({"ok": False, "error": "Uang pembayaran kurang."}), 400
@@ -580,7 +582,7 @@ def create_app():
               (sale_no, register_no, cashier_id, sale_date, member_code, member_name,
                member_address, subtotal, discount, donation, rounding, total, paid,
                change_amount, print_receipt, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?, ?, ?, ?, 'paid')
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, 'paid')
             """,
             (
                 sale_no,
@@ -591,6 +593,7 @@ def create_app():
                 member_name or None,
                 member_address or None,
                 subtotal,
+                sale_discount,
                 rounding,
                 total,
                 paid,
@@ -642,6 +645,7 @@ def create_app():
             member={"code": member_code, "name": member_name, "address": member_address},
             items=sale_items,
             subtotal=subtotal,
+            discount=sale_discount,
             rounding=rounding,
             total=total,
             paid=paid,
@@ -1127,6 +1131,7 @@ def build_receipt(
     member,
     items,
     subtotal,
+    discount,
     rounding,
     total,
     paid,
@@ -1166,6 +1171,7 @@ def build_receipt(
         [
             "-" * width,
             f"{'Subtotal':<28}{format_rupiah(subtotal):>14}",
+            f"{'Diskon':<28}{format_rupiah(discount):>14}",
             f"{'Pembulatan':<28}{format_rupiah(rounding):>14}",
             f"{'Total':<28}{format_rupiah(total):>14}",
             f"{'Bayar':<28}{format_rupiah(paid):>14}",
