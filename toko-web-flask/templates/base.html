@@ -8,7 +8,7 @@
 </head>
 <body data-page="{{ active_path.strip('/') or 'dashboard' }}">
   <div class="app">
-    {% if not active_path.startswith('/kasir') %}
+    {% if not active_path.startswith('/kasir') and active_path not in ['/stok', '/stok-barang'] %}
     <header class="topbar">
       <span>{{ app_name }}</span>
       <span>Kassa: {{ register_no }} | Kasir: {{ cashier_name }}</span>
@@ -26,7 +26,7 @@
     </nav>
     {% endif %}
     <main>{% block content %}{% endblock %}</main>
-    {% if not active_path.startswith('/kasir') %}
+    {% if not active_path.startswith('/kasir') and active_path not in ['/stok', '/stok-barang'] %}
     <footer class="statusbar">
       <span>F2 Cari/Sortir &nbsp; F4 Tambah &nbsp; F5 Edit &nbsp; F8 Hapus &nbsp; F10 Cetak</span>
       <span>Flask Port</span>

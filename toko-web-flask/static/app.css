@@ -535,6 +535,37 @@ body[data-page="kasir"] .menubar a.active {
   background: #008080;
 }
 
+body[data-page="stok"],
+body[data-page="stok-barang"] {
+  background:
+    repeating-linear-gradient(115deg, rgba(0, 0, 0, .08) 0 1px, transparent 1px 4px),
+    #00958d;
+}
+
+body[data-page="stok"] .app,
+body[data-page="stok-barang"] .app {
+  display: block;
+  min-height: 100vh;
+  background:
+    repeating-linear-gradient(115deg, rgba(0, 0, 0, .08) 0 1px, transparent 1px 4px),
+    #00958d;
+}
+
+body[data-page="stok"] main,
+body[data-page="stok-barang"] main {
+  min-height: 100vh;
+  padding: 22px 0;
+}
+
+body[data-page="stok"] .dos-stok,
+body[data-page="stok-barang"] .dos-stok {
+  width: min(1540px, calc(100vw - 56px));
+  min-height: calc(100vh - 44px);
+  margin: 0 auto;
+  border: 3px solid #031d1b;
+  box-shadow: 8px 8px 0 rgba(0, 0, 0, .28);
+}
+
 .stok-title {
   height: 28px;
   padding-top: 4px;
@@ -546,7 +577,7 @@ body[data-page="kasir"] .menubar a.active {
 
 .stok-frame {
   position: relative;
-  min-height: 568px;
+  min-height: calc(100vh - 118px);
   border-top: 2px solid #fff;
   border-bottom: 2px solid #fff;
   background:
@@ -555,12 +586,12 @@ body[data-page="kasir"] .menubar a.active {
 }
 
 .stok-menubar {
-  height: 30px;
-  padding-left: 48px;
+  height: 44px;
+  padding-left: 74px;
   background: #aa0000;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 20px;
 }
 
 .stok-menubar button,
@@ -633,10 +664,10 @@ body[data-page="kasir"] .menubar a.active {
 
 .stok-products {
   position: absolute;
-  left: 24px;
-  right: 24px;
-  top: 250px;
-  max-height: 290px;
+  left: 36px;
+  right: 36px;
+  bottom: 18px;
+  top: 430px;
   overflow: auto;
   border: 2px solid #031d1b;
   background: #078981;
