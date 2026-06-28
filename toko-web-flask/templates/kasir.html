@@ -51,7 +51,7 @@
       <div>Kode:<span id="cr-member-code"></span></div>
       <div>Nama:<span id="cr-member-name"></span></div>
       <div>Almt:<span id="cr-member-address"></span></div>
-      <div>Poin:</div>
+      <div>Poin:<span id="cr-member-points"></span></div>
     </div>
     <div class="cr-live-total small" id="cr-bottom-live-total">0</div>
     <div class="cr-totals">
@@ -87,6 +87,7 @@
   const memberCodeText = document.querySelector("#cr-member-code");
   const memberNameText = document.querySelector("#cr-member-name");
   const memberAddressText = document.querySelector("#cr-member-address");
+  const memberPointsText = document.querySelector("#cr-member-points");
   const picker = document.querySelector("#cr-picker");
   const pickerTitle = document.querySelector("#cr-picker-title");
   const pickerList = document.querySelector("#cr-picker-list");
@@ -173,6 +174,7 @@
     memberCodeText.textContent = member.code ? ` ${member.code}` : "";
     memberNameText.textContent = member.name ? ` ${member.name}` : "";
     memberAddressText.textContent = member.address ? ` ${member.address}` : "";
+    memberPointsText.textContent = member.code ? ` ${formatNumber(member.points ?? 0)}` : "";
   }
 
   function showPointBox(customer) {
@@ -523,6 +525,7 @@
           member.code = "";
           member.name = "";
           member.address = "";
+          member.points = 0;
           renderMember();
           setInputMode("scan", "BarCode/Nama:", "Member tidak ditemukan.");
           return;
