@@ -53,12 +53,14 @@ def create_app():
 
     @app.route("/logout")
     def logout():
-        session.pop("cashier_id", None)
-        session.pop("cashier_name", None)
-        session.pop("register_no", None)
-        session.pop("print_receipt", None)
+        clear_cashier_session()
         session.pop("stock_logged_in", None)
         return redirect(url_for("desktop"))
+
+    @app.route("/kasir/logout")
+    def kasir_logout():
+        clear_cashier_session()
+        return redirect(url_for("kasir"))
 
     @app.route("/")
     def desktop():
@@ -475,6 +477,17 @@ def create_app():
         if not customer:
             return jsonify({"found": False}), 404
         return jsonify({"found": True, "customer": customer_to_json(customer)})
+
+    @app.route("/api/cashier/print-preference", methods=["POST"])
+    @cashier_required
+    def api_cashier_print_preference():
+        payload = request.get_json(silent=True) or {}
+        value = str(payload.get("print_receipt", "")).strip()
+        if value not in {"", "1", "0"}:
+            return jsonify({"ok": False, "error": "Pilihan print tidak valid."}), 400
+        session["print_receipt"] = value
+        labels = {"": "Tanya saat transaksi", "1": "Print struk", "0": "Download struk"}
+        return jsonify({"ok": True, "print_receipt": value, "label": labels[value]})
 
     @app.route("/api/products/search")
     @cashier_required
@@ -1355,6 +1368,13 @@ def cashier_required(view):
         return view(**kwargs)
 
     return wrapped_view
+
+
+def clear_cashier_session():
+    session.pop("cashier_id", None)
+    session.pop("cashier_name", None)
+    session.pop("register_no", None)
+    session.pop("print_receipt", None)
 
 
 def stock_required(view):

@@ -67,7 +67,7 @@
     <input id="barcode" name="barcode" autofocus>
   </form>
 
-  <div class="cr-status" id="cr-status">F3=Kas    F4=Rekap    F5=Set_Print    F10=Ctk_Ulang    F11=CekPoin    ENTER=Transaksi</div>
+  <div class="cr-status" id="cr-status">F3=Kas    F4=Rekap    F5=Set_Print    F10=Ctk_Ulang    F11=CekPoin    F12=Logout    ENTER=Transaksi</div>
 </section>
 
 <script>
@@ -99,7 +99,7 @@
   const localStart = Date.now();
   const cart = [];
   const member = { code: "", name: "", address: "" };
-  const printPreference = "{{ print_receipt }}";
+  let printPreference = "{{ print_receipt }}";
   let pendingQty = 1;
   let mode = "code";
   let inputMode = "scan";
@@ -116,7 +116,7 @@
   const formatNumber = (value) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(value || 0);
   const setStatus = (text) => { statusLine.textContent = text; };
   const openKas = () => { window.location.href = "{{ url_for('kas_harian') }}"; };
-  const defaultStatus = () => setStatus("F3=Kas    F4=Rekap    F5=Set_Print    F10=Ctk_Ulang    F11=CekPoin    ENTER=Transaksi");
+  const defaultStatus = () => setStatus("F3=Kas    F4=Rekap    F5=Set_Print    F10=Ctk_Ulang    F11=CekPoin    F12=Logout    ENTER=Transaksi");
   const scanStatus = () => setStatus("BarCode/Nama?   n*=Qty   Up/Down=Pilih   ENTER=Ambil   F1=Member   F2=Cek_Hrg   F9=Tunda   ESC=Selesai");
   const setInputMode = (nextMode, label, statusText = "") => {
     inputMode = nextMode;
@@ -296,6 +296,29 @@
     }
   }
 
+  async function updatePrintPreference(value) {
+    const response = await fetch("{{ url_for('api_cashier_print_preference') }}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ print_receipt: value }),
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      setStatus(data.error || "Set print gagal disimpan.");
+      return;
+    }
+    printPreference = data.print_receipt;
+    setInputMode("scan", "BarCode/Nama:", `Set_Print: ${data.label}`);
+  }
+
+  function logoutCashier() {
+    if (cart.length > 0 && !window.confirm("Transaksi belum selesai. Logout kasir sekarang?")) {
+      barcode.focus();
+      return;
+    }
+    window.location.href = "{{ url_for('kasir_logout') }}";
+  }
+
   function renderProductPicker() {
     picker.hidden = suggestions.length === 0;
     pickerTitle.textContent = suggestions.length ? "Pilih barang lalu ENTER" : "Barang tidak ditemukan";
@@ -473,7 +496,7 @@
   });
 
   document.addEventListener("keydown", async (event) => {
-    if (["F1", "F2", "F3", "F4", "F5", "F8", "F9", "F10", "F11"].includes(event.key)) {
+    if (["F1", "F2", "F3", "F4", "F5", "F8", "F9", "F10", "F11", "F12"].includes(event.key)) {
       event.preventDefault();
     }
 
@@ -493,7 +516,11 @@
     if (event.key === "F1") setInputMode("memberCode", "Kode Member:", "Isi kode member lalu ENTER. ESC=Batal");
     if (event.key === "F3") openKas();
     if (event.key === "F4") setStatus("Jenis Lap,  1=Rekap Barang   2=Rekap Nota   3=Rekap  [1/2/3]:      ESC=Selesai");
-    if (event.key === "F5") setStatus("Set_Print: T=Tidak_Cetak_Nota");
+    if (event.key === "F5") {
+      closePicker();
+      closePointBox();
+      setInputMode("printSetting", "Set Print:", "Y=Print struk   T=Download struk   K=Tanya saat transaksi");
+    }
     if (event.key === "F9") {
       await holdCurrentSale();
       return;
@@ -503,6 +530,10 @@
       closePicker();
       closePointBox();
       setInputMode("pointsCode", "Kode Customer:", "Isi kode customer lalu ENTER untuk cek poin. ESC=Batal");
+    }
+    if (event.key === "F12") {
+      logoutCashier();
+      return;
     }
     if (event.key === "Enter") {
       event.preventDefault();
@@ -547,6 +578,24 @@
         const foundCustomer = await lookupMember(code);
         showPointBox(foundCustomer);
         setInputMode("scan", "BarCode/Nama:", foundCustomer ? `Poin ${foundCustomer.name}: ${formatNumber(foundCustomer.points)}` : "Member tidak ditemukan.");
+        return;
+      }
+      if (inputMode === "printSetting") {
+        const choice = barcode.value.trim().toUpperCase();
+        if (choice === "Y") {
+          await updatePrintPreference("1");
+          return;
+        }
+        if (choice === "T") {
+          await updatePrintPreference("0");
+          return;
+        }
+        if (choice === "K" || choice === "") {
+          await updatePrintPreference("");
+          return;
+        }
+        setStatus("Pilih Y=Print, T=Download, atau K=Tanya saat transaksi.");
+        barcode.select();
         return;
       }
       if (inputMode === "saleDiscount") {
