@@ -1,4 +1,5 @@
 import os
+import json
 import sqlite3
 from pathlib import Path
 from functools import wraps
@@ -528,38 +529,10 @@ def create_app():
             return jsonify({"ok": False, "error": "Belum ada item transaksi."}), 400
 
         db = get_db()
-        sale_items = []
-        subtotal = 0
-        for raw in raw_items:
-            product_id = raw.get("id")
-            qty = parse_float(raw.get("qty", 1))
-            discount = parse_int(raw.get("discount", 0))
-            if not product_id or qty <= 0:
-                return jsonify({"ok": False, "error": "Item transaksi tidak valid."}), 400
-
-            product = db.execute(
-                """
-                SELECT id, barcode, legacy_code, name, unit, cost_price, retail_price
-                FROM products
-                WHERE id = ?
-                """,
-                (product_id,),
-            ).fetchone()
-            if not product:
-                return jsonify({"ok": False, "error": "Produk tidak ditemukan."}), 404
-
-            price = int(product["retail_price"] or 0)
-            line_total = max(0, int(round(qty * price)) - discount)
-            subtotal += line_total
-            sale_items.append(
-                {
-                    "product": product,
-                    "qty": qty,
-                    "price": price,
-                    "discount": discount,
-                    "subtotal": line_total,
-                }
-            )
+        try:
+            sale_items, subtotal = prepare_sale_items(db, raw_items)
+        except ValueError as exc:
+            return jsonify({"ok": False, "error": str(exc)}), 400
 
         sale_discount = max(0, min(parse_int(payload.get("discount", 0)), subtotal))
         discounted_subtotal = subtotal - sale_discount
@@ -634,6 +607,15 @@ def create_app():
             "UPDATE cashiers SET last_note = ? WHERE id = ?",
             (note_no, session["cashier_id"]),
         )
+        held_sale_id = parse_int(payload.get("held_sale_id", 0))
+        if held_sale_id:
+            db.execute(
+                """
+                DELETE FROM held_sales
+                WHERE id = ? AND register_no = ? AND cashier_id = ?
+                """,
+                (held_sale_id, register_no(), session["cashier_id"]),
+            )
         db.commit()
 
         receipt = build_receipt(
@@ -660,6 +642,152 @@ def create_app():
                 "next_sale_no": next_sale_no(session["cashier_id"], register_no()),
             }
         )
+
+    @app.route("/api/held-sales", methods=["GET"])
+    @cashier_required
+    def api_held_sales_list():
+        rows = get_db().execute(
+            """
+            SELECT id, cashier_name, member_code, member_name, subtotal, sale_discount,
+                   total, item_count, created_at, updated_at
+            FROM held_sales
+            WHERE register_no = ? AND cashier_id = ?
+            ORDER BY updated_at DESC, id DESC
+            """,
+            (register_no(), session["cashier_id"]),
+        ).fetchall()
+        return jsonify(
+            {
+                "items": [
+                    {
+                        "id": row["id"],
+                        "cashier_name": row["cashier_name"],
+                        "member_code": row["member_code"] or "",
+                        "member_name": row["member_name"] or "",
+                        "subtotal": row["subtotal"],
+                        "discount": row["sale_discount"],
+                        "total": row["total"],
+                        "item_count": row["item_count"],
+                        "created_at": row["created_at"],
+                        "updated_at": row["updated_at"],
+                    }
+                    for row in rows
+                ]
+            }
+        )
+
+    @app.route("/api/held-sales", methods=["POST"])
+    @cashier_required
+    def api_held_sales_create():
+        payload = request.get_json(silent=True) or {}
+        raw_items = payload.get("items") or []
+        if not raw_items:
+            return jsonify({"ok": False, "error": "Belum ada item untuk ditunda."}), 400
+
+        db = get_db()
+        try:
+            sale_items, subtotal = prepare_sale_items(db, raw_items)
+        except ValueError as exc:
+            return jsonify({"ok": False, "error": str(exc)}), 400
+
+        sale_discount = max(0, min(parse_int(payload.get("discount", 0)), subtotal))
+        total, _rounding = round_total(subtotal - sale_discount)
+        member = payload.get("member") or {}
+        member_code = str(member.get("code", "")).strip()
+        member_name = str(member.get("name", "")).strip()
+        member_address = str(member.get("address", "")).strip()
+        item_count = sum(item["qty"] for item in sale_items)
+        item_payload = [
+            {
+                "id": item["product"]["id"],
+                "barcode": item["product"]["barcode"] or item["product"]["legacy_code"] or "",
+                "legacy_code": item["product"]["legacy_code"] or "",
+                "name": item["product"]["name"],
+                "qty": item["qty"],
+                "price": item["price"],
+                "discount": item["discount"],
+            }
+            for item in sale_items
+        ]
+        cursor = db.execute(
+            """
+            INSERT INTO held_sales
+              (register_no, cashier_id, cashier_name, member_code, member_name,
+               member_address, sale_discount, items_json, subtotal, total, item_count)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                register_no(),
+                session["cashier_id"],
+                session.get("cashier_name", ""),
+                member_code or None,
+                member_name or None,
+                member_address or None,
+                sale_discount,
+                json.dumps(item_payload),
+                subtotal,
+                total,
+                item_count,
+            ),
+        )
+        held_sale_id = parse_int(payload.get("held_sale_id", 0))
+        if held_sale_id:
+            db.execute(
+                """
+                DELETE FROM held_sales
+                WHERE id = ? AND register_no = ? AND cashier_id = ? AND id <> ?
+                """,
+                (held_sale_id, register_no(), session["cashier_id"], cursor.lastrowid),
+            )
+        db.commit()
+        return jsonify({"ok": True, "held_sale_id": cursor.lastrowid})
+
+    @app.route("/api/held-sales/<int:held_sale_id>", methods=["GET"])
+    @cashier_required
+    def api_held_sale_detail(held_sale_id):
+        row = get_db().execute(
+            """
+            SELECT id, member_code, member_name, member_address, sale_discount,
+                   items_json, subtotal, total, item_count
+            FROM held_sales
+            WHERE id = ? AND register_no = ? AND cashier_id = ?
+            """,
+            (held_sale_id, register_no(), session["cashier_id"]),
+        ).fetchone()
+        if not row:
+            return jsonify({"ok": False, "error": "Transaksi tunda tidak ditemukan."}), 404
+
+        return jsonify(
+            {
+                "ok": True,
+                "held_sale": {
+                    "id": row["id"],
+                    "member": {
+                        "code": row["member_code"] or "",
+                        "name": row["member_name"] or "",
+                        "address": row["member_address"] or "",
+                    },
+                    "discount": row["sale_discount"],
+                    "items": json.loads(row["items_json"] or "[]"),
+                    "subtotal": row["subtotal"],
+                    "total": row["total"],
+                    "item_count": row["item_count"],
+                },
+            }
+        )
+
+    @app.route("/api/held-sales/<int:held_sale_id>", methods=["DELETE"])
+    @cashier_required
+    def api_held_sale_delete(held_sale_id):
+        get_db().execute(
+            """
+            DELETE FROM held_sales
+            WHERE id = ? AND register_no = ? AND cashier_id = ?
+            """,
+            (held_sale_id, register_no(), session["cashier_id"]),
+        )
+        get_db().commit()
+        return jsonify({"ok": True})
 
     return app
 
@@ -1122,6 +1250,42 @@ def customer_to_json(row):
     }
 
 
+def prepare_sale_items(db, raw_items):
+    sale_items = []
+    subtotal = 0
+    for raw in raw_items:
+        product_id = raw.get("id")
+        qty = parse_float(raw.get("qty", 1))
+        discount = parse_int(raw.get("discount", 0))
+        if not product_id or qty <= 0:
+            raise ValueError("Item transaksi tidak valid.")
+
+        product = db.execute(
+            """
+            SELECT id, barcode, legacy_code, name, unit, cost_price, retail_price
+            FROM products
+            WHERE id = ?
+            """,
+            (product_id,),
+        ).fetchone()
+        if not product:
+            raise ValueError("Produk tidak ditemukan.")
+
+        price = int(product["retail_price"] or 0)
+        line_total = max(0, int(round(qty * price)) - discount)
+        subtotal += line_total
+        sale_items.append(
+            {
+                "product": product,
+                "qty": qty,
+                "price": price,
+                "discount": discount,
+                "subtotal": line_total,
+            }
+        )
+    return sale_items, subtotal
+
+
 def build_receipt(
     sale_no,
     cashier,
@@ -1256,6 +1420,8 @@ def parse_int(value):
 
 
 def parse_float(value):
+    if isinstance(value, (int, float)):
+        return float(value)
     normalized = str(value or "0").replace(".", "").replace(",", ".")
     try:
         return float(normalized)

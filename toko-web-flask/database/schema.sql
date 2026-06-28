@@ -104,6 +104,27 @@ CREATE TABLE IF NOT EXISTS sale_items (
   FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
+CREATE TABLE IF NOT EXISTS held_sales (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  register_no TEXT NOT NULL,
+  cashier_id INTEGER NOT NULL,
+  cashier_name TEXT NOT NULL DEFAULT '',
+  member_code TEXT,
+  member_name TEXT,
+  member_address TEXT,
+  sale_discount INTEGER NOT NULL DEFAULT 0,
+  items_json TEXT NOT NULL,
+  subtotal INTEGER NOT NULL DEFAULT 0,
+  total INTEGER NOT NULL DEFAULT 0,
+  item_count REAL NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (cashier_id) REFERENCES cashiers(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_held_sales_register_cashier
+  ON held_sales (register_no, cashier_id, created_at);
+
 CREATE TABLE IF NOT EXISTS cash_accounts (
   code TEXT PRIMARY KEY,
   name TEXT NOT NULL,

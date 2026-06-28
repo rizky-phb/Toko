@@ -40,6 +40,12 @@
     <div class="cr-picker-list" id="cr-picker-list"></div>
   </div>
 
+  <div class="cr-point-box" id="cr-point-box" hidden>
+    <div class="cr-point-title">Cek Point Belanja</div>
+    <div class="cr-point-body" id="cr-point-body"></div>
+    <button class="cr-point-close" id="cr-point-close" type="button">Tutup</button>
+  </div>
+
   <div class="cr-bottom-panel">
     <div class="cr-customer-lines">
       <div>Kode:<span id="cr-member-code"></span></div>
@@ -84,6 +90,9 @@
   const picker = document.querySelector("#cr-picker");
   const pickerTitle = document.querySelector("#cr-picker-title");
   const pickerList = document.querySelector("#cr-picker-list");
+  const pointBox = document.querySelector("#cr-point-box");
+  const pointBody = document.querySelector("#cr-point-body");
+  const pointClose = document.querySelector("#cr-point-close");
   const clock = document.querySelector("#cr-clock");
   const serverStart = new Date(clock.dataset.serverNow);
   const localStart = Date.now();
@@ -95,11 +104,13 @@
   let inputMode = "scan";
   let suggestions = [];
   let selectedSuggestion = 0;
+  let pickerMode = "product";
   let subtotalAmount = 0;
   let saleDiscount = 0;
   let cartTotal = 0;
   let paidAmount = 0;
   let lastReceipt = "";
+  let restoredHeldSaleId = null;
 
   const formatNumber = (value) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(value || 0);
   const setStatus = (text) => { statusLine.textContent = text; };
@@ -162,6 +173,28 @@
     memberCodeText.textContent = member.code ? ` ${member.code}` : "";
     memberNameText.textContent = member.name ? ` ${member.name}` : "";
     memberAddressText.textContent = member.address ? ` ${member.address}` : "";
+  }
+
+  function showPointBox(customer) {
+    if (!customer) {
+      pointBody.innerHTML = `
+        <div class="cr-point-main">Member tidak ditemukan</div>
+        <div>Kode tidak ada di database pelanggan.</div>
+      `;
+    } else {
+      pointBody.innerHTML = `
+        <div>Kode: ${escapeHtml(customer.code)}</div>
+        <div>Nama: ${escapeHtml(customer.name)}</div>
+        <div class="cr-point-main">${formatNumber(customer.points)} POIN</div>
+      `;
+    }
+    pointBox.hidden = false;
+    pointClose.focus();
+  }
+
+  function closePointBox() {
+    pointBox.hidden = true;
+    barcode.focus();
   }
 
   function removeCartItem(index) {
@@ -241,6 +274,7 @@
         member,
         discount: saleDiscount,
         paid: paidAmount,
+        held_sale_id: restoredHeldSaleId,
         receipt_action: receiptAction,
       }),
     });
@@ -260,7 +294,7 @@
     }
   }
 
-  function renderPicker() {
+  function renderProductPicker() {
     picker.hidden = suggestions.length === 0;
     pickerTitle.textContent = suggestions.length ? "Pilih barang lalu ENTER" : "Barang tidak ditemukan";
     pickerList.innerHTML = "";
@@ -279,9 +313,39 @@
     pickerList.querySelector(".selected")?.scrollIntoView({ block: "nearest" });
   }
 
+  function renderHeldPicker() {
+    picker.hidden = suggestions.length === 0;
+    pickerTitle.textContent = suggestions.length ? "Pilih transaksi tunda lalu ENTER" : "Tidak ada transaksi tunda";
+    pickerList.innerHTML = "";
+    suggestions.forEach((heldSale, index) => {
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = `cr-picker-row held${index === selectedSuggestion ? " selected" : ""}`;
+      const memberLabel = heldSale.member_name || heldSale.member_code || "Tanpa member";
+      row.innerHTML = `
+        <span>#${heldSale.id}</span>
+        <span>${memberLabel}</span>
+        <span>${formatNumber(heldSale.item_count)} item</span>
+        <span>${formatNumber(heldSale.total)}</span>
+      `;
+      row.addEventListener("click", () => restoreHeldSale(heldSale));
+      pickerList.appendChild(row);
+    });
+    pickerList.querySelector(".selected")?.scrollIntoView({ block: "nearest" });
+  }
+
+  function renderPicker() {
+    if (pickerMode === "held") {
+      renderHeldPicker();
+      return;
+    }
+    renderProductPicker();
+  }
+
   function closePicker() {
     suggestions = [];
     selectedSuggestion = 0;
+    pickerMode = "product";
     picker.hidden = true;
     pickerList.innerHTML = "";
   }
@@ -321,6 +385,85 @@
     setStatus(suggestions.length ? "Barang mirip ditemukan. Up/Down=Pilih   ENTER=Ambil   ESC=Batal" : "Barang tidak ditemukan. Ketik kode/nama lain atau ESC");
   }
 
+  function clearTransaction() {
+    cart.splice(0, cart.length);
+    member.code = "";
+    member.name = "";
+    member.address = "";
+    member.points = 0;
+    pendingQty = 1;
+    saleDiscount = 0;
+    paidAmount = 0;
+    restoredHeldSaleId = null;
+    renderCart();
+    renderMember();
+    setInputMode("scan", "BarCode/Nama:");
+  }
+
+  async function holdCurrentSale() {
+    if (cart.length === 0) {
+      await openHeldSales();
+      return;
+    }
+    const response = await fetch("{{ url_for('api_held_sales_list') }}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: cart, member, discount: saleDiscount, held_sale_id: restoredHeldSaleId }),
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      setStatus(data.error || "Transaksi gagal ditunda.");
+      return;
+    }
+    clearTransaction();
+    setStatus(`Transaksi ditunda (#${data.held_sale_id}). F9 lagi untuk membuka daftar tunda.`);
+  }
+
+  async function openHeldSales() {
+    const response = await fetch("{{ url_for('api_held_sales_list') }}");
+    if (!response.ok) {
+      setStatus("Daftar transaksi tunda gagal dibuka.");
+      return;
+    }
+    const data = await response.json();
+    suggestions = data.items || [];
+    selectedSuggestion = 0;
+    pickerMode = "held";
+    renderPicker();
+    setStatus(suggestions.length ? "Transaksi tunda ditemukan. Up/Down=Pilih   ENTER=Muat   ESC=Batal" : "Belum ada transaksi tunda.");
+  }
+
+  async function restoreHeldSale(heldSale) {
+    const detailUrl = "{{ url_for('api_held_sale_detail', held_sale_id=0) }}".replace("/0", `/${heldSale.id}`);
+    const response = await fetch(detailUrl);
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      setStatus(data.error || "Transaksi tunda gagal dimuat.");
+      closePicker();
+      return;
+    }
+    const sale = data.held_sale;
+    cart.splice(0, cart.length, ...sale.items.map((item) => ({
+      id: item.id,
+      barcode: item.barcode || item.legacy_code || "",
+      name: item.name,
+      qty: Number(item.qty || 1),
+      price: Number(item.price || 0),
+      discount: Number(item.discount || 0),
+    })));
+    member.code = sale.member.code || "";
+    member.name = sale.member.name || "";
+    member.address = sale.member.address || "";
+    member.points = 0;
+    saleDiscount = Number(sale.discount || 0);
+    paidAmount = 0;
+    restoredHeldSaleId = sale.id;
+    closePicker();
+    renderCart();
+    renderMember();
+    setInputMode("scan", "BarCode/Nama:", `Transaksi tunda #${sale.id} dimuat. Lanjut scan atau ENTER bayar.`);
+  }
+
   grid.addEventListener("click", (event) => {
     const targetClass = event.target.className || "";
     mode = String(targetClass).includes("cr-name") ? "name" : "code";
@@ -349,11 +492,23 @@
     if (event.key === "F3") openKas();
     if (event.key === "F4") setStatus("Jenis Lap,  1=Rekap Barang   2=Rekap Nota   3=Rekap  [1/2/3]:      ESC=Selesai");
     if (event.key === "F5") setStatus("Set_Print: T=Tidak_Cetak_Nota");
+    if (event.key === "F9") {
+      await holdCurrentSale();
+      return;
+    }
     if (event.key === "F10") setStatus("Tanggal:              No.Nota:         Nama Ksr:          ");
-    if (event.key === "F11") setStatus("Cek Point Belanja");
+    if (event.key === "F11") {
+      closePicker();
+      closePointBox();
+      setInputMode("pointsCode", "Kode Customer:", "Isi kode customer lalu ENTER untuk cek poin. ESC=Batal");
+    }
     if (event.key === "Enter") {
       event.preventDefault();
       if (!picker.hidden && suggestions[selectedSuggestion]) {
+        if (pickerMode === "held") {
+          await restoreHeldSale(suggestions[selectedSuggestion]);
+          return;
+        }
         addProduct(suggestions[selectedSuggestion]);
         return;
       }
@@ -378,6 +533,17 @@
         member.points = foundMember.points || 0;
         renderMember();
         setInputMode("scan", "BarCode/Nama:", `Member ${foundMember.name} ditemukan.`);
+        return;
+      }
+      if (inputMode === "pointsCode") {
+        const code = barcode.value.trim();
+        if (!code) {
+          setInputMode("scan", "BarCode/Nama:", "Kode customer kosong. Kembali ke transaksi.");
+          return;
+        }
+        const foundCustomer = await lookupMember(code);
+        showPointBox(foundCustomer);
+        setInputMode("scan", "BarCode/Nama:", foundCustomer ? `Poin ${foundCustomer.name}: ${formatNumber(foundCustomer.points)}` : "Member tidak ditemukan.");
         return;
       }
       if (inputMode === "saleDiscount") {
@@ -436,10 +602,13 @@
       barcode.value = "";
       pendingQty = 1;
       closePicker();
+      closePointBox();
       setInputMode("scan", "BarCode/Nama:");
       defaultStatus();
     }
   });
+
+  pointClose.addEventListener("click", closePointBox);
 
   barcode.addEventListener("input", () => {
     if (/^\d+(?:[.,]\d+)?\*$/.test(barcode.value)) {

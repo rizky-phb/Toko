@@ -880,6 +880,10 @@ body[data-page="kasir"] .menubar a.active {
   text-align: left;
 }
 
+.cr-picker-row.held {
+  grid-template-columns: 8ch 1fr 10ch 13ch;
+}
+
 .cr-picker-row span {
   min-width: 0;
   overflow: hidden;
@@ -896,6 +900,49 @@ body[data-page="kasir"] .menubar a.active {
   background: #ffff33;
   color: #000;
   outline: 0;
+}
+
+.cr-point-box {
+  position: absolute;
+  z-index: 7;
+  left: 50%;
+  top: 50%;
+  width: min(640px, calc(100vw - 48px));
+  transform: translate(-50%, -50%);
+  border: 3px solid #fff;
+  background: #0000a8;
+  color: #fff;
+  box-shadow: 10px 10px 0 rgba(0, 0, 0, .32);
+}
+
+.cr-point-title {
+  min-height: 34px;
+  padding: 2px 12px;
+  background: #c00000;
+  color: #fff;
+}
+
+.cr-point-body {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+}
+
+.cr-point-main {
+  color: #ffff33;
+  font-size: 1.45em;
+  font-weight: 700;
+}
+
+.cr-point-close {
+  width: 100%;
+  min-height: 38px;
+  border: 0;
+  border-top: 2px solid #00c8c1;
+  background: #ffff33;
+  color: #000;
+  font: inherit;
+  cursor: pointer;
 }
 
 .cr-bottom-panel {
