@@ -17,6 +17,7 @@
       <a class="{{ 'active' if active_path == '/dashboard' else '' }}" href="{{ url_for('dashboard') }}">Dashboard</a>
       <a class="{{ 'active' if active_path == '/kasir' else '' }}" href="{{ url_for('kasir') }}">Kasir</a>
       <a class="{{ 'active' if active_path in ['/stok', '/stok-barang'] else '' }}" href="{{ url_for('stok') }}">Stok</a>
+      <a class="{{ 'active' if active_path == '/pelanggan' else '' }}" href="{{ url_for('pelanggan') }}">Pelanggan</a>
       <a class="{{ 'active' if active_path == '/pembelian' else '' }}" href="{{ url_for('pembelian') }}">Pembelian</a>
       <a class="{{ 'active' if active_path == '/laporan' else '' }}" href="{{ url_for('laporan') }}">Laporan</a>
       <a class="{{ 'active' if active_path == '/pengaturan' else '' }}" href="{{ url_for('pengaturan') }}">Pengaturan</a>

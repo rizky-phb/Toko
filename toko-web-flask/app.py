@@ -97,7 +97,7 @@ def create_app():
             session["cashier_id"] = cashier["id"]
             session["cashier_name"] = cashier["name"]
             session["register_no"] = request.form.get("register_no", "").strip() or "1"
-            session["print_receipt"] = request.form.get("print_receipt", "1")
+            session["print_receipt"] = request.form.get("print_receipt", "")
             return redirect(url_for("kasir"))
 
         if "cashier_id" not in session:
@@ -123,7 +123,7 @@ def create_app():
             sale_no=sale_no,
             paid=50000,
             change_amount=50000 - total,
-            print_receipt=session.get("print_receipt", "1") == "1",
+            print_receipt=session.get("print_receipt", ""),
             today_label=clipper_date_label(server_now.date()),
             server_now=server_now.isoformat(),
             store=store,
@@ -367,6 +367,68 @@ def create_app():
 
         return render_template("stok_barang.html", products=products, q=q)
 
+    @app.route("/pelanggan", methods=["GET", "POST"])
+    @stock_required
+    def pelanggan():
+        db = get_db()
+        if request.method == "POST":
+            code = request.form.get("code", "").strip()
+            name = request.form.get("name", "").strip().upper()
+            if code and name:
+                db.execute(
+                    """
+                    INSERT INTO customers
+                      (code, name, address, city, phone, discount, points, balance, notes)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(code) DO UPDATE SET
+                      name = excluded.name,
+                      address = excluded.address,
+                      city = excluded.city,
+                      phone = excluded.phone,
+                      discount = excluded.discount,
+                      points = excluded.points,
+                      balance = excluded.balance,
+                      notes = excluded.notes,
+                      updated_at = CURRENT_TIMESTAMP
+                    """,
+                    (
+                        code,
+                        name,
+                        request.form.get("address", "").strip().upper(),
+                        request.form.get("city", "").strip().upper(),
+                        request.form.get("phone", "").strip(),
+                        parse_float(request.form.get("discount", "0")),
+                        parse_int(request.form.get("points", "0")),
+                        parse_int(request.form.get("balance", "0")),
+                        request.form.get("notes", "").strip(),
+                    ),
+                )
+                db.commit()
+            return redirect(url_for("pelanggan"))
+
+        q = request.args.get("q", "").strip()
+        if q:
+            like = f"%{q}%"
+            customers = db.execute(
+                """
+                SELECT * FROM customers
+                WHERE code LIKE ? OR name LIKE ? OR address LIKE ? OR city LIKE ?
+                ORDER BY code
+                """,
+                (like, like, like, like),
+            ).fetchall()
+        else:
+            customers = db.execute("SELECT * FROM customers ORDER BY code").fetchall()
+        return render_template("pelanggan.html", customers=customers, q=q)
+
+    @app.route("/pelanggan/<int:customer_id>/delete", methods=["POST"])
+    @stock_required
+    def pelanggan_delete(customer_id):
+        db = get_db()
+        db.execute("DELETE FROM customers WHERE id = ?", (customer_id,))
+        db.commit()
+        return redirect(url_for("pelanggan"))
+
     @app.route("/pembelian")
     @stock_required
     def pembelian():
@@ -397,6 +459,21 @@ def create_app():
         if not cashier:
             return jsonify({"found": False, "name": ""}), 404
         return jsonify({"found": True, "name": cashier["name"]})
+
+    @app.route("/api/customers/<code>")
+    @cashier_required
+    def api_customer(code):
+        customer = get_db().execute(
+            """
+            SELECT code, name, address, city, phone, discount, points, balance, notes
+            FROM customers
+            WHERE code = ?
+            """,
+            (code.strip(),),
+        ).fetchone()
+        if not customer:
+            return jsonify({"found": False}), 404
+        return jsonify({"found": True, "customer": customer_to_json(customer)})
 
     @app.route("/api/products/search")
     @cashier_required
@@ -596,6 +673,7 @@ def init_db():
     db.executescript(SCHEMA.read_text(encoding="utf-8"))
     migrate_db(db)
     import_legacy_stock_if_needed(db)
+    import_legacy_customers_if_needed(db)
     seed(db)
 
 
@@ -686,6 +764,48 @@ def import_legacy_stock_if_needed(db):
     db.commit()
 
 
+def import_legacy_customers_if_needed(db):
+    customer_count = db.execute("SELECT COUNT(*) FROM customers").fetchone()[0]
+    if customer_count > 0:
+        return
+
+    cust_path = legacy_customer_path()
+    if not cust_path:
+        return
+
+    rows = read_legacy_customers(cust_path)
+    for row in rows:
+        db.execute(
+            """
+            INSERT INTO customers
+              (code, name, address, city, phone, discount, points, balance, notes)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(code) DO UPDATE SET
+              name = excluded.name,
+              address = excluded.address,
+              city = excluded.city,
+              phone = excluded.phone,
+              discount = excluded.discount,
+              points = excluded.points,
+              balance = excluded.balance,
+              notes = excluded.notes,
+              updated_at = CURRENT_TIMESTAMP
+            """,
+            (
+                row["code"],
+                row["name"],
+                row["address"],
+                row["city"],
+                row["phone"],
+                row["discount"],
+                row["points"],
+                row["balance"],
+                row["notes"],
+            ),
+        )
+    db.commit()
+
+
 def legacy_stock_path():
     candidates = []
     env_path = os.environ.get("TOKO_STOK_DTA", "").strip()
@@ -702,6 +822,32 @@ def legacy_stock_path():
         if path.is_file():
             return path
     return None
+
+
+def legacy_customer_path():
+    candidates = []
+    env_path = os.environ.get("TOKO_CUST_DTA", "").strip()
+    if env_path:
+        candidates.append(Path(env_path))
+    candidates.extend(
+        [
+            BASE_DIR.parent / "toko-harbour-build" / "CUST.DTA",
+            BASE_DIR.parent / "Toko" / "Toko2_backup" / "CUST.DTA",
+            BASE_DIR.parent / "Toko" / "CUST.DTA",
+            BASE_DIR / "data" / "CUST.DTA",
+        ]
+    )
+    available = [path for path in candidates if path.is_file()]
+    if not available:
+        return None
+    return max(available, key=lambda path: legacy_record_count(path))
+
+
+def legacy_record_count(path):
+    data = path.read_bytes()
+    if len(data) < 8:
+        return 0
+    return int.from_bytes(data[4:8], "little")
 
 
 def read_legacy_stock(path):
@@ -737,6 +883,43 @@ def read_legacy_stock(path):
                 "wholesale_price": int(round(dbf_number(values.get("HARGA_21")))),
                 "retail_price": int(round(dbf_number(values.get("HARGA_2")))),
                 "supplier_code": values.get("KODE_SPL", "").strip(),
+            }
+        )
+    return rows
+
+
+def read_legacy_customers(path):
+    data = path.read_bytes()
+    if len(data) < 32:
+        return []
+
+    record_count = int.from_bytes(data[4:8], "little")
+    header_len = int.from_bytes(data[8:10], "little")
+    record_len = int.from_bytes(data[10:12], "little")
+    fields = dbf_fields(data, header_len)
+    rows = []
+
+    for index in range(record_count):
+        start = header_len + (index * record_len)
+        record = data[start : start + record_len]
+        if len(record) < record_len or record[:1] == b"*":
+            continue
+        values = {field["name"]: dbf_value(record, field) for field in fields}
+        code = values.get("KODE_LGN", "").strip()
+        name = values.get("NAMA_LGN", "").strip()
+        if not code or not name:
+            continue
+        rows.append(
+            {
+                "code": code,
+                "name": name,
+                "address": values.get("ALMT_LGN", "").strip(),
+                "city": values.get("KOTA_LGN", "").strip(),
+                "phone": values.get("TELP_LGN", "").strip(),
+                "discount": dbf_number(values.get("DISKON")),
+                "points": int(round(dbf_number(values.get("SO_POINT")))),
+                "balance": int(round(dbf_number(values.get("RP_SALDO")))),
+                "notes": values.get("KETERANGAN", "").strip(),
             }
         )
     return rows
@@ -918,6 +1101,20 @@ def product_to_json(row):
         "unit": row["unit"] or "PCS",
         "stock": row["stock"],
         "price": row["retail_price"] or 0,
+    }
+
+
+def customer_to_json(row):
+    return {
+        "code": row["code"],
+        "name": row["name"],
+        "address": row["address"] or "",
+        "city": row["city"] or "",
+        "phone": row["phone"] or "",
+        "discount": row["discount"] or 0,
+        "points": row["points"] or 0,
+        "balance": row["balance"] or 0,
+        "notes": row["notes"] or "",
     }
 
 

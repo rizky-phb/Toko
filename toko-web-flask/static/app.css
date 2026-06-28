@@ -126,6 +126,11 @@ table {
   background: #078981;
 }
 
+.table-wrap {
+  overflow: auto;
+  max-height: calc(100vh - 260px);
+}
+
 th,
 td {
   border-bottom: 1px solid #064340;
@@ -792,7 +797,8 @@ body[data-page="kasir"] .menubar a.active {
 
 .cr-grid-body {
   grid-column: 1 / -1;
-  overflow: hidden;
+  overflow: auto;
+  min-height: 0;
 }
 
 .cr-grid-row {
@@ -850,7 +856,7 @@ body[data-page="kasir"] .menubar a.active {
 
 .cr-picker-list {
   max-height: 282px;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .cr-picker-row {

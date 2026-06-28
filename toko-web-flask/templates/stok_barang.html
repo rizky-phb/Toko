@@ -16,7 +16,7 @@
       <button data-action="barang">[ Barang.... ]</button>
       <button>[ Kelompok.. ]</button>
       <button>[ Lokasi/Rak ]</button>
-      <button>[ Pelanggan. ]</button>
+      <button data-action="pelanggan">[ Pelanggan. ]</button>
       <button>[ Supplier.. ]</button>
       <button>[ Perkiraan. ]</button>
     </div>
@@ -128,6 +128,10 @@
   document.querySelector("[data-action='barang']").addEventListener("click", () => {
     document.querySelector("#stok-products").scrollIntoView({ block: "nearest" });
     stokMessage.textContent = "F4=Tambah   F5=Edit   F8=Hapus   F10=Cetak";
+  });
+
+  document.querySelector("[data-action='pelanggan']").addEventListener("click", () => {
+    window.location.href = "{{ url_for('pelanggan') }}";
   });
 
   document.addEventListener("keydown", (event) => {

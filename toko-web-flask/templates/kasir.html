@@ -86,6 +86,7 @@
   const localStart = Date.now();
   const cart = [];
   const member = { code: "", name: "", address: "" };
+  const printPreference = "{{ print_receipt }}";
   let pendingQty = 1;
   let mode = "code";
   let inputMode = "scan";
@@ -263,6 +264,7 @@
       row.addEventListener("click", () => addProduct(product));
       pickerList.appendChild(row);
     });
+    pickerList.querySelector(".selected")?.scrollIntoView({ block: "nearest" });
   }
 
   function closePicker() {
@@ -277,6 +279,13 @@
     if (!response.ok) return [];
     const data = await response.json();
     return data.items || [];
+  }
+
+  async function lookupMember(code) {
+    const response = await fetch(`{{ url_for('api_customer', code='__CODE__') }}`.replace("__CODE__", encodeURIComponent(code)));
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.found ? data.customer : null;
   }
 
   async function submitLookup() {
@@ -306,7 +315,7 @@
     setInputMode("scan", mode === "name" ? "Nama Barang:" : "Kode Barang:", "Ketik lalu ENTER. Sekat kolom tetap untuk daftar item.");
   });
 
-  document.addEventListener("keydown", (event) => {
+  document.addEventListener("keydown", async (event) => {
     if (["F1", "F2", "F3", "F4", "F5", "F8", "F9", "F10", "F11"].includes(event.key)) {
       event.preventDefault();
     }
@@ -337,21 +346,26 @@
         return;
       }
       if (inputMode === "memberCode") {
-        member.code = barcode.value.trim();
+        const code = barcode.value.trim();
+        if (!code) {
+          setInputMode("scan", "BarCode/Nama:", "Kode member kosong. Kembali ke transaksi.");
+          return;
+        }
+        const foundMember = await lookupMember(code);
+        if (!foundMember) {
+          member.code = "";
+          member.name = "";
+          member.address = "";
+          renderMember();
+          setInputMode("scan", "BarCode/Nama:", "Member tidak ditemukan.");
+          return;
+        }
+        member.code = foundMember.code;
+        member.name = foundMember.name;
+        member.address = [foundMember.address, foundMember.city].filter(Boolean).join(" ");
+        member.points = foundMember.points || 0;
         renderMember();
-        setInputMode("memberName", "Nama Member:", "Isi nama member lalu ENTER.");
-        return;
-      }
-      if (inputMode === "memberName") {
-        member.name = barcode.value.trim();
-        renderMember();
-        setInputMode("memberAddress", "Alamat:", "Isi alamat member lalu ENTER.");
-        return;
-      }
-      if (inputMode === "memberAddress") {
-        member.address = barcode.value.trim();
-        renderMember();
-        setInputMode("scan", "BarCode/Nama:", "Member tersimpan di transaksi ini.");
+        setInputMode("scan", "BarCode/Nama:", `Member ${foundMember.name} ditemukan.`);
         return;
       }
       if (inputMode === "payment") {
@@ -360,6 +374,14 @@
         if (paidAmount < cartTotal) {
           setStatus("Uang pembayaran kurang. Isi ulang jumlah bayar lalu ENTER.");
           barcode.select();
+          return;
+        }
+        if (printPreference === "1") {
+          saveSale("print");
+          return;
+        }
+        if (printPreference === "0") {
+          saveSale("download");
           return;
         }
         setInputMode("printChoice", "Print Y/T:", "Y=Print struk   T=Download struk lalu refresh");
