@@ -699,7 +699,7 @@ body[data-page="kasir"] .menubar a.active {
 .cr-header {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(170px, 22vw) 230px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 32vw) 230px;
   align-items: center;
   padding: 0 18px;
   background: #0000a8;
@@ -721,8 +721,9 @@ body[data-page="kasir"] .menubar a.active {
   min-width: 0;
   justify-self: end;
   align-self: center;
+  padding-right: 28px;
   color: #ffff33;
-  font-size: clamp(24px, 3vw, 42px);
+  font-size: clamp(34px, 4.2vw, 58px);
   line-height: 1;
   font-weight: 700;
   text-align: right;
@@ -732,7 +733,7 @@ body[data-page="kasir"] .menubar a.active {
 }
 
 .cr-live-total.small {
-  font-size: clamp(22px, 2.6vw, 38px);
+  font-size: clamp(30px, 3.8vw, 52px);
 }
 
 .cr-cyan-strip {
@@ -900,7 +901,7 @@ body[data-page="kasir"] .menubar a.active {
 .cr-bottom-panel {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(170px, 22vw) 330px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 32vw) 330px;
   align-items: center;
   padding: 0 16px;
   background: #0000a8;
@@ -974,16 +975,17 @@ body[data-page="kasir"] .menubar a.active {
   }
 
   .cr-header {
-    grid-template-columns: minmax(0, 1fr) minmax(130px, 22vw) 190px;
+    grid-template-columns: minmax(0, 1fr) minmax(210px, 30vw) 190px;
     padding: 0 12px;
   }
 
   .cr-live-total {
-    font-size: 28px;
+    padding-right: 20px;
+    font-size: 38px;
   }
 
   .cr-live-total.small {
-    font-size: 26px;
+    font-size: 34px;
   }
 
   .cr-cyan-strip {
@@ -1011,12 +1013,12 @@ body[data-page="kasir"] .menubar a.active {
   }
 
   .cr-header {
-    grid-template-columns: 1fr 74px 158px;
+    grid-template-columns: minmax(0, 1fr) minmax(150px, 28vw) 158px;
     padding: 0 8px;
   }
 
   .cr-bottom-panel {
-    grid-template-columns: minmax(0, 1fr) minmax(130px, 22vw) 230px;
+    grid-template-columns: minmax(0, 1fr) minmax(150px, 28vw) 230px;
     padding: 0 8px;
   }
 
@@ -1027,6 +1029,15 @@ body[data-page="kasir"] .menubar a.active {
 
   .cr-status {
     font-size: 16px;
+  }
+
+  .cr-live-total {
+    padding-right: 14px;
+    font-size: 30px;
+  }
+
+  .cr-live-total.small {
+    font-size: 28px;
   }
 }
 
