@@ -334,23 +334,59 @@ def create_app():
     def stok_barang_view():
         db = get_db()
         if request.method == "POST":
-            db.execute(
-                """
-                INSERT INTO products
-                  (barcode, group_code, name, unit, stock, cost_price, wholesale_price, retail_price)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (
+            action = request.form.get("_action", "add")
+            product_id = parse_int(request.form.get("product_id", 0))
+            if action == "delete" and product_id:
+                used_count = db.execute(
+                    "SELECT COUNT(*) FROM sale_items WHERE product_id = ?",
+                    (product_id,),
+                ).fetchone()[0]
+                if used_count:
+                    db.execute(
+                        """
+                        UPDATE products
+                        SET stock = 0, updated_at = CURRENT_TIMESTAMP
+                        WHERE id = ?
+                        """,
+                        (product_id,),
+                    )
+                else:
+                    db.execute("DELETE FROM products WHERE id = ?", (product_id,))
+            else:
+                values = (
                     request.form.get("barcode", "").strip(),
+                    request.form.get("legacy_code", "").strip(),
                     request.form.get("group_code", "00").strip() or "00",
-                    request.form.get("name", "").strip(),
-                    request.form.get("unit", "PCS").strip() or "PCS",
+                    request.form.get("name", "").strip().upper(),
+                    request.form.get("unit", "PCS").strip().upper() or "PCS",
                     parse_float(request.form.get("stock", "0")),
                     parse_int(request.form.get("cost_price", "0")),
                     parse_int(request.form.get("wholesale_price", "0")),
                     parse_int(request.form.get("retail_price", "0")),
-                ),
-            )
+                    request.form.get("supplier_code", "").strip(),
+                    request.form.get("rack_code", "").strip(),
+                )
+                if action == "update" and product_id:
+                    db.execute(
+                        """
+                        UPDATE products
+                        SET barcode = ?, legacy_code = ?, group_code = ?, name = ?, unit = ?,
+                            stock = ?, cost_price = ?, wholesale_price = ?, retail_price = ?,
+                            supplier_code = ?, rack_code = ?, updated_at = CURRENT_TIMESTAMP
+                        WHERE id = ?
+                        """,
+                        values + (product_id,),
+                    )
+                else:
+                    db.execute(
+                        """
+                        INSERT INTO products
+                          (barcode, legacy_code, group_code, name, unit, stock, cost_price,
+                           wholesale_price, retail_price, supplier_code, rack_code)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                        values,
+                    )
             db.commit()
             return redirect(url_for("stok_barang"))
 
@@ -368,7 +404,12 @@ def create_app():
         else:
             products = db.execute("SELECT * FROM products ORDER BY id DESC").fetchall()
 
-        return render_template("stok_barang.html", products=products, q=q)
+        return render_template(
+            "stok_barang.html",
+            products=products,
+            products_json=[product_to_stock_json(row) for row in products],
+            q=q,
+        )
 
     @app.route("/pelanggan", methods=["GET", "POST"])
     @stock_required
@@ -1249,6 +1290,23 @@ def product_to_json(row):
     }
 
 
+def product_to_stock_json(row):
+    return {
+        "id": row["id"],
+        "barcode": row["barcode"] or "",
+        "legacy_code": row["legacy_code"] or "",
+        "group_code": row["group_code"] or "00",
+        "name": row["name"] or "",
+        "unit": row["unit"] or "PCS",
+        "stock": row["stock"] or 0,
+        "cost_price": row["cost_price"] or 0,
+        "wholesale_price": row["wholesale_price"] or 0,
+        "retail_price": row["retail_price"] or 0,
+        "supplier_code": row["supplier_code"] or "",
+        "rack_code": row["rack_code"] or "",
+    }
+
+
 def customer_to_json(row):
     return {
         "code": row["code"],
@@ -1442,7 +1500,13 @@ def parse_int(value):
 def parse_float(value):
     if isinstance(value, (int, float)):
         return float(value)
-    normalized = str(value or "0").replace(".", "").replace(",", ".")
+    raw = str(value or "0").strip()
+    if "," in raw:
+        normalized = raw.replace(".", "").replace(",", ".")
+    elif raw.count(".") == 1 and len(raw.rsplit(".", 1)[1]) != 3:
+        normalized = raw
+    else:
+        normalized = raw.replace(".", "")
     try:
         return float(normalized)
     except ValueError:

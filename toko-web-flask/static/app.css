@@ -138,6 +138,16 @@ td {
   white-space: nowrap;
 }
 
+.stok-products tbody tr {
+  cursor: pointer;
+}
+
+.stok-products tbody tr.selected,
+.stok-products tbody tr:hover {
+  background: #ffff33;
+  color: #001817;
+}
+
 th {
   text-align: left;
   background: #2bc2b7;
@@ -672,6 +682,14 @@ body[data-page="stok-barang"] .dos-stok {
   border: 2px solid #031d1b;
   background: #078981;
   font-size: 14px;
+}
+
+.stok-products .toolbar.compact input {
+  min-width: 84px;
+}
+
+.stok-products .toolbar.compact input[name="name"] {
+  min-width: min(360px, 100%);
 }
 
 .stok-footer {

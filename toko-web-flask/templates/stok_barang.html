@@ -18,12 +18,12 @@
       <button>[ Lokasi/Rak ]</button>
       <button data-action="pelanggan">[ Pelanggan. ]</button>
       <button>[ Supplier.. ]</button>
-      <button>[ Perkiraan. ]</button>
+      <button data-action="perkiraan">[ Perkiraan. ]</button>
     </div>
 
     <div class="stok-window transaksi-menu" data-panel="transaksi">
       <button>[ P O ........... ]</button>
-      <button>[ Pembelian...... ]</button>
+      <button data-action="pembelian">[ Pembelian...... ]</button>
       <button>[ Retur Pembelian ]</button>
       <button>[ Stok Opname.... ]</button>
     </div>
@@ -43,44 +43,52 @@
       <button>[ Posting Data.. ]</button>
       <button>[ Password Login]</button>
       <button>[ Tanggal....... ]</button>
-      <button>[ Setup Kassa... ]</button>
+      <button data-action="pengaturan">[ Setup Kassa... ]</button>
     </div>
 
     <div class="stok-window exit-menu" data-panel="exit">
-      <button>[ Selesai/Keluar ]</button>
+      <button data-action="exit">[ Selesai/Keluar ]</button>
       <button>[ Kembali....... ]</button>
     </div>
 
     <div class="stok-products" id="stok-products">
       <div class="section-title"><span>Tabel Barang</span><span>F4=Tambah F5=Edit F8=Hapus F10=Cetak</span></div>
-      <form method="get" class="toolbar">
-        <input name="q" value="{{ q }}" placeholder="Cari barcode / nama barang" size="34">
+      <form method="get" class="toolbar" id="stok-search-form">
+        <input id="stok-search" name="q" value="{{ q }}" placeholder="Cari barcode / nama barang" size="34">
         <button class="action">F2 Sortir</button>
       </form>
-      <form method="post" class="toolbar compact">
-        <input name="barcode" placeholder="Barcode">
-        <input name="group_code" placeholder="Klp" value="00" size="4">
-        <input name="name" placeholder="Nama barang" required size="34">
-        <input name="stock" placeholder="Stok" value="0" size="6">
-        <input name="unit" placeholder="Satuan" value="PCS" size="6">
-        <input name="cost_price" placeholder="Harga beli" value="0" size="10">
-        <input name="retail_price" placeholder="Harga ecer" value="0" size="10">
-        <button class="action">F4 Tambah</button>
+      <form method="post" class="toolbar compact" id="stok-form">
+        <input type="hidden" name="_action" id="stok-action" value="add">
+        <input type="hidden" name="product_id" id="stok-product-id">
+        <input id="stok-barcode" name="barcode" placeholder="Barcode">
+        <input id="stok-legacy-code" name="legacy_code" placeholder="Kode" size="8">
+        <input id="stok-group-code" name="group_code" placeholder="Klp" value="00" size="4">
+        <input id="stok-name" name="name" placeholder="Nama barang" required size="34">
+        <input id="stok-stock" name="stock" placeholder="Stok" value="0" size="6">
+        <input id="stok-unit" name="unit" placeholder="Sat" value="PCS" size="6">
+        <input id="stok-cost-price" name="cost_price" placeholder="Harga beli" value="0" size="10">
+        <input id="stok-wholesale-price" name="wholesale_price" placeholder="Harga bakul" value="0" size="10">
+        <input id="stok-retail-price" name="retail_price" placeholder="Harga ecer" value="0" size="10">
+        <input id="stok-supplier-code" name="supplier_code" placeholder="Supplier" size="8">
+        <input id="stok-rack-code" name="rack_code" placeholder="Rak" size="6">
+        <button class="action" id="stok-submit">F4 Tambah</button>
       </form>
-      <table>
+      <table id="stok-table">
         <thead>
-          <tr><th>Barcode</th><th>Klp</th><th>Nama Barang</th><th>Sisa Stk</th><th>Sat</th><th>Hrg.Bakul</th><th>Hrg.Ecer</th></tr>
+          <tr><th>Barcode</th><th>Kode</th><th>Klp</th><th>Nama Barang</th><th>Sisa Stk</th><th>Sat</th><th>Hrg.Bakul</th><th>Hrg.Ecer</th><th>Rak</th></tr>
         </thead>
         <tbody>
           {% for product in products %}
-          <tr class="{{ 'selected' if loop.first else '' }}">
+          <tr class="{{ 'selected' if loop.first else '' }}" data-index="{{ loop.index0 }}">
             <td>{{ product.barcode or "-" }}</td>
+            <td>{{ product.legacy_code or "-" }}</td>
             <td>{{ product.group_code }}</td>
             <td>{{ product.name }}</td>
             <td>{{ product.stock|rupiah }}</td>
             <td>{{ product.unit }}</td>
             <td>{{ product.cost_price|rupiah }}</td>
             <td>{{ product.retail_price|rupiah }}</td>
+            <td>{{ product.rack_code or "-" }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -95,9 +103,29 @@
 
 <script>
   const stok = document.querySelector(".dos-stok");
+  const products = {{ products_json|tojson }};
   const topButtons = [...document.querySelectorAll(".stok-menubar button")];
   const panels = [...document.querySelectorAll(".stok-window")];
   const stokMessage = document.querySelector("#stok-message");
+  const rows = [...document.querySelectorAll("#stok-table tbody tr")];
+  const searchInput = document.querySelector("#stok-search");
+  const stockForm = document.querySelector("#stok-form");
+  const stockAction = document.querySelector("#stok-action");
+  const stockSubmit = document.querySelector("#stok-submit");
+  const fields = {
+    id: document.querySelector("#stok-product-id"),
+    barcode: document.querySelector("#stok-barcode"),
+    legacy_code: document.querySelector("#stok-legacy-code"),
+    group_code: document.querySelector("#stok-group-code"),
+    name: document.querySelector("#stok-name"),
+    stock: document.querySelector("#stok-stock"),
+    unit: document.querySelector("#stok-unit"),
+    cost_price: document.querySelector("#stok-cost-price"),
+    wholesale_price: document.querySelector("#stok-wholesale-price"),
+    retail_price: document.querySelector("#stok-retail-price"),
+    supplier_code: document.querySelector("#stok-supplier-code"),
+    rack_code: document.querySelector("#stok-rack-code"),
+  };
   const messages = {
     file: "Tabel Barang, Kelompok, Pelanggan, Supplier dan Perkiraan Kas/Biaya",
     transaksi: "Input Transaksi PO, Pembelian dan Retur",
@@ -106,6 +134,9 @@
     exit: "Exit Program"
   };
   let menuIndex = 0;
+  let selectedIndex = products.length ? 0 : -1;
+
+  const formatNumber = (value) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(value || 0);
 
   const openMenu = (name) => {
     stok.dataset.menu = name;
@@ -132,6 +163,102 @@
 
   document.querySelector("[data-action='pelanggan']").addEventListener("click", () => {
     window.location.href = "{{ url_for('pelanggan') }}";
+  });
+  document.querySelector("[data-action='perkiraan']").addEventListener("click", () => {
+    window.location.href = "{{ url_for('perkiraan_kas') }}";
+  });
+  document.querySelector("[data-action='pembelian']").addEventListener("click", () => {
+    window.location.href = "{{ url_for('pembelian') }}";
+  });
+  document.querySelector("[data-action='pengaturan']").addEventListener("click", () => {
+    window.location.href = "{{ url_for('pengaturan') }}";
+  });
+  document.querySelector("[data-action='exit']").addEventListener("click", () => {
+    window.location.href = "{{ url_for('logout') }}";
+  });
+
+  function selectRow(index) {
+    if (!products.length) return;
+    selectedIndex = Math.max(0, Math.min(products.length - 1, index));
+    rows.forEach((row, rowIndex) => row.classList.toggle("selected", rowIndex === selectedIndex));
+    rows[selectedIndex]?.scrollIntoView({ block: "nearest" });
+    const product = products[selectedIndex];
+    stokMessage.textContent = `${product.barcode || product.legacy_code || "-"} ${product.name} | Stok ${formatNumber(product.stock)} | F5=Edit F8=Hapus`;
+  }
+
+  function clearForm() {
+    stockAction.value = "add";
+    fields.id.value = "";
+    fields.barcode.value = "";
+    fields.legacy_code.value = "";
+    fields.group_code.value = "00";
+    fields.name.value = "";
+    fields.stock.value = "0";
+    fields.unit.value = "PCS";
+    fields.cost_price.value = "0";
+    fields.wholesale_price.value = "0";
+    fields.retail_price.value = "0";
+    fields.supplier_code.value = "";
+    fields.rack_code.value = "";
+    stockSubmit.textContent = "F4 Tambah";
+  }
+
+  function loadSelectedForEdit() {
+    if (selectedIndex < 0) {
+      stokMessage.textContent = "Belum ada barang yang dipilih.";
+      return;
+    }
+    const product = products[selectedIndex];
+    stockAction.value = "update";
+    fields.id.value = product.id;
+    fields.barcode.value = product.barcode;
+    fields.legacy_code.value = product.legacy_code;
+    fields.group_code.value = product.group_code;
+    fields.name.value = product.name;
+    fields.stock.value = product.stock;
+    fields.unit.value = product.unit;
+    fields.cost_price.value = product.cost_price;
+    fields.wholesale_price.value = product.wholesale_price;
+    fields.retail_price.value = product.retail_price;
+    fields.supplier_code.value = product.supplier_code;
+    fields.rack_code.value = product.rack_code;
+    stockSubmit.textContent = "F5 Simpan";
+    fields.name.focus();
+    fields.name.select();
+    stokMessage.textContent = "Mode edit. Ubah data lalu ENTER/Simpan.";
+  }
+
+  function submitDeleteSelected() {
+    if (selectedIndex < 0) {
+      stokMessage.textContent = "Belum ada barang yang dipilih.";
+      return;
+    }
+    const product = products[selectedIndex];
+    if (!window.confirm(`Hapus barang ${product.name}?`)) return;
+    stockAction.value = "delete";
+    fields.id.value = product.id;
+    stockForm.submit();
+  }
+
+  function printStockTable() {
+    const rowsText = products.map((product) => (
+      `${(product.barcode || product.legacy_code || "-").padEnd(16)} ${(product.group_code || "00").padEnd(4)} ${product.name.padEnd(34).slice(0, 34)} ${formatNumber(product.stock).padStart(10)} ${(product.unit || "PCS").padEnd(5)} ${formatNumber(product.retail_price).padStart(12)}`
+    )).join("\n");
+    const content = `TABEL BARANG\n${"=".repeat(92)}\nBarcode/Kode      Klp  Nama Barang                         Sisa Stk Sat       Hrg.Ecer\n${"-".repeat(92)}\n${rowsText}`;
+    const win = window.open("", "_blank", "width=980,height=720");
+    if (!win) {
+      stokMessage.textContent = "Popup cetak diblokir browser.";
+      return;
+    }
+    win.document.write(`<pre style="font:14px Consolas, monospace; white-space:pre;">${content.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]))}</pre>`);
+    win.document.close();
+    win.focus();
+    win.print();
+  }
+
+  rows.forEach((row, index) => {
+    row.addEventListener("click", () => selectRow(index));
+    row.addEventListener("dblclick", loadSelectedForEdit);
   });
 
   document.addEventListener("keydown", (event) => {
@@ -161,24 +288,41 @@
       const first = document.querySelector(`.stok-window[data-panel="${stok.dataset.menu}"] button`);
       if (first) first.click();
     }
+    if (event.key === "ArrowDown" && stok.dataset.menu === "none") {
+      event.preventDefault();
+      selectRow(selectedIndex + 1);
+    }
+    if (event.key === "ArrowUp" && stok.dataset.menu === "none") {
+      event.preventDefault();
+      selectRow(selectedIndex - 1);
+    }
+    if (event.key === "F2") {
+      event.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+      stokMessage.textContent = "Ketik barcode/nama lalu ENTER untuk sortir.";
+    }
     if (event.key === "F4") {
       event.preventDefault();
-      stokMessage.textContent = "F4=Tambah";
+      clearForm();
+      fields.name.focus();
+      stokMessage.textContent = "Mode tambah. Isi barang lalu ENTER/Simpan.";
     }
     if (event.key === "F5") {
       event.preventDefault();
-      stokMessage.textContent = "F5=Edit";
+      loadSelectedForEdit();
     }
     if (event.key === "F8") {
       event.preventDefault();
-      stokMessage.textContent = "F8=Hapus";
+      submitDeleteSelected();
     }
     if (event.key === "F10") {
       event.preventDefault();
-      stokMessage.textContent = "F10=Cetak";
+      printStockTable();
     }
   });
 
   openMenu("file");
+  selectRow(0);
 </script>
 {% endblock %}
