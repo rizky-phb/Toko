@@ -388,9 +388,10 @@ def create_app():
                         values,
                     )
             db.commit()
-            return redirect(url_for("stok_barang"))
+            return redirect(url_for("stok_barang", show="barang"))
 
         q = request.args.get("q", "").strip()
+        show_products = request.args.get("show", "") == "barang" or bool(q)
         if q:
             like = f"%{q}%"
             products = db.execute(
@@ -409,6 +410,7 @@ def create_app():
             products=products,
             products_json=[product_to_stock_json(row) for row in products],
             q=q,
+            show_products=show_products,
         )
 
     @app.route("/pelanggan", methods=["GET", "POST"])

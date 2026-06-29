@@ -674,14 +674,29 @@ body[data-page="stok-barang"] .dos-stok {
 
 .stok-products {
   position: absolute;
-  left: 36px;
-  right: 36px;
-  bottom: 18px;
-  top: 430px;
+  z-index: 6;
+  display: none;
+  left: 38px;
+  right: 38px;
+  top: 118px;
+  bottom: 54px;
   overflow: auto;
-  border: 2px solid #031d1b;
+  border: 3px solid #fff;
   background: #078981;
   font-size: 14px;
+  box-shadow: 12px 12px 0 rgba(0, 0, 0, .36);
+}
+
+.stok-products.open {
+  display: block;
+}
+
+.stok-products .section-title {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  align-items: center;
+  min-height: 34px;
 }
 
 .stok-products .toolbar.compact input {
@@ -690,6 +705,16 @@ body[data-page="stok-barang"] .dos-stok {
 
 .stok-products .toolbar.compact input[name="name"] {
   min-width: min(360px, 100%);
+}
+
+.stok-close {
+  min-width: 32px;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 2px solid #fff;
+  background: #0000aa;
+  color: #fff;
+  line-height: 1;
 }
 
 .stok-footer {

@@ -51,8 +51,12 @@
       <button>[ Kembali....... ]</button>
     </div>
 
-    <div class="stok-products" id="stok-products">
-      <div class="section-title"><span>Tabel Barang</span><span>F4=Tambah F5=Edit F8=Hapus F10=Cetak</span></div>
+    <div class="stok-products {{ 'open' if show_products else '' }}" id="stok-products" aria-modal="true" role="dialog">
+      <div class="section-title">
+        <span>Tabel Barang</span>
+        <span>F2=Sortir F4=Tambah F5=Edit F8=Hapus F10=Cetak ESC=Tutup</span>
+        <button class="stok-close" id="stok-products-close" type="button">X</button>
+      </div>
       <form method="get" class="toolbar" id="stok-search-form">
         <input id="stok-search" name="q" value="{{ q }}" placeholder="Cari barcode / nama barang" size="34">
         <button class="action">F2 Sortir</button>
@@ -112,6 +116,8 @@
   const stockForm = document.querySelector("#stok-form");
   const stockAction = document.querySelector("#stok-action");
   const stockSubmit = document.querySelector("#stok-submit");
+  const productsPopup = document.querySelector("#stok-products");
+  const productsClose = document.querySelector("#stok-products-close");
   const fields = {
     id: document.querySelector("#stok-product-id"),
     barcode: document.querySelector("#stok-barcode"),
@@ -156,10 +162,24 @@
     });
   });
 
+  function openProductsPopup(statusText = "F4=Tambah   F5=Edit   F8=Hapus   F10=Cetak") {
+    productsPopup.classList.add("open");
+    stok.dataset.menu = "none";
+    topButtons.forEach((button) => button.classList.remove("active"));
+    panels.forEach((panel) => panel.classList.remove("open"));
+    stokMessage.textContent = statusText;
+    selectRow(Math.max(selectedIndex, 0));
+  }
+
+  function closeProductsPopup() {
+    productsPopup.classList.remove("open");
+    stokMessage.textContent = "ESC=Menu Selanjutnya";
+  }
+
   document.querySelector("[data-action='barang']").addEventListener("click", () => {
-    document.querySelector("#stok-products").scrollIntoView({ block: "nearest" });
-    stokMessage.textContent = "F4=Tambah   F5=Edit   F8=Hapus   F10=Cetak";
+    openProductsPopup();
   });
+  productsClose.addEventListener("click", closeProductsPopup);
 
   document.querySelector("[data-action='pelanggan']").addEventListener("click", () => {
     window.location.href = "{{ url_for('pelanggan') }}";
@@ -262,18 +282,23 @@
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowRight") {
+    const productsOpen = productsPopup.classList.contains("open");
+    if (event.key === "ArrowRight" && !productsOpen) {
       event.preventDefault();
       menuIndex = (menuIndex + 1) % topButtons.length;
       openMenu(topButtons[menuIndex].dataset.menu);
     }
-    if (event.key === "ArrowLeft") {
+    if (event.key === "ArrowLeft" && !productsOpen) {
       event.preventDefault();
       menuIndex = (menuIndex + topButtons.length - 1) % topButtons.length;
       openMenu(topButtons[menuIndex].dataset.menu);
     }
     if (event.key === "Escape") {
       event.preventDefault();
+      if (productsPopup.classList.contains("open")) {
+        closeProductsPopup();
+        return;
+      }
       if (stok.dataset.menu === "none") {
         openMenu("exit");
       } else {
@@ -283,46 +308,52 @@
         stokMessage.textContent = "ESC=Menu Selanjutnya";
       }
     }
-    if (event.key === "Enter" && stok.dataset.menu !== "none") {
+    if (event.key === "Enter" && stok.dataset.menu !== "none" && !productsOpen) {
       event.preventDefault();
       const first = document.querySelector(`.stok-window[data-panel="${stok.dataset.menu}"] button`);
       if (first) first.click();
     }
-    if (event.key === "ArrowDown" && stok.dataset.menu === "none") {
+    if (event.key === "ArrowDown" && stok.dataset.menu === "none" && productsOpen) {
       event.preventDefault();
       selectRow(selectedIndex + 1);
     }
-    if (event.key === "ArrowUp" && stok.dataset.menu === "none") {
+    if (event.key === "ArrowUp" && stok.dataset.menu === "none" && productsOpen) {
       event.preventDefault();
       selectRow(selectedIndex - 1);
     }
     if (event.key === "F2") {
       event.preventDefault();
+      openProductsPopup("Ketik barcode/nama lalu ENTER untuk sortir.");
       searchInput.focus();
       searchInput.select();
-      stokMessage.textContent = "Ketik barcode/nama lalu ENTER untuk sortir.";
     }
     if (event.key === "F4") {
       event.preventDefault();
+      openProductsPopup("Mode tambah. Isi barang lalu ENTER/Simpan.");
       clearForm();
       fields.name.focus();
-      stokMessage.textContent = "Mode tambah. Isi barang lalu ENTER/Simpan.";
     }
     if (event.key === "F5") {
       event.preventDefault();
+      openProductsPopup();
       loadSelectedForEdit();
     }
     if (event.key === "F8") {
       event.preventDefault();
+      openProductsPopup();
       submitDeleteSelected();
     }
     if (event.key === "F10") {
       event.preventDefault();
+      openProductsPopup();
       printStockTable();
     }
   });
 
   openMenu("file");
   selectRow(0);
+  if (productsPopup.classList.contains("open")) {
+    openProductsPopup("F4=Tambah   F5=Edit   F8=Hapus   F10=Cetak");
+  }
 </script>
 {% endblock %}
