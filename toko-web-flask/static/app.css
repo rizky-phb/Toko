@@ -20,8 +20,7 @@ body {
 
 .app {
   min-height: 100vh;
-  display: grid;
-  grid-template-rows: auto auto 1fr auto;
+  display: block;
   background:
     repeating-linear-gradient(115deg, rgba(0, 0, 0, .06) 0 1px, transparent 1px 4px),
     var(--teal);

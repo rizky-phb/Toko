@@ -8,30 +8,7 @@
 </head>
 <body data-page="{{ active_path.strip('/') or 'dashboard' }}">
   <div class="app">
-    {% if not active_path.startswith('/kasir') and active_path not in ['/stok', '/stok-barang'] %}
-    <header class="topbar">
-      <span>{{ app_name }}</span>
-      <span>Kassa: {{ register_no }} | Kasir: {{ cashier_name }}</span>
-    </header>
-    <nav class="menubar">
-      <a class="{{ 'active' if active_path == '/dashboard' else '' }}" href="{{ url_for('dashboard') }}">Dashboard</a>
-      <a class="{{ 'active' if active_path == '/kasir' else '' }}" href="{{ url_for('kasir') }}">Kasir</a>
-      <a class="{{ 'active' if active_path in ['/stok', '/stok-barang'] else '' }}" href="{{ url_for('stok') }}">Stok</a>
-      <a class="{{ 'active' if active_path == '/pelanggan' else '' }}" href="{{ url_for('pelanggan') }}">Pelanggan</a>
-      <a class="{{ 'active' if active_path == '/pembelian' else '' }}" href="{{ url_for('pembelian') }}">Pembelian</a>
-      <a class="{{ 'active' if active_path == '/laporan' else '' }}" href="{{ url_for('laporan') }}">Laporan</a>
-      <a class="{{ 'active' if active_path == '/pengaturan' else '' }}" href="{{ url_for('pengaturan') }}">Pengaturan</a>
-      <a href="{{ url_for('desktop') }}">Desktop</a>
-      <a href="{{ url_for('logout') }}">Logout</a>
-    </nav>
-    {% endif %}
     <main>{% block content %}{% endblock %}</main>
-    {% if not active_path.startswith('/kasir') and active_path not in ['/stok', '/stok-barang'] %}
-    <footer class="statusbar">
-      <span>F2 Cari/Sortir &nbsp; F4 Tambah &nbsp; F5 Edit &nbsp; F8 Hapus &nbsp; F10 Cetak</span>
-      <span>Flask Port</span>
-    </footer>
-    {% endif %}
   </div>
 </body>
 </html>
