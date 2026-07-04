@@ -25,6 +25,10 @@
         <input id="cashier_name" value="{{ cashiers.get('1', '') }}" readonly>
       </div>
       <div class="dos-row">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <div class="dos-row">
         <label for="print_receipt">Cetak Nota</label>
         <select id="print_receipt" name="print_receipt">
           <option value="">Tanya saat transaksi</option>
@@ -42,8 +46,14 @@
     const cashiers = {{ cashiers|tojson }};
     const codeInput = document.querySelector("#cashier_code");
     const nameInput = document.querySelector("#cashier_name");
+    const passwordInput = document.querySelector("#password");
+    const defaultPassword = () => {
+      const normalizedName = String(nameInput.value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      return `${normalizedName}000${codeInput.value.trim()}`;
+    };
     const fillName = () => {
       nameInput.value = cashiers[codeInput.value.trim()] || "";
+      passwordInput.placeholder = nameInput.value ? `Default: ${defaultPassword()}` : "";
     };
     codeInput.addEventListener("input", fillName);
     codeInput.addEventListener("change", fillName);

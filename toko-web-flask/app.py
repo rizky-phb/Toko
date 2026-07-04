@@ -7,6 +7,7 @@ from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from flask import Flask, g, jsonify, redirect, render_template, request, session, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
 
 
 APP_NAME = "MR. FAUZI ZAMI"
@@ -94,6 +95,13 @@ def create_app():
                 return render_template(
                     "kasir_login.html",
                     error="ID kasir tidak ditemukan.",
+                    cashiers=cashier_map(),
+                )
+            password = request.form.get("password", "")
+            if not cashier_password_matches(cashier, password):
+                return render_template(
+                    "kasir_login.html",
+                    error="Password kasir salah.",
                     cashiers=cashier_map(),
                 )
 
@@ -863,6 +871,7 @@ def init_db():
     import_legacy_stock_if_needed(db)
     import_legacy_customers_if_needed(db)
     seed(db)
+    ensure_default_cashier_passwords(db)
 
 
 def migrate_db(db):
@@ -1270,6 +1279,19 @@ def seed(db):
     db.commit()
 
 
+def ensure_default_cashier_passwords(db):
+    rows = db.execute("SELECT id, code, name, password FROM cashiers").fetchall()
+    for row in rows:
+        stored = str(row["password"] or "")
+        if stored and stored not in {"00", "0"}:
+            continue
+        db.execute(
+            "UPDATE cashiers SET password = ? WHERE id = ?",
+            (generate_password_hash(default_cashier_password(row)), row["id"]),
+        )
+    db.commit()
+
+
 def store_settings():
     rows = get_db().execute("SELECT key, value FROM store_settings").fetchall()
     values = {row["key"]: row["value"] for row in rows}
@@ -1462,6 +1484,21 @@ def cashier_map():
         "SELECT code, name FROM cashiers WHERE active = 1 ORDER BY code"
     ).fetchall()
     return {row["code"]: row["name"] for row in rows}
+
+
+def default_cashier_password(cashier):
+    name = "".join(char for char in str(cashier["name"] or "").lower() if char.isalnum())
+    code = str(cashier["code"] or "").strip()
+    return f"{name}000{code}"
+
+
+def cashier_password_matches(cashier, candidate):
+    stored = str(cashier["password"] or "")
+    if stored.startswith(("scrypt:", "pbkdf2:", "argon2:")):
+        return check_password_hash(stored, candidate)
+    if stored in {"", "00", "0"}:
+        return candidate == default_cashier_password(cashier)
+    return candidate == stored
 
 
 def register_no():
