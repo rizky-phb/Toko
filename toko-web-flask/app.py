@@ -56,7 +56,7 @@ def create_app():
     def logout():
         clear_cashier_session()
         session.pop("stock_logged_in", None)
-        return redirect(url_for("desktop"))
+        return redirect(url_for("kasir"))
 
     @app.route("/kasir/logout")
     def kasir_logout():
@@ -65,7 +65,7 @@ def create_app():
 
     @app.route("/")
     def desktop():
-        return render_template("desktop.html")
+        return redirect(url_for("kasir"))
 
     @app.route("/healthz")
     def healthz():
@@ -319,24 +319,31 @@ def create_app():
             db.commit()
         return redirect(url_for("perkiraan_kas"))
 
-    @app.route("/stok", methods=["GET", "POST"])
-    def stok():
-        if request.method == "POST" and "stock_logged_in" not in session:
+    @app.route("/blablabla", methods=["GET", "POST"])
+    def stok_login():
+        if request.method == "POST":
             password = request.form.get("password", "").strip()
             if password != "00":
                 return render_template("stok_login.html", error="Password stok salah.")
             session["stock_logged_in"] = True
             return redirect(url_for("stok"))
 
+        if "stock_logged_in" in session:
+            return redirect(url_for("stok"))
+
+        return render_template("stok_login.html", error="")
+
+    @app.route("/stok", methods=["GET", "POST"])
+    def stok():
         if "stock_logged_in" not in session:
-            return render_template("stok_login.html", error="")
+            return redirect(url_for("stok_login"))
 
         return stok_barang_view()
 
     @app.route("/stok-barang", methods=["GET", "POST"])
     def stok_barang():
         if "stock_logged_in" not in session and "cashier_id" not in session:
-            return redirect(url_for("stok"))
+            return redirect(url_for("stok_login"))
         return stok_barang_view()
 
     def stok_barang_view():
