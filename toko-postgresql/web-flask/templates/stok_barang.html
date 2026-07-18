@@ -1,0 +1,359 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }} - Stok{% endblock %}
+{% block content %}
+<section class="dos-stok" data-menu="none">
+  <div class="stok-title">{{ app_name }}</div>
+  <div class="stok-frame">
+    <div class="stok-menubar">
+      <button data-menu="file">[ File ]</button>
+      <button data-menu="transaksi">[ Transaksi ]</button>
+      <button data-menu="laporan">[ Laporan ]</button>
+      <button data-menu="utility">[ Utility ]</button>
+      <button data-menu="exit">[ Exit ]</button>
+    </div>
+
+    <div class="stok-window file-menu" data-panel="file">
+      <button data-action="barang">[ Barang.... ]</button>
+      <button>[ Kelompok.. ]</button>
+      <button>[ Lokasi/Rak ]</button>
+      <button data-action="pelanggan">[ Pelanggan. ]</button>
+      <button>[ Supplier.. ]</button>
+      <button data-action="perkiraan">[ Perkiraan. ]</button>
+    </div>
+
+    <div class="stok-window transaksi-menu" data-panel="transaksi">
+      <button>[ P O ........... ]</button>
+      <button data-action="pembelian">[ Pembelian...... ]</button>
+      <button>[ Retur Pembelian ]</button>
+      <button>[ Stok Opname.... ]</button>
+    </div>
+
+    <div class="stok-window laporan-menu" data-panel="laporan">
+      <button>[ Barang.......>]</button>
+      <button>[ Pembelian....>]</button>
+      <button>[ Penjualan....>]</button>
+      <button>[ R e t u r....>]</button>
+      <button>[ Opname/Mutasi>]</button>
+      <button>[ Point Belanja>]</button>
+      <button>[ Pelanggan....>]</button>
+      <button>[ Supplier.....>]</button>
+    </div>
+
+    <div class="stok-window utility-menu" data-panel="utility">
+      <button>[ Posting Data.. ]</button>
+      <button>[ Password Login]</button>
+      <button>[ Tanggal....... ]</button>
+      <button data-action="pengaturan">[ Setup Kassa... ]</button>
+    </div>
+
+    <div class="stok-window exit-menu" data-panel="exit">
+      <button data-action="exit">[ Selesai/Keluar ]</button>
+      <button>[ Kembali....... ]</button>
+    </div>
+
+    <div class="stok-products {{ 'open' if show_products else '' }}" id="stok-products" aria-modal="true" role="dialog">
+      <div class="section-title">
+        <span>Tabel Barang</span>
+        <span>F2=Sortir F4=Tambah F5=Edit F8=Hapus F10=Cetak ESC=Tutup</span>
+        <button class="stok-close" id="stok-products-close" type="button">X</button>
+      </div>
+      <form method="get" class="toolbar" id="stok-search-form">
+        <input id="stok-search" name="q" value="{{ q }}" placeholder="Cari barcode / nama barang" size="34">
+        <button class="action">F2 Sortir</button>
+      </form>
+      <form method="post" class="toolbar compact" id="stok-form">
+        <input type="hidden" name="_action" id="stok-action" value="add">
+        <input type="hidden" name="product_id" id="stok-product-id">
+        <input id="stok-barcode" name="barcode" placeholder="Barcode">
+        <input id="stok-legacy-code" name="legacy_code" placeholder="Kode" size="8">
+        <input id="stok-group-code" name="group_code" placeholder="Klp" value="00" size="4">
+        <input id="stok-name" name="name" placeholder="Nama barang" required size="34">
+        <input id="stok-stock" name="stock" placeholder="Stok" value="0" size="6">
+        <input id="stok-unit" name="unit" placeholder="Sat" value="PCS" size="6">
+        <input id="stok-cost-price" name="cost_price" placeholder="Harga beli" value="0" size="10">
+        <input id="stok-wholesale-price" name="wholesale_price" placeholder="Harga bakul" value="0" size="10">
+        <input id="stok-retail-price" name="retail_price" placeholder="Harga ecer" value="0" size="10">
+        <input id="stok-supplier-code" name="supplier_code" placeholder="Supplier" size="8">
+        <input id="stok-rack-code" name="rack_code" placeholder="Rak" size="6">
+        <button class="action" id="stok-submit">F4 Tambah</button>
+      </form>
+      <table id="stok-table">
+        <thead>
+          <tr><th>Barcode</th><th>Kode</th><th>Klp</th><th>Nama Barang</th><th>Sisa Stk</th><th>Sat</th><th>Hrg.Bakul</th><th>Hrg.Ecer</th><th>Rak</th></tr>
+        </thead>
+        <tbody>
+          {% for product in products %}
+          <tr class="{{ 'selected' if loop.first else '' }}" data-index="{{ loop.index0 }}">
+            <td>{{ product.barcode or "-" }}</td>
+            <td>{{ product.legacy_code or "-" }}</td>
+            <td>{{ product.group_code }}</td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.stock|rupiah }}</td>
+            <td>{{ product.unit }}</td>
+            <td>{{ product.cost_price|rupiah }}</td>
+            <td>{{ product.retail_price|rupiah }}</td>
+            <td>{{ product.rack_code or "-" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="stok-footer">
+    <span id="stok-message">File: Tabel Barang, Kelompok, Pelanggan, Supplier dan Perkiraan Kas/Biaya</span>
+    <span>24-06-2026&nbsp;&nbsp;18:35</span>
+  </div>
+</section>
+
+<script>
+  const stok = document.querySelector(".dos-stok");
+  const products = {{ products_json|tojson }};
+  const topButtons = [...document.querySelectorAll(".stok-menubar button")];
+  const panels = [...document.querySelectorAll(".stok-window")];
+  const stokMessage = document.querySelector("#stok-message");
+  const rows = [...document.querySelectorAll("#stok-table tbody tr")];
+  const searchInput = document.querySelector("#stok-search");
+  const stockForm = document.querySelector("#stok-form");
+  const stockAction = document.querySelector("#stok-action");
+  const stockSubmit = document.querySelector("#stok-submit");
+  const productsPopup = document.querySelector("#stok-products");
+  const productsClose = document.querySelector("#stok-products-close");
+  const fields = {
+    id: document.querySelector("#stok-product-id"),
+    barcode: document.querySelector("#stok-barcode"),
+    legacy_code: document.querySelector("#stok-legacy-code"),
+    group_code: document.querySelector("#stok-group-code"),
+    name: document.querySelector("#stok-name"),
+    stock: document.querySelector("#stok-stock"),
+    unit: document.querySelector("#stok-unit"),
+    cost_price: document.querySelector("#stok-cost-price"),
+    wholesale_price: document.querySelector("#stok-wholesale-price"),
+    retail_price: document.querySelector("#stok-retail-price"),
+    supplier_code: document.querySelector("#stok-supplier-code"),
+    rack_code: document.querySelector("#stok-rack-code"),
+  };
+  const messages = {
+    file: "Tabel Barang, Kelompok, Pelanggan, Supplier dan Perkiraan Kas/Biaya",
+    transaksi: "Input Transaksi PO, Pembelian dan Retur",
+    laporan: "Laporan Barang, Penjualan, Pembelian, Retur, Transfer",
+    utility: "Posting, Password-Login dan Tanggal",
+    exit: "Exit Program"
+  };
+  let menuIndex = 0;
+  let selectedIndex = products.length ? 0 : -1;
+
+  const formatNumber = (value) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(value || 0);
+
+  const openMenu = (name) => {
+    stok.dataset.menu = name;
+    topButtons.forEach((button, index) => {
+      const active = button.dataset.menu === name;
+      button.classList.toggle("active", active);
+      if (active) menuIndex = index;
+    });
+    panels.forEach((panel) => panel.classList.toggle("open", panel.dataset.panel === name));
+    stokMessage.textContent = messages[name] || "ESC=Menu Selanjutnya";
+  };
+
+  topButtons.forEach((button) => {
+    button.addEventListener("click", () => openMenu(button.dataset.menu));
+    button.addEventListener("mouseenter", () => {
+      if (stok.dataset.menu !== "none") openMenu(button.dataset.menu);
+    });
+  });
+
+  function openProductsPopup(statusText = "F4=Tambah   F5=Edit   F8=Hapus   F10=Cetak") {
+    productsPopup.classList.add("open");
+    stok.dataset.menu = "none";
+    topButtons.forEach((button) => button.classList.remove("active"));
+    panels.forEach((panel) => panel.classList.remove("open"));
+    stokMessage.textContent = statusText;
+    selectRow(Math.max(selectedIndex, 0));
+  }
+
+  function closeProductsPopup() {
+    productsPopup.classList.remove("open");
+    stokMessage.textContent = "ESC=Menu Selanjutnya";
+  }
+
+  document.querySelector("[data-action='barang']").addEventListener("click", () => {
+    openProductsPopup();
+  });
+  productsClose.addEventListener("click", closeProductsPopup);
+
+  document.querySelector("[data-action='pelanggan']").addEventListener("click", () => {
+    window.location.href = "{{ url_for('pelanggan') }}";
+  });
+  document.querySelector("[data-action='perkiraan']").addEventListener("click", () => {
+    window.location.href = "{{ url_for('perkiraan_kas') }}";
+  });
+  document.querySelector("[data-action='pembelian']").addEventListener("click", () => {
+    window.location.href = "{{ url_for('pembelian') }}";
+  });
+  document.querySelector("[data-action='pengaturan']").addEventListener("click", () => {
+    window.location.href = "{{ url_for('pengaturan') }}";
+  });
+  document.querySelector("[data-action='exit']").addEventListener("click", () => {
+    window.location.href = "{{ url_for('logout') }}";
+  });
+
+  function selectRow(index) {
+    if (!products.length) return;
+    selectedIndex = Math.max(0, Math.min(products.length - 1, index));
+    rows.forEach((row, rowIndex) => row.classList.toggle("selected", rowIndex === selectedIndex));
+    rows[selectedIndex]?.scrollIntoView({ block: "nearest" });
+    const product = products[selectedIndex];
+    stokMessage.textContent = `${product.barcode || product.legacy_code || "-"} ${product.name} | Stok ${formatNumber(product.stock)} | F5=Edit F8=Hapus`;
+  }
+
+  function clearForm() {
+    stockAction.value = "add";
+    fields.id.value = "";
+    fields.barcode.value = "";
+    fields.legacy_code.value = "";
+    fields.group_code.value = "00";
+    fields.name.value = "";
+    fields.stock.value = "0";
+    fields.unit.value = "PCS";
+    fields.cost_price.value = "0";
+    fields.wholesale_price.value = "0";
+    fields.retail_price.value = "0";
+    fields.supplier_code.value = "";
+    fields.rack_code.value = "";
+    stockSubmit.textContent = "F4 Tambah";
+  }
+
+  function loadSelectedForEdit() {
+    if (selectedIndex < 0) {
+      stokMessage.textContent = "Belum ada barang yang dipilih.";
+      return;
+    }
+    const product = products[selectedIndex];
+    stockAction.value = "update";
+    fields.id.value = product.id;
+    fields.barcode.value = product.barcode;
+    fields.legacy_code.value = product.legacy_code;
+    fields.group_code.value = product.group_code;
+    fields.name.value = product.name;
+    fields.stock.value = product.stock;
+    fields.unit.value = product.unit;
+    fields.cost_price.value = product.cost_price;
+    fields.wholesale_price.value = product.wholesale_price;
+    fields.retail_price.value = product.retail_price;
+    fields.supplier_code.value = product.supplier_code;
+    fields.rack_code.value = product.rack_code;
+    stockSubmit.textContent = "F5 Simpan";
+    fields.name.focus();
+    fields.name.select();
+    stokMessage.textContent = "Mode edit. Ubah data lalu ENTER/Simpan.";
+  }
+
+  function submitDeleteSelected() {
+    if (selectedIndex < 0) {
+      stokMessage.textContent = "Belum ada barang yang dipilih.";
+      return;
+    }
+    const product = products[selectedIndex];
+    if (!window.confirm(`Hapus barang ${product.name}?`)) return;
+    stockAction.value = "delete";
+    fields.id.value = product.id;
+    stockForm.submit();
+  }
+
+  function printStockTable() {
+    const rowsText = products.map((product) => (
+      `${(product.barcode || product.legacy_code || "-").padEnd(16)} ${(product.group_code || "00").padEnd(4)} ${product.name.padEnd(34).slice(0, 34)} ${formatNumber(product.stock).padStart(10)} ${(product.unit || "PCS").padEnd(5)} ${formatNumber(product.retail_price).padStart(12)}`
+    )).join("\n");
+    const content = `TABEL BARANG\n${"=".repeat(92)}\nBarcode/Kode      Klp  Nama Barang                         Sisa Stk Sat       Hrg.Ecer\n${"-".repeat(92)}\n${rowsText}`;
+    const win = window.open("", "_blank", "width=980,height=720");
+    if (!win) {
+      stokMessage.textContent = "Popup cetak diblokir browser.";
+      return;
+    }
+    win.document.write(`<pre style="font:14px Consolas, monospace; white-space:pre;">${content.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[char]))}</pre>`);
+    win.document.close();
+    win.focus();
+    win.print();
+  }
+
+  rows.forEach((row, index) => {
+    row.addEventListener("click", () => selectRow(index));
+    row.addEventListener("dblclick", loadSelectedForEdit);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    const productsOpen = productsPopup.classList.contains("open");
+    if (event.key === "ArrowRight" && !productsOpen) {
+      event.preventDefault();
+      menuIndex = (menuIndex + 1) % topButtons.length;
+      openMenu(topButtons[menuIndex].dataset.menu);
+    }
+    if (event.key === "ArrowLeft" && !productsOpen) {
+      event.preventDefault();
+      menuIndex = (menuIndex + topButtons.length - 1) % topButtons.length;
+      openMenu(topButtons[menuIndex].dataset.menu);
+    }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      if (productsPopup.classList.contains("open")) {
+        closeProductsPopup();
+        return;
+      }
+      if (stok.dataset.menu === "none") {
+        openMenu("exit");
+      } else {
+        stok.dataset.menu = "none";
+        topButtons.forEach((button) => button.classList.remove("active"));
+        panels.forEach((panel) => panel.classList.remove("open"));
+        stokMessage.textContent = "ESC=Menu Selanjutnya";
+      }
+    }
+    if (event.key === "Enter" && stok.dataset.menu !== "none" && !productsOpen) {
+      event.preventDefault();
+      const first = document.querySelector(`.stok-window[data-panel="${stok.dataset.menu}"] button`);
+      if (first) first.click();
+    }
+    if (event.key === "ArrowDown" && stok.dataset.menu === "none" && productsOpen) {
+      event.preventDefault();
+      selectRow(selectedIndex + 1);
+    }
+    if (event.key === "ArrowUp" && stok.dataset.menu === "none" && productsOpen) {
+      event.preventDefault();
+      selectRow(selectedIndex - 1);
+    }
+    if (event.key === "F2") {
+      event.preventDefault();
+      openProductsPopup("Ketik barcode/nama lalu ENTER untuk sortir.");
+      searchInput.focus();
+      searchInput.select();
+    }
+    if (event.key === "F4") {
+      event.preventDefault();
+      openProductsPopup("Mode tambah. Isi barang lalu ENTER/Simpan.");
+      clearForm();
+      fields.name.focus();
+    }
+    if (event.key === "F5") {
+      event.preventDefault();
+      openProductsPopup();
+      loadSelectedForEdit();
+    }
+    if (event.key === "F8") {
+      event.preventDefault();
+      openProductsPopup();
+      submitDeleteSelected();
+    }
+    if (event.key === "F10") {
+      event.preventDefault();
+      openProductsPopup();
+      printStockTable();
+    }
+  });
+
+  openMenu("file");
+  selectRow(0);
+  if (productsPopup.classList.contains("open")) {
+    openProductsPopup("F4=Tambah   F5=Edit   F8=Hapus   F10=Cetak");
+  }
+</script>
+{% endblock %}

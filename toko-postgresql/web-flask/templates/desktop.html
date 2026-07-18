@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ app_name }} - Desktop</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body class="desktop-body">
+  <main class="desktop">
+    <a class="desktop-icon recycle" href="#" aria-label="Recycle Bin">
+      <span class="icon-art recycle-art"></span>
+      <span>Recycle Bin</span>
+    </a>
+    <a class="desktop-icon" href="{{ url_for('kasir') }}" aria-label="Kasir">
+      <span class="icon-art kasir-art"></span>
+      <span>Kasir</span>
+    </a>
+    <a class="desktop-icon" href="{{ url_for('stok') }}" aria-label="Stok">
+      <span class="icon-art stok-art"></span>
+      <span>Stok</span>
+    </a>
+  </main>
+  <footer class="taskbar">
+    <div class="taskbar-center">
+      <span class="start-button"></span>
+      <span class="task-icon chat"></span>
+      <span class="task-icon folder"></span>
+      <span class="task-icon edge"></span>
+      <span class="task-icon chrome"></span>
+      <span class="task-icon code"></span>
+      <span class="task-icon terminal"></span>
+    </div>
+    <div class="tray">
+      <span>^</span>
+      <span>Wi-Fi</span>
+      <span>VOL</span>
+      <span>6:35 PM<br>6/21/2026</span>
+    </div>
+  </footer>
+</body>
+</html>

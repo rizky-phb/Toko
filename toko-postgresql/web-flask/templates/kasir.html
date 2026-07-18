@@ -1,0 +1,675 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }} - Kasir{% endblock %}
+{% block content %}
+<section class="cr-wvt-screen" data-mode="standby">
+  <div class="cr-redbar">
+    <span>{{ today_label }}</span>
+    <span id="cr-clock" data-server-now="{{ server_now }}">--:--:--</span>
+  </div>
+
+  <div class="cr-header">
+    <div>
+      <div>{{ store.name }}</div>
+      <div>{{ store.city }}</div>
+      <div>Kasir: {{ cashier_name }}</div>
+    </div>
+    <div class="cr-live-total" id="cr-header-live-total">0</div>
+    <div class="cr-note">
+      <div>Nota: <span id="cr-note-no">{{ sale_no.split('-')[0] }}</span></div>
+      <div>Item: <span id="cr-item-count">0</span></div>
+    </div>
+  </div>
+
+  <div class="cr-cyan-strip"></div>
+  <div class="cr-marquee" aria-label="Informasi toko berjalan">
+    <span>. {{ store.name }} . {{ store.city }} . {{ today_label }} . {{ store.name }} . {{ store.city }} .</span>
+  </div>
+
+  <div class="cr-grid" id="cr-grid" tabindex="0" aria-label="Daftar belanja kasir">
+    <div class="cr-grid-head cr-code">Kode</div>
+    <div class="cr-grid-head cr-name">Nama Barang</div>
+    <div class="cr-grid-head cr-qty">Qty</div>
+    <div class="cr-grid-head cr-price">Harga</div>
+    <div class="cr-grid-head cr-disc">Disc</div>
+    <div class="cr-grid-head cr-total">Jumlah</div>
+    <div class="cr-grid-body" id="cr-grid-body"></div>
+  </div>
+
+  <div class="cr-picker" id="cr-picker" hidden>
+    <div class="cr-picker-title" id="cr-picker-title">Pilih barang</div>
+    <div class="cr-picker-list" id="cr-picker-list"></div>
+  </div>
+
+  <div class="cr-point-box" id="cr-point-box" hidden>
+    <div class="cr-point-title">Cek Point Belanja</div>
+    <div class="cr-point-body" id="cr-point-body"></div>
+    <button class="cr-point-close" id="cr-point-close" type="button">Tutup</button>
+  </div>
+
+  <div class="cr-bottom-panel">
+    <div class="cr-customer-lines">
+      <div>Kode:<span id="cr-member-code"></span></div>
+      <div>Nama:<span id="cr-member-name"></span></div>
+      <div>Almt:<span id="cr-member-address"></span></div>
+      <div>Poin:<span id="cr-member-points"></span></div>
+    </div>
+    <div class="cr-live-total small" id="cr-bottom-live-total">0</div>
+    <div class="cr-totals">
+      <div>Jml.Belanja:<span id="cr-total-belanja">0</span></div>
+      <div>Disc:       <span id="cr-sale-discount">0</span></div>
+      <div>Jml.Bayar  :<span id="cr-jml-bayar">0</span></div>
+      <div>Kembali    :<span id="cr-kembali">0</span></div>
+    </div>
+  </div>
+
+  <form class="cr-input-line" autocomplete="off">
+    <label id="cr-input-label" for="barcode">BarCode/Nama:</label>
+    <input id="barcode" name="barcode" autofocus>
+  </form>
+
+  <div class="cr-status" id="cr-status">F3=Kas    F4=Rekap    F5=Set_Print    F10=Ctk_Ulang    F11=CekPoin    F12=Logout    ENTER=Transaksi</div>
+</section>
+
+<script>
+  const statusLine = document.querySelector("#cr-status");
+  const barcode = document.querySelector("#barcode");
+  const grid = document.querySelector("#cr-grid");
+  const gridBody = document.querySelector("#cr-grid-body");
+  const itemCount = document.querySelector("#cr-item-count");
+  const headerLiveTotal = document.querySelector("#cr-header-live-total");
+  const bottomLiveTotal = document.querySelector("#cr-bottom-live-total");
+  const noteNo = document.querySelector("#cr-note-no");
+  const totalBelanja = document.querySelector("#cr-total-belanja");
+  const saleDiscountText = document.querySelector("#cr-sale-discount");
+  const jmlBayar = document.querySelector("#cr-jml-bayar");
+  const kembali = document.querySelector("#cr-kembali");
+  const inputLabel = document.querySelector("#cr-input-label");
+  const memberCodeText = document.querySelector("#cr-member-code");
+  const memberNameText = document.querySelector("#cr-member-name");
+  const memberAddressText = document.querySelector("#cr-member-address");
+  const memberPointsText = document.querySelector("#cr-member-points");
+  const picker = document.querySelector("#cr-picker");
+  const pickerTitle = document.querySelector("#cr-picker-title");
+  const pickerList = document.querySelector("#cr-picker-list");
+  const pointBox = document.querySelector("#cr-point-box");
+  const pointBody = document.querySelector("#cr-point-body");
+  const pointClose = document.querySelector("#cr-point-close");
+  const clock = document.querySelector("#cr-clock");
+  const serverStart = new Date(clock.dataset.serverNow);
+  const localStart = Date.now();
+  const cart = [];
+  const member = { code: "", name: "", address: "" };
+  let printPreference = "{{ print_receipt }}";
+  let pendingQty = 1;
+  let mode = "code";
+  let inputMode = "scan";
+  let suggestions = [];
+  let selectedSuggestion = 0;
+  let pickerMode = "product";
+  let subtotalAmount = 0;
+  let saleDiscount = 0;
+  let cartTotal = 0;
+  let paidAmount = 0;
+  let lastReceipt = "";
+  let restoredHeldSaleId = null;
+
+  const formatNumber = (value) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(value || 0);
+  const setStatus = (text) => { statusLine.textContent = text; };
+  const openKas = () => { window.location.href = "{{ url_for('kas_harian') }}"; };
+  const defaultStatus = () => setStatus("F3=Kas    F4=Rekap    F5=Set_Print    F10=Ctk_Ulang    F11=CekPoin    F12=Logout    ENTER=Transaksi");
+  const scanStatus = () => setStatus("BarCode/Nama?   n*=Qty   Up/Down=Pilih   ENTER=Ambil   F1=Member   F2=Cek_Hrg   F9=Tunda   ESC=Selesai");
+  const setInputMode = (nextMode, label, statusText = "") => {
+    inputMode = nextMode;
+    inputLabel.textContent = label;
+    barcode.value = "";
+    barcode.focus();
+    if (statusText) setStatus(statusText);
+  };
+
+  function tickClock() {
+    const now = new Date(serverStart.getTime() + (Date.now() - localStart));
+    clock.textContent = now.toLocaleTimeString("id-ID", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+      timeZone: "Asia/Jakarta",
+    }).replace(/\./g, ":");
+  }
+
+  function renderCart() {
+    gridBody.innerHTML = "";
+    let total = 0;
+    let totalQty = 0;
+    cart.forEach((item, index) => {
+      const lineTotal = Math.max(0, Math.round(item.qty * item.price) - item.discount);
+      total += lineTotal;
+      totalQty += Number(item.qty || 0);
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = "cr-grid-row";
+      row.innerHTML = `
+        <span class="cr-code">${item.barcode}</span>
+        <span class="cr-name">${item.name}</span>
+        <span class="cr-qty">${formatNumber(item.qty)}</span>
+        <span class="cr-price">${formatNumber(item.price)}</span>
+        <span class="cr-disc">${formatNumber(item.discount)}</span>
+        <span class="cr-total">${formatNumber(lineTotal)}</span>
+      `;
+      row.addEventListener("click", () => removeCartItem(index));
+      gridBody.appendChild(row);
+    });
+    subtotalAmount = total;
+    cartTotal = Math.max(0, subtotalAmount - saleDiscount);
+    itemCount.textContent = formatNumber(totalQty);
+    headerLiveTotal.textContent = formatNumber(cartTotal);
+    bottomLiveTotal.textContent = formatNumber(cartTotal);
+    totalBelanja.textContent = formatNumber(subtotalAmount);
+    saleDiscountText.textContent = formatNumber(saleDiscount);
+    jmlBayar.textContent = formatNumber(cartTotal);
+    kembali.textContent = formatNumber(Math.max(0, paidAmount - cartTotal));
+  }
+
+  function renderMember() {
+    memberCodeText.textContent = member.code ? ` ${member.code}` : "";
+    memberNameText.textContent = member.name ? ` ${member.name}` : "";
+    memberAddressText.textContent = member.address ? ` ${member.address}` : "";
+    memberPointsText.textContent = member.code ? ` ${formatNumber(member.points ?? 0)}` : "";
+  }
+
+  function showPointBox(customer) {
+    if (!customer) {
+      pointBody.innerHTML = `
+        <div class="cr-point-main">Member tidak ditemukan</div>
+        <div>Kode tidak ada di database pelanggan.</div>
+      `;
+    } else {
+      pointBody.innerHTML = `
+        <div>Kode: ${escapeHtml(customer.code)}</div>
+        <div>Nama: ${escapeHtml(customer.name)}</div>
+        <div class="cr-point-main">${formatNumber(customer.points)} POIN</div>
+      `;
+    }
+    pointBox.hidden = false;
+    pointClose.focus();
+  }
+
+  function closePointBox() {
+    pointBox.hidden = true;
+    barcode.focus();
+  }
+
+  function removeCartItem(index) {
+    cart.splice(index, 1);
+    renderCart();
+    setStatus("Item dihapus. ENTER=Transaksi");
+  }
+
+  function addProduct(product) {
+    const existing = cart.find((item) => item.id === product.id);
+    if (existing) {
+      existing.qty += pendingQty;
+    } else {
+      cart.push({
+        id: product.id,
+        barcode: product.barcode || product.legacy_code || "",
+        name: product.name,
+        qty: pendingQty,
+        price: Number(product.price || 0),
+        discount: 0,
+      });
+    }
+    pendingQty = 1;
+    barcode.value = "";
+    closePicker();
+    renderCart();
+    scanStatus();
+  }
+
+  function resetAfterReceipt() {
+    window.location.reload();
+  }
+
+  function printReceipt(receipt) {
+    const win = window.open("", "_blank", "width=420,height=640");
+    if (!win) {
+      setStatus("Popup print diblokir browser. Struk akan didownload.");
+      downloadReceipt(receipt);
+      return;
+    }
+    win.document.write(`<pre style="font:16px Consolas, monospace; white-space:pre-wrap;">${escapeHtml(receipt)}</pre>`);
+    win.document.close();
+    win.focus();
+    win.print();
+    setTimeout(resetAfterReceipt, 800);
+  }
+
+  function downloadReceipt(receipt) {
+    const blob = new Blob([receipt], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `struk-${noteNo.textContent.trim() || "toko"}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setTimeout(resetAfterReceipt, 400);
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, (char) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+    }[char]));
+  }
+
+  async function saveSale(receiptAction) {
+    const response = await fetch("{{ url_for('api_sales_create') }}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        items: cart,
+        member,
+        discount: saleDiscount,
+        paid: paidAmount,
+        held_sale_id: restoredHeldSaleId,
+        receipt_action: receiptAction,
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      setStatus(data.error || "Transaksi gagal disimpan.");
+      setInputMode("scan", "BarCode/Nama:");
+      return;
+    }
+    lastReceipt = data.receipt;
+    noteNo.textContent = data.sale_no.split("-")[0];
+    setStatus("Transaksi tersimpan.");
+    if (receiptAction === "print") {
+      printReceipt(lastReceipt);
+    } else {
+      downloadReceipt(lastReceipt);
+    }
+  }
+
+  async function updatePrintPreference(value) {
+    const response = await fetch("{{ url_for('api_cashier_print_preference') }}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ print_receipt: value }),
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      setStatus(data.error || "Set print gagal disimpan.");
+      return;
+    }
+    printPreference = data.print_receipt;
+    setInputMode("scan", "BarCode/Nama:", `Set_Print: ${data.label}`);
+  }
+
+  function logoutCashier() {
+    if (cart.length > 0 && !window.confirm("Transaksi belum selesai. Logout kasir sekarang?")) {
+      barcode.focus();
+      return;
+    }
+    window.location.href = "{{ url_for('kasir_logout') }}";
+  }
+
+  function renderProductPicker() {
+    picker.hidden = suggestions.length === 0;
+    pickerTitle.textContent = suggestions.length ? "Pilih barang lalu ENTER" : "Barang tidak ditemukan";
+    pickerList.innerHTML = "";
+    suggestions.forEach((product, index) => {
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = `cr-picker-row${index === selectedSuggestion ? " selected" : ""}`;
+      row.innerHTML = `
+        <span>${product.barcode || "-"}</span>
+        <span>${product.name}</span>
+        <span>${formatNumber(product.price)}</span>
+      `;
+      row.addEventListener("click", () => addProduct(product));
+      pickerList.appendChild(row);
+    });
+    pickerList.querySelector(".selected")?.scrollIntoView({ block: "nearest" });
+  }
+
+  function renderHeldPicker() {
+    picker.hidden = suggestions.length === 0;
+    pickerTitle.textContent = suggestions.length ? "Pilih transaksi tunda lalu ENTER" : "Tidak ada transaksi tunda";
+    pickerList.innerHTML = "";
+    suggestions.forEach((heldSale, index) => {
+      const row = document.createElement("button");
+      row.type = "button";
+      row.className = `cr-picker-row held${index === selectedSuggestion ? " selected" : ""}`;
+      const memberLabel = heldSale.member_name || heldSale.member_code || "Tanpa member";
+      row.innerHTML = `
+        <span>#${heldSale.id}</span>
+        <span>${memberLabel}</span>
+        <span>${formatNumber(heldSale.item_count)} item</span>
+        <span>${formatNumber(heldSale.total)}</span>
+      `;
+      row.addEventListener("click", () => restoreHeldSale(heldSale));
+      pickerList.appendChild(row);
+    });
+    pickerList.querySelector(".selected")?.scrollIntoView({ block: "nearest" });
+  }
+
+  function renderPicker() {
+    if (pickerMode === "held") {
+      renderHeldPicker();
+      return;
+    }
+    renderProductPicker();
+  }
+
+  function closePicker() {
+    suggestions = [];
+    selectedSuggestion = 0;
+    pickerMode = "product";
+    picker.hidden = true;
+    pickerList.innerHTML = "";
+  }
+
+  async function searchProduct(query) {
+    const response = await fetch(`{{ url_for('api_products_search') }}?mode=${encodeURIComponent(mode)}&q=${encodeURIComponent(query)}`);
+    if (!response.ok) return [];
+    const data = await response.json();
+    return data.items || [];
+  }
+
+  async function lookupMember(code) {
+    const response = await fetch(`{{ url_for('api_customer', code='__CODE__') }}`.replace("__CODE__", encodeURIComponent(code)));
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.found ? data.customer : null;
+  }
+
+  async function submitLookup() {
+    const value = barcode.value.trim();
+    if (!value) return;
+    const qtyMatch = value.match(/^(\d+(?:[.,]\d+)?)\*$/);
+    if (qtyMatch) {
+      pendingQty = Number(qtyMatch[1].replace(",", ".")) || 1;
+      barcode.value = "";
+      setStatus(`${formatNumber(pendingQty)}*=Qty terbaca, lanjut masukan barcode atau nama barang`);
+      return;
+    }
+
+    suggestions = await searchProduct(value);
+    selectedSuggestion = 0;
+    if (suggestions.length === 1) {
+      addProduct(suggestions[0]);
+      return;
+    }
+    renderPicker();
+    setStatus(suggestions.length ? "Barang mirip ditemukan. Up/Down=Pilih   ENTER=Ambil   ESC=Batal" : "Barang tidak ditemukan. Ketik kode/nama lain atau ESC");
+  }
+
+  function clearTransaction() {
+    cart.splice(0, cart.length);
+    member.code = "";
+    member.name = "";
+    member.address = "";
+    member.points = 0;
+    pendingQty = 1;
+    saleDiscount = 0;
+    paidAmount = 0;
+    restoredHeldSaleId = null;
+    renderCart();
+    renderMember();
+    setInputMode("scan", "BarCode/Nama:");
+  }
+
+  async function holdCurrentSale() {
+    if (cart.length === 0) {
+      await openHeldSales();
+      return;
+    }
+    const response = await fetch("{{ url_for('api_held_sales_list') }}", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: cart, member, discount: saleDiscount, held_sale_id: restoredHeldSaleId }),
+    });
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      setStatus(data.error || "Transaksi gagal ditunda.");
+      return;
+    }
+    clearTransaction();
+    setStatus(`Transaksi ditunda (#${data.held_sale_id}). F9 lagi untuk membuka daftar tunda.`);
+  }
+
+  async function openHeldSales() {
+    const response = await fetch("{{ url_for('api_held_sales_list') }}");
+    if (!response.ok) {
+      setStatus("Daftar transaksi tunda gagal dibuka.");
+      return;
+    }
+    const data = await response.json();
+    suggestions = data.items || [];
+    selectedSuggestion = 0;
+    pickerMode = "held";
+    renderPicker();
+    setStatus(suggestions.length ? "Transaksi tunda ditemukan. Up/Down=Pilih   ENTER=Muat   ESC=Batal" : "Belum ada transaksi tunda.");
+  }
+
+  async function restoreHeldSale(heldSale) {
+    const detailUrl = "{{ url_for('api_held_sale_detail', held_sale_id=0) }}".replace("/0", `/${heldSale.id}`);
+    const response = await fetch(detailUrl);
+    const data = await response.json();
+    if (!response.ok || !data.ok) {
+      setStatus(data.error || "Transaksi tunda gagal dimuat.");
+      closePicker();
+      return;
+    }
+    const sale = data.held_sale;
+    cart.splice(0, cart.length, ...sale.items.map((item) => ({
+      id: item.id,
+      barcode: item.barcode || item.legacy_code || "",
+      name: item.name,
+      qty: Number(item.qty || 1),
+      price: Number(item.price || 0),
+      discount: Number(item.discount || 0),
+    })));
+    member.code = sale.member.code || "";
+    member.name = sale.member.name || "";
+    member.address = sale.member.address || "";
+    member.points = 0;
+    saleDiscount = Number(sale.discount || 0);
+    paidAmount = 0;
+    restoredHeldSaleId = sale.id;
+    closePicker();
+    renderCart();
+    renderMember();
+    setInputMode("scan", "BarCode/Nama:", `Transaksi tunda #${sale.id} dimuat. Lanjut scan atau ENTER bayar.`);
+  }
+
+  grid.addEventListener("click", (event) => {
+    const targetClass = event.target.className || "";
+    mode = String(targetClass).includes("cr-name") ? "name" : "code";
+    setInputMode("scan", mode === "name" ? "Nama Barang:" : "Kode Barang:", "Ketik lalu ENTER. Sekat kolom tetap untuk daftar item.");
+  });
+
+  document.addEventListener("keydown", async (event) => {
+    if (["F1", "F2", "F3", "F4", "F5", "F8", "F9", "F10", "F11", "F12"].includes(event.key)) {
+      event.preventDefault();
+    }
+
+    if (!picker.hidden && event.key === "ArrowDown") {
+      event.preventDefault();
+      selectedSuggestion = Math.min(suggestions.length - 1, selectedSuggestion + 1);
+      renderPicker();
+      return;
+    }
+    if (!picker.hidden && event.key === "ArrowUp") {
+      event.preventDefault();
+      selectedSuggestion = Math.max(0, selectedSuggestion - 1);
+      renderPicker();
+      return;
+    }
+
+    if (event.key === "F1") setInputMode("memberCode", "Kode Member:", "Isi kode member lalu ENTER. ESC=Batal");
+    if (event.key === "F3") openKas();
+    if (event.key === "F4") setStatus("Jenis Lap,  1=Rekap Barang   2=Rekap Nota   3=Rekap  [1/2/3]:      ESC=Selesai");
+    if (event.key === "F5") {
+      closePicker();
+      closePointBox();
+      setInputMode("printSetting", "Set Print:", "Y=Print struk   T=Download struk   K=Tanya saat transaksi");
+    }
+    if (event.key === "F9") {
+      await holdCurrentSale();
+      return;
+    }
+    if (event.key === "F10") setStatus("Tanggal:              No.Nota:         Nama Ksr:          ");
+    if (event.key === "F11") {
+      closePicker();
+      closePointBox();
+      setInputMode("pointsCode", "Kode Customer:", "Isi kode customer lalu ENTER untuk cek poin. ESC=Batal");
+    }
+    if (event.key === "F12") {
+      logoutCashier();
+      return;
+    }
+    if (event.key === "Enter") {
+      event.preventDefault();
+      if (!picker.hidden && suggestions[selectedSuggestion]) {
+        if (pickerMode === "held") {
+          await restoreHeldSale(suggestions[selectedSuggestion]);
+          return;
+        }
+        addProduct(suggestions[selectedSuggestion]);
+        return;
+      }
+      if (inputMode === "memberCode") {
+        const code = barcode.value.trim();
+        if (!code) {
+          setInputMode("scan", "BarCode/Nama:", "Kode member kosong. Kembali ke transaksi.");
+          return;
+        }
+        const foundMember = await lookupMember(code);
+        if (!foundMember) {
+          member.code = "";
+          member.name = "";
+          member.address = "";
+          member.points = 0;
+          renderMember();
+          setInputMode("scan", "BarCode/Nama:", "Member tidak ditemukan.");
+          return;
+        }
+        member.code = foundMember.code;
+        member.name = foundMember.name;
+        member.address = [foundMember.address, foundMember.city].filter(Boolean).join(" ");
+        member.points = foundMember.points || 0;
+        renderMember();
+        setInputMode("scan", "BarCode/Nama:", `Member ${foundMember.name} ditemukan.`);
+        return;
+      }
+      if (inputMode === "pointsCode") {
+        const code = barcode.value.trim();
+        if (!code) {
+          setInputMode("scan", "BarCode/Nama:", "Kode customer kosong. Kembali ke transaksi.");
+          return;
+        }
+        const foundCustomer = await lookupMember(code);
+        showPointBox(foundCustomer);
+        setInputMode("scan", "BarCode/Nama:", foundCustomer ? `Poin ${foundCustomer.name}: ${formatNumber(foundCustomer.points)}` : "Member tidak ditemukan.");
+        return;
+      }
+      if (inputMode === "printSetting") {
+        const choice = barcode.value.trim().toUpperCase();
+        if (choice === "Y") {
+          await updatePrintPreference("1");
+          return;
+        }
+        if (choice === "T") {
+          await updatePrintPreference("0");
+          return;
+        }
+        if (choice === "K" || choice === "") {
+          await updatePrintPreference("");
+          return;
+        }
+        setStatus("Pilih Y=Print, T=Download, atau K=Tanya saat transaksi.");
+        barcode.select();
+        return;
+      }
+      if (inputMode === "saleDiscount") {
+        saleDiscount = Number(barcode.value.replace(/\./g, "").replace(",", "")) || 0;
+        saleDiscount = Math.max(0, Math.min(saleDiscount, subtotalAmount));
+        renderCart();
+        setInputMode("payment", "Uang Bayar:", "Isi uang pembayaran lalu ENTER.");
+        return;
+      }
+      if (inputMode === "payment") {
+        paidAmount = Number(barcode.value.replace(/\./g, "").replace(",", "")) || 0;
+        renderCart();
+        if (paidAmount < cartTotal) {
+          setStatus("Uang pembayaran kurang. Isi ulang jumlah bayar lalu ENTER.");
+          barcode.select();
+          return;
+        }
+        if (printPreference === "1") {
+          saveSale("print");
+          return;
+        }
+        if (printPreference === "0") {
+          saveSale("download");
+          return;
+        }
+        setInputMode("printChoice", "Print Y/T:", "Y=Print struk   T=Download struk lalu refresh");
+        return;
+      }
+      if (inputMode === "printChoice") {
+        const choice = barcode.value.trim().toUpperCase();
+        if (choice === "Y") {
+          saveSale("print");
+          return;
+        }
+        if (choice === "T") {
+          saveSale("download");
+          return;
+        }
+        setStatus("Pilih Y untuk print atau T untuk download struk.");
+        barcode.select();
+        return;
+      }
+      if (inputMode === "scan" && barcode.value.trim()) {
+        submitLookup();
+        return;
+      }
+      if (cart.length > 0) {
+        setInputMode("saleDiscount", "Diskon:", "Isi diskon transaksi, ENTER jika 0.");
+        return;
+      }
+      setInputMode("scan", "BarCode/Nama:");
+      scanStatus();
+    }
+    if (event.key === "Escape") {
+      event.preventDefault();
+      barcode.value = "";
+      pendingQty = 1;
+      closePicker();
+      closePointBox();
+      setInputMode("scan", "BarCode/Nama:");
+      defaultStatus();
+    }
+  });
+
+  pointClose.addEventListener("click", closePointBox);
+
+  barcode.addEventListener("input", () => {
+    if (/^\d+(?:[.,]\d+)?\*$/.test(barcode.value)) {
+      setStatus("n*=Qty terbaca, lanjut tekan ENTER lalu masukan barcode barang");
+    }
+  });
+
+  tickClock();
+  setInterval(tickClock, 1000);
+  renderCart();
+</script>
+{% endblock %}

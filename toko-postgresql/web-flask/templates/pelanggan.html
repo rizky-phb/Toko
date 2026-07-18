@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }} - Pelanggan{% endblock %}
+{% block content %}
+<section class="workarea">
+  <div class="section-title"><span>Tabel Pelanggan</span><span>F4=Tambah/Update F8=Hapus</span></div>
+  <form method="get" class="toolbar">
+    <input name="q" value="{{ q }}" placeholder="Cari kode / nama / alamat" size="34">
+    <button class="action">F2 Cari</button>
+    <a class="action" href="{{ url_for('stok') }}">Stok</a>
+  </form>
+  <form method="post" class="toolbar compact">
+    <input name="code" placeholder="Kode" required size="8">
+    <input name="name" placeholder="Nama pelanggan" required size="26">
+    <input name="address" placeholder="Alamat" size="28">
+    <input name="city" placeholder="Kota" size="12">
+    <input name="phone" placeholder="Telp" size="14">
+    <input name="discount" placeholder="Disc" value="0" size="6">
+    <input name="points" placeholder="Poin" value="0" size="6">
+    <input name="balance" placeholder="Saldo" value="0" size="8">
+    <input name="notes" placeholder="Keterangan" size="24">
+    <button class="action">F4 Simpan</button>
+  </form>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Kode</th>
+          <th>Nama Pelanggan</th>
+          <th>Alamat</th>
+          <th>Kota</th>
+          <th>Telp</th>
+          <th>Disc</th>
+          <th>Poin</th>
+          <th>Saldo</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for customer in customers %}
+        <tr class="{{ 'selected' if loop.first else '' }}">
+          <td>{{ customer.code }}</td>
+          <td>{{ customer.name }}</td>
+          <td>{{ customer.address }}</td>
+          <td>{{ customer.city }}</td>
+          <td>{{ customer.phone }}</td>
+          <td>{{ customer.discount|rupiah }}</td>
+          <td>{{ customer.points|rupiah }}</td>
+          <td>{{ customer.balance|rupiah }}</td>
+          <td>
+            <form method="post" action="{{ url_for('pelanggan_delete', customer_id=customer.id) }}">
+              <button class="danger">F8 Hapus</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

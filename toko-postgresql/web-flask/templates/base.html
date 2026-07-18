@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ app_name }}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body data-page="{{ active_path.strip('/') or 'dashboard' }}">
+  <div class="app">
+    <main>{% block content %}{% endblock %}</main>
+  </div>
+</body>
+</html>

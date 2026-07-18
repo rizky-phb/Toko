@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }} - Daftar Perkiraan{% endblock %}
+{% block content %}
+<section class="account-screen">
+  <div class="account-box">
+    <div class="account-head">
+      <span>Kode</span><span>Pos Perkiraan</span><span>D/K</span><span>L/R</span><span>Aksi</span>
+    </div>
+    {% for account in accounts %}
+    <form class="account-row" method="post">
+      <input name="code" value="{{ account.code }}" readonly>
+      <input name="name" value="{{ account.name }}" maxlength="30">
+      <input name="side" value="{{ account.side }}" maxlength="1">
+      <input name="profit_loss" value="{{ account.profit_loss }}" maxlength="1">
+      <button>F5=Edit</button>
+      <button form="delete-account-{{ account.code }}">F8=Hapus</button>
+    </form>
+    <form id="delete-account-{{ account.code }}" method="post" action="{{ url_for('perkiraan_kas_delete', code=account.code) }}"></form>
+    {% endfor %}
+  </div>
+
+  <form class="account-entry" method="post" autocomplete="off">
+    <input name="code" placeholder="Kode" maxlength="5" autofocus>
+    <input name="name" placeholder="Pos Perkiraan" maxlength="30">
+    <input name="side" placeholder="D/K" maxlength="1">
+    <input name="profit_loss" placeholder="L/R" maxlength="1">
+    <button>F4=Tambah</button>
+  </form>
+
+  <div class="cash-actions">
+    <a href="{{ url_for('kas_harian') }}">ESC=Selesai</a>
+    <button onclick="window.print()" type="button">F10=Cetak</button>
+    <span>{{ error or "F4=Tambah     F5=Edit     F8=Hapus     F10=Cetak" }}</span>
+  </div>
+</section>
+
+<script>
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      window.location.href = "{{ url_for('kas_harian') }}";
+    }
+    if (["F4", "F5", "F8", "F10"].includes(event.key)) {
+      event.preventDefault();
+    }
+    if (event.key === "F10") window.print();
+  });
+</script>
+{% endblock %}

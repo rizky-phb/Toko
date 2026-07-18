@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login Kasir</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body>
+  <form method="post" class="login">
+    <h1>Login Kasir</h1>
+    {% if error %}<p class="error">{{ error }}</p>{% endif %}
+    <label for="code">Kode Kasir</label>
+    <input id="code" name="code" value="2" autofocus>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" value="00">
+    <label for="register_no">No Kassa</label>
+    <input id="register_no" name="register_no" value="1">
+    <button>Masuk</button>
+  </form>
+</body>
+</html>

@@ -1,0 +1,3 @@
+PROCEDURE Main()
+   DO INDEK
+RETURN
