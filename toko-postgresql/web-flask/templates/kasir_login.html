@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login Kasir - {{ app_name }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body class="harbour-login-body">
+  <form method="post" class="harbour-dialog kasir-dialog">
+    <div class="dialog-bar">CR.EXE - Login Kasir</div>
+    <div class="dialog-content">
+      <h1>MR. FAUZI ZAMI</h1>
+      {% if error %}<p class="dos-error">{{ error }}</p>{% endif %}
+      <div class="dos-row">
+        <label for="register_no">No. Kassa</label>
+        <input id="register_no" name="register_no" value="1" inputmode="numeric">
+      </div>
+      <div class="dos-row">
+        <label for="cashier_code">ID Kasir</label>
+        <input id="cashier_code" name="cashier_code" value="1" inputmode="numeric" autofocus>
+      </div>
+      <div class="dos-row">
+        <label for="cashier_name">Nama Kasir</label>
+        <input id="cashier_name" value="{{ cashiers.get('1', '') }}" readonly>
+      </div>
+      <div class="dos-row">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <div class="dos-row">
+        <label for="print_receipt">Cetak Nota</label>
+        <select id="print_receipt" name="print_receipt">
+          <option value="">Tanya saat transaksi</option>
+          <option value="1">Ya</option>
+          <option value="0">Tidak</option>
+        </select>
+      </div>
+      <div class="dos-actions">
+        <button>Enter / Masuk</button>
+        <a href="{{ url_for('desktop') }}">Esc / Batal</a>
+      </div>
+    </div>
+  </form>
+  <script>
+    const cashiers = {{ cashiers|tojson }};
+    const codeInput = document.querySelector("#cashier_code");
+    const nameInput = document.querySelector("#cashier_name");
+    const passwordInput = document.querySelector("#password");
+    const defaultPassword = () => {
+      const normalizedName = String(nameInput.value || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+      return `${normalizedName}000${codeInput.value.trim()}`;
+    };
+    const fillName = () => {
+      nameInput.value = cashiers[codeInput.value.trim()] || "";
+      passwordInput.placeholder = nameInput.value ? `Default: ${defaultPassword()}` : "";
+    };
+    codeInput.addEventListener("input", fillName);
+    codeInput.addEventListener("change", fillName);
+    codeInput.addEventListener("blur", fillName);
+    codeInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        fillName();
+      }
+    });
+    fillName();
+  </script>
+</body>
+</html>

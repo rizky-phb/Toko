@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }} - Pembelian{% endblock %}
+{% block content %}
+<section class="workarea">
+  <div class="section-title"><span>Pembelian</span><span>Input Transaksi Pembelian</span></div>
+  <div class="toolbar">
+    <input value="PB-000001">
+    <input value="21-06-2026">
+    <select><option>Supplier Umum</option></select>
+    <input placeholder="Cari barang">
+    <button class="action">Simpan</button>
+  </div>
+  <table>
+    <thead><tr><th>Barang</th><th>Qty</th><th>Harga Beli</th><th>Total</th></tr></thead>
+    <tbody>
+      {% for row in rows %}
+      <tr class="{{ 'selected' if loop.first else '' }}">
+        <td>{{ row.name }}</td>
+        <td>{{ row.qty }}</td>
+        <td>{{ row.price|rupiah }}</td>
+        <td>{{ row.total|rupiah }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }} - Laporan Kas{% endblock %}
+{% block content %}
+<section class="cash-report">
+  <pre>
+    LAPORAN TRANSAKSI KAS HARIAN, TGL.: {{ date_label }},  KSR: {{ cashier_name }}
+   --------------------------------------------------------------------------
+    PEMASUKAN :
+    - Total Penjualan Barang                    {{ sale_total|rupiah }}
+{% for row in debit_rows %}    - {{ "%-30s"|format(row.account_name[:30]) }}           {{ row.amount|rupiah }}
+{% endfor %}                                            --------------
+      Jumlah Pemasukan                                     Rp {{ total_debit|rupiah }}
+
+    PENGELUARAN :
+{% for row in credit_rows %}    - {{ "%-20s"|format(row.account_name[:20]) }} {{ "%-20s"|format(row.description[:20]) }}{{ row.amount|rupiah }}
+{% endfor %}                                            --------------
+      Jumlah Pengeluaran                                  Rp {{ total_credit|rupiah }}
+                                                           --------------
+      Sisa Uang Kas                                       Rp {{ cash_balance|rupiah }}
+                                                           --------------
+  </pre>
+  <div class="cash-actions">
+    <a href="{{ url_for('kas_harian', tanggal=trans_date) }}">ESC=Selesai</a>
+    <button onclick="window.print()">F10=Cetak</button>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }} - Transaksi Kas{% endblock %}
+{% block content %}
+<section class="cash-screen">
+  <div class="cash-title">TRANSAKSI KAS HARIAN, TGL.: {{ date_label }}, KASIR: {{ cashier_name }}</div>
+  <div class="cash-table">
+    <div class="cash-head">
+      <span>Tanggal</span><span>Kode</span><span>Nama Perkiraan</span><span>Keterangan</span><span>Jumlah Rp.</span>
+    </div>
+    {% for row in transactions %}
+    <form class="cash-row" method="post" action="{{ url_for('kas_harian_edit', transaction_id=row.id) }}">
+      <input type="hidden" name="tanggal" value="{{ trans_date }}">
+      <span>{{ row.trans_date[8:10] }}-{{ row.trans_date[5:7] }}-{{ row.trans_date[0:4] }}</span>
+      <span>{{ row.account_code }}</span>
+      <span>{{ row.account_name[:22] }} {{ row.side }}</span>
+      <input name="description" value="{{ row.description }}" maxlength="25">
+      <input name="amount" value="{{ row.amount|rupiah }}" class="amount">
+      <button title="ENTER=Edit Keterangan/Jumlah Rp.">Edit</button>
+      <button form="delete-{{ row.id }}" title="F8=Hapus">Hapus</button>
+    </form>
+    <form id="delete-{{ row.id }}" method="post" action="{{ url_for('kas_harian_delete', transaction_id=row.id) }}">
+      <input type="hidden" name="tanggal" value="{{ trans_date }}">
+    </form>
+    {% endfor %}
+    {% for _ in range(19 - transactions|length) %}
+    <div class="cash-row empty"><span></span><span></span><span></span><span></span><span></span></div>
+    {% endfor %}
+  </div>
+
+  <form class="cash-entry" method="post" autocomplete="off">
+    <input type="date" name="tanggal" value="{{ trans_date }}">
+    <input name="account_code" id="account_code" maxlength="5" placeholder="Kode" autofocus>
+    <input id="account_name" readonly placeholder="Nama Perkiraan">
+    <input name="description" maxlength="25" placeholder="Keterangan">
+    <input name="amount" placeholder="Jumlah Rp.">
+    <button>Data Benar? Y</button>
+  </form>
+
+  <div class="cash-actions">
+    <a href="{{ url_for('kasir') }}">ESC=Selesai</a>
+    <a href="{{ url_for('laporan_kas_harian', tanggal=trans_date) }}">Laporan Kas</a>
+    <a href="{{ url_for('perkiraan_kas') }}">Daftar Perkiraan</a>
+    <span id="cash-message">{{ "Kode Perkiraan Tidak Ada. Ulangi!" if error == "kode" else "Up=Edit/Hapus   ESC=Selesai" }}</span>
+  </div>
+</section>
+
+<script>
+  const accounts = {{ accounts|map(attribute='code')|list|tojson }};
+  const accountNames = {
+    {% for account in accounts %}
+    "{{ account.code }}": "{{ account.name }} {{ account.side }}",
+    {% endfor %}
+  };
+  const code = document.querySelector("#account_code");
+  const name = document.querySelector("#account_name");
+  const message = document.querySelector("#cash-message");
+  const fillAccount = () => {
+    name.value = accountNames[code.value.trim()] || "";
+    if (!name.value && code.value.trim()) message.textContent = "Kode tidak ditemukan, daftar: " + accounts.join(", ");
+  };
+  code.addEventListener("input", fillAccount);
+  code.addEventListener("blur", fillAccount);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      window.location.href = "{{ url_for('kasir') }}";
+    }
+    if (event.key === "F8") {
+      event.preventDefault();
+      message.textContent = "Dihapus? Y/T";
+    }
+  });
+</script>
+{% endblock %}

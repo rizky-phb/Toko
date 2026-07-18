@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Login Stok - {{ app_name }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+</head>
+<body class="harbour-login-body">
+  <form method="post" class="harbour-dialog stok-dialog">
+    <div class="dialog-bar">STOK.EXE - Password</div>
+    <div class="dialog-content">
+      <h1>UTILITY STOK</h1>
+      {% if error %}<p class="dos-error">{{ error }}</p>{% endif %}
+      <div class="dos-row">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" value="00" autofocus>
+      </div>
+      <div class="dos-actions">
+        <button>Enter / Masuk</button>
+        <a href="{{ url_for('kasir') }}">Esc / Batal</a>
+      </div>
+    </div>
+  </form>
+</body>
+</html>

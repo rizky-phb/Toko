@@ -1,0 +1,5 @@
+harbour-build/*.log
+web-flask/.venv/
+web-flask/__pycache__/
+web-flask/storage/
+web-flask/.env
