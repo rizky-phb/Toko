@@ -33,6 +33,13 @@ CREATE TABLE IF NOT EXISTS products (
   cost_price INTEGER NOT NULL DEFAULT 0,
   wholesale_price INTEGER NOT NULL DEFAULT 0,
   retail_price INTEGER NOT NULL DEFAULT 0,
+  member_price INTEGER NOT NULL DEFAULT 0,
+  tier3_qty REAL NOT NULL DEFAULT 0,
+  tier3_price INTEGER NOT NULL DEFAULT 0,
+  tier4_qty REAL NOT NULL DEFAULT 0,
+  tier4_price INTEGER NOT NULL DEFAULT 0,
+  tier5_qty REAL NOT NULL DEFAULT 0,
+  tier5_price INTEGER NOT NULL DEFAULT 0,
   supplier_code TEXT,
   rack_code TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -84,6 +91,11 @@ CREATE TABLE IF NOT EXISTS sales (
   change_amount INTEGER NOT NULL DEFAULT 0,
   print_receipt INTEGER NOT NULL DEFAULT 1,
   status TEXT NOT NULL DEFAULT 'paid',
+  point_earned INTEGER NOT NULL DEFAULT 0,
+  point_redeemed INTEGER NOT NULL DEFAULT 0,
+  voided_at TIMESTAMPTZ,
+  void_reason TEXT NOT NULL DEFAULT '',
+  voided_by TEXT NOT NULL DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (cashier_id) REFERENCES cashiers(id)
 );
@@ -152,3 +164,32 @@ CREATE INDEX IF NOT EXISTS idx_cash_transactions_day_cashier
 
 CREATE INDEX IF NOT EXISTS idx_cash_transactions_account_day
   ON cash_transactions (account_code, trans_date);
+
+CREATE TABLE IF NOT EXISTS customer_point_ledger (
+  id BIGSERIAL PRIMARY KEY,
+  customer_code TEXT NOT NULL,
+  sale_id BIGINT,
+  trans_date DATE NOT NULL,
+  points_in INTEGER NOT NULL DEFAULT 0,
+  points_out INTEGER NOT NULL DEFAULT 0,
+  cash_value INTEGER NOT NULL DEFAULT 0,
+  description TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_code) REFERENCES customers(code),
+  FOREIGN KEY (sale_id) REFERENCES sales(id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_customer_point_ledger_customer
+  ON customer_point_ledger (customer_code, trans_date, id);
+
+CREATE TABLE IF NOT EXISTS customer_payments (
+  id BIGSERIAL PRIMARY KEY,
+  customer_code TEXT NOT NULL,
+  cashier_id BIGINT NOT NULL,
+  payment_date DATE NOT NULL,
+  amount INTEGER NOT NULL CHECK (amount > 0),
+  description TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customer_code) REFERENCES customers(code),
+  FOREIGN KEY (cashier_id) REFERENCES cashiers(id)
+);

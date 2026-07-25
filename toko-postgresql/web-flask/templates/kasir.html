@@ -57,6 +57,7 @@
     <div class="cr-totals">
       <div>Jml.Belanja:<span id="cr-total-belanja">0</span></div>
       <div>Disc:       <span id="cr-sale-discount">0</span></div>
+      <div>Donasi:     <span id="cr-donation">0</span></div>
       <div>Jml.Bayar  :<span id="cr-jml-bayar">0</span></div>
       <div>Kembali    :<span id="cr-kembali">0</span></div>
     </div>
@@ -67,7 +68,7 @@
     <input id="barcode" name="barcode" autofocus>
   </form>
 
-  <div class="cr-status" id="cr-status">F3=Kas    F4=Rekap    F5=Set_Print    F10=Ctk_Ulang    F11=CekPoin    F12=Logout    ENTER=Transaksi</div>
+  <div class="cr-status" id="cr-status">F2=Item Bebas  F3=Kas  F4=Rekap  F5=Set Print  F6=Donasi  F7=Koreksi  F8=Hapus  F9=Tunda  F10=Cetak Ulang  F11=Cek Poin  F12=Logout</div>
 </section>
 
 <script>
@@ -81,6 +82,7 @@
   const noteNo = document.querySelector("#cr-note-no");
   const totalBelanja = document.querySelector("#cr-total-belanja");
   const saleDiscountText = document.querySelector("#cr-sale-discount");
+  const donationText = document.querySelector("#cr-donation");
   const jmlBayar = document.querySelector("#cr-jml-bayar");
   const kembali = document.querySelector("#cr-kembali");
   const inputLabel = document.querySelector("#cr-input-label");
@@ -108,16 +110,18 @@
   let pickerMode = "product";
   let subtotalAmount = 0;
   let saleDiscount = 0;
+  let donationAmount = 0;
   let cartTotal = 0;
   let paidAmount = 0;
   let lastReceipt = "";
   let restoredHeldSaleId = null;
+  let customItemDraft = null;
 
   const formatNumber = (value) => new Intl.NumberFormat("id-ID", { maximumFractionDigits: 0 }).format(value || 0);
   const setStatus = (text) => { statusLine.textContent = text; };
   const openKas = () => { window.location.href = "{{ url_for('kas_harian') }}"; };
-  const defaultStatus = () => setStatus("F3=Kas    F4=Rekap    F5=Set_Print    F10=Ctk_Ulang    F11=CekPoin    F12=Logout    ENTER=Transaksi");
-  const scanStatus = () => setStatus("BarCode/Nama?   n*=Qty   Up/Down=Pilih   ENTER=Ambil   F1=Member   F2=Cek_Hrg   F9=Tunda   ESC=Selesai");
+  const defaultStatus = () => setStatus("F2=Item Bebas  F3=Kas  F4=Rekap  F5=Set Print  F6=Donasi  F7=Koreksi  F8=Hapus  F9=Tunda  F10=Cetak Ulang  F11=Cek Poin  F12=Logout");
+  const scanStatus = () => setStatus("BarCode/Nama?  n*=Qty  Up/Down=Pilih  ENTER=Ambil  F1=Member  F2=Item Bebas  F9=Tunda  ESC=Selesai");
   const setInputMode = (nextMode, label, statusText = "") => {
     inputMode = nextMode;
     inputLabel.textContent = label;
@@ -156,7 +160,7 @@
         <span class="cr-disc">${formatNumber(item.discount)}</span>
         <span class="cr-total">${formatNumber(lineTotal)}</span>
       `;
-      row.addEventListener("click", () => removeCartItem(index));
+      row.addEventListener("click", () => editCartItem(index));
       gridBody.appendChild(row);
     });
     subtotalAmount = total;
@@ -166,6 +170,7 @@
     bottomLiveTotal.textContent = formatNumber(cartTotal);
     totalBelanja.textContent = formatNumber(subtotalAmount);
     saleDiscountText.textContent = formatNumber(saleDiscount);
+    donationText.textContent = formatNumber(donationAmount);
     jmlBayar.textContent = formatNumber(cartTotal);
     kembali.textContent = formatNumber(Math.max(0, paidAmount - cartTotal));
   }
@@ -188,9 +193,11 @@
         <div>Kode: ${escapeHtml(customer.code)}</div>
         <div>Nama: ${escapeHtml(customer.name)}</div>
         <div class="cr-point-main">${formatNumber(customer.points)} POIN</div>
+        <button type="button" id="cr-point-withdraw">Ambil poin</button>
       `;
     }
     pointBox.hidden = false;
+    document.querySelector("#cr-point-withdraw")?.addEventListener("click", () => withdrawPoints(customer));
     pointClose.focus();
   }
 
@@ -199,10 +206,39 @@
     barcode.focus();
   }
 
+  async function withdrawPoints(customer) {
+    const points = window.prompt("Poin yang diambil", 0); if (points === null) return;
+    const cashValue = window.prompt("Nilai voucher/uang (Rp, opsional)", 0); if (cashValue === null) return;
+    const response = await fetch(`/api/customers/${encodeURIComponent(customer.code)}/points/withdraw`, {
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({points, cash_value: cashValue, description: "Pengambilan poin kasir"}),
+    });
+    const data = await response.json();
+    if (!response.ok) return setStatus(data.error || "Pengambilan poin gagal.");
+    customer.points = data.points; renderMember(); showPointBox(customer); setStatus("Poin berhasil diambil.");
+  }
+
   function removeCartItem(index) {
     cart.splice(index, 1);
     renderCart();
     setStatus("Item dihapus. ENTER=Transaksi");
+  }
+
+  function editCartItem(index) {
+    const item = cart[index];
+    if (!item) return;
+    const qty = window.prompt("Jumlah item", item.qty);
+    if (qty === null) return;
+    const price = window.prompt("Harga jual", item.price);
+    if (price === null) return;
+    const discount = window.prompt("Diskon item (Rp)", item.discount || 0);
+    if (discount === null) return;
+    const nextQty = Number(String(qty).replace(",", "."));
+    const nextPrice = Number(String(price).replace(/\./g, "").replace(",", ""));
+    const nextDiscount = Number(String(discount).replace(/\./g, "").replace(",", ""));
+    if (!(nextQty > 0) || nextPrice < 0 || nextDiscount < 0) return setStatus("Koreksi item tidak valid.");
+    item.qty = nextQty; item.price = nextPrice; item.discount = nextDiscount; item.manual_price = true;
+    renderCart(); setStatus("Item dikoreksi. F8=hapus item terakhir.");
   }
 
   function addProduct(product) {
@@ -224,6 +260,15 @@
     closePicker();
     renderCart();
     scanStatus();
+  }
+
+  function addCustomItem() {
+    if (!customItemDraft) return;
+    cart.push({
+      id: null, custom: true, barcode: "ITEM-BEBAS", name: customItemDraft.name,
+      unit: "PCS", qty: customItemDraft.qty, price: customItemDraft.price, discount: 0, manual_price: true,
+    });
+    customItemDraft = null; pendingQty = 1; barcode.value = ""; renderCart(); scanStatus();
   }
 
   function resetAfterReceipt() {
@@ -275,6 +320,7 @@
         items: cart,
         member,
         discount: saleDiscount,
+        donation: donationAmount,
         paid: paidAmount,
         held_sale_id: restoredHeldSaleId,
         receipt_action: receiptAction,
@@ -418,6 +464,7 @@
     member.points = 0;
     pendingQty = 1;
     saleDiscount = 0;
+    donationAmount = 0;
     paidAmount = 0;
     restoredHeldSaleId = null;
     renderCart();
@@ -475,6 +522,8 @@
       qty: Number(item.qty || 1),
       price: Number(item.price || 0),
       discount: Number(item.discount || 0),
+      custom: Boolean(item.custom),
+      manual_price: Boolean(item.manual_price),
     })));
     member.code = sale.member.code || "";
     member.name = sale.member.name || "";
@@ -496,7 +545,7 @@
   });
 
   document.addEventListener("keydown", async (event) => {
-    if (["F1", "F2", "F3", "F4", "F5", "F8", "F9", "F10", "F11", "F12"].includes(event.key)) {
+    if (["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"].includes(event.key)) {
       event.preventDefault();
     }
 
@@ -514,8 +563,15 @@
     }
 
     if (event.key === "F1") setInputMode("memberCode", "Kode Member:", "Isi kode member lalu ENTER. ESC=Batal");
+    if (event.key === "F2") setInputMode("customName", "Nama Item Bebas:", "Masukkan nama item bebas lalu ENTER.");
     if (event.key === "F3") openKas();
-    if (event.key === "F4") setStatus("Jenis Lap,  1=Rekap Barang   2=Rekap Nota   3=Rekap  [1/2/3]:      ESC=Selesai");
+    if (event.key === "F4") window.location.href = "{{ url_for('rekap_kasir') }}";
+    if (event.key === "F6") {
+      const value = window.prompt("Donasi dari uang kembalian (Rp)", donationAmount || 0);
+      if (value !== null) { donationAmount = Math.max(0, Number(String(value).replace(/\./g, "").replace(",", "")) || 0); renderCart(); }
+    }
+    if (event.key === "F7") setStatus("Klik item untuk koreksi Qty, harga, dan diskon.");
+    if (event.key === "F8" && cart.length) removeCartItem(cart.length - 1);
     if (event.key === "F5") {
       closePicker();
       closePointBox();
@@ -525,7 +581,7 @@
       await holdCurrentSale();
       return;
     }
-    if (event.key === "F10") setStatus("Tanggal:              No.Nota:         Nama Ksr:          ");
+    if (event.key === "F10") window.location.href = "{{ url_for('rekap_kasir') }}";
     if (event.key === "F11") {
       closePicker();
       closePointBox();
@@ -598,6 +654,23 @@
         barcode.select();
         return;
       }
+      if (inputMode === "customName") {
+        const name = barcode.value.trim();
+        if (!name) return setStatus("Nama item bebas wajib diisi.");
+        customItemDraft = { name, qty: pendingQty || 1, price: 0 };
+        setInputMode("customPrice", "Harga Item Bebas:", "Masukkan harga lalu ENTER.");
+        return;
+      }
+      if (inputMode === "customPrice") {
+        customItemDraft.price = Math.max(0, Number(barcode.value.replace(/\./g, "").replace(",", "")) || 0);
+        setInputMode("customQty", "Qty Item Bebas:", "Masukkan qty lalu ENTER.");
+        return;
+      }
+      if (inputMode === "customQty") {
+        customItemDraft.qty = Number(barcode.value.replace(",", ".")) || 1;
+        addCustomItem();
+        return;
+      }
       if (inputMode === "saleDiscount") {
         saleDiscount = Number(barcode.value.replace(/\./g, "").replace(",", "")) || 0;
         saleDiscount = Math.max(0, Math.min(saleDiscount, subtotalAmount));
@@ -608,10 +681,14 @@
       if (inputMode === "payment") {
         paidAmount = Number(barcode.value.replace(/\./g, "").replace(",", "")) || 0;
         renderCart();
-        if (paidAmount < cartTotal) {
-          setStatus("Uang pembayaran kurang. Isi ulang jumlah bayar lalu ENTER.");
+        if (paidAmount < cartTotal && !member.code) {
+          setStatus("Pembayaran kurang hanya boleh untuk member/piutang.");
           barcode.select();
           return;
+        }
+        if (donationAmount > Math.max(0, paidAmount - cartTotal)) {
+          donationAmount = Math.max(0, paidAmount - cartTotal);
+          renderCart();
         }
         if (printPreference === "1") {
           saveSale("print");
