@@ -238,7 +238,7 @@ def create_app():
             """
             SELECT COALESCE(SUM(total), 0) AS total
             FROM sales
-            WHERE sale_date = ? AND cashier_id = ?
+            WHERE sale_date = ? AND cashier_id = ? AND status <> 'void'
             """,
             (trans_date, session.get("cashier_id")),
         ).fetchone()["total"]
@@ -488,6 +488,20 @@ def create_app():
     @stock_required
     def pelanggan_delete(customer_id):
         db = get_db()
+        customer = db.execute("SELECT code FROM customers WHERE id = ?", (customer_id,)).fetchone()
+        if not customer:
+            return redirect(url_for("pelanggan"))
+        usage = db.execute(
+            """
+            SELECT
+              (SELECT COUNT(*) FROM sales WHERE member_code = ?) AS sales_count,
+              (SELECT COUNT(*) FROM customer_point_ledger WHERE customer_code = ?) AS point_count,
+              (SELECT COUNT(*) FROM customer_payments WHERE customer_code = ?) AS payment_count
+            """,
+            (customer["code"], customer["code"], customer["code"]),
+        ).fetchone()
+        if any(usage.values()):
+            return redirect(url_for("pelanggan", error="Pelanggan yang memiliki transaksi, poin, atau piutang tidak dapat dihapus."))
         db.execute("DELETE FROM customers WHERE id = ?", (customer_id,))
         db.commit()
         return redirect(url_for("pelanggan"))
@@ -563,7 +577,8 @@ def create_app():
         if mode == "name":
             rows = db.execute(
                 """
-                SELECT id, barcode, legacy_code, group_code, name, unit, stock, retail_price
+                SELECT id, barcode, legacy_code, group_code, name, unit, stock, retail_price,
+                       member_price, tier3_qty, tier3_price, tier4_qty, tier4_price, tier5_qty, tier5_price
                 FROM products
                 WHERE name LIKE ?
                 ORDER BY
@@ -576,7 +591,8 @@ def create_app():
         else:
             rows = db.execute(
                 """
-                SELECT id, barcode, legacy_code, group_code, name, unit, stock, retail_price
+                SELECT id, barcode, legacy_code, group_code, name, unit, stock, retail_price,
+                       member_price, tier3_qty, tier3_price, tier4_qty, tier4_price, tier5_qty, tier5_price
                 FROM products
                 WHERE barcode = ? OR legacy_code = ? OR barcode LIKE ? OR legacy_code LIKE ? OR name LIKE ?
                 ORDER BY
@@ -602,24 +618,47 @@ def create_app():
             return jsonify({"ok": False, "error": "Belum ada item transaksi."}), 400
 
         db = get_db()
+        member = payload.get("member") or {}
+        member_code = str(member.get("code", "")).strip()
+        customer = None
+        if member_code:
+            customer = db.execute(
+                "SELECT * FROM customers WHERE code = ? FOR UPDATE", (member_code,)
+            ).fetchone()
+            if not customer:
+                return jsonify({"ok": False, "error": "Member tidak ditemukan."}), 400
         try:
-            sale_items, subtotal = prepare_sale_items(db, raw_items)
+            sale_items, subtotal = prepare_sale_items(db, raw_items, is_member=bool(customer))
         except ValueError as exc:
             return jsonify({"ok": False, "error": str(exc)}), 400
 
-        sale_discount = max(0, min(parse_int(payload.get("discount", 0)), subtotal))
+        member_discount = int(round(subtotal * parse_float(customer["discount"]))) if customer else 0
+        member_discount = int(round(member_discount / 100))
+        sale_discount = max(0, min(parse_int(payload.get("discount", 0)) + member_discount, subtotal))
         discounted_subtotal = subtotal - sale_discount
         total, rounding = round_total(discounted_subtotal)
         paid = parse_int(payload.get("paid", 0))
-        if paid < total:
-            return jsonify({"ok": False, "error": "Uang pembayaran kurang."}), 400
-
-        member = payload.get("member") or {}
-        member_code = str(member.get("code", "")).strip()
-        member_name = str(member.get("name", "")).strip()
-        member_address = str(member.get("address", "")).strip()
+        if paid < total and not customer:
+            return jsonify({"ok": False, "error": "Pembayaran kurang hanya boleh untuk member/piutang."}), 400
+        donation = max(0, parse_int(payload.get("donation", 0)))
+        donation = min(donation, max(0, paid - total))
+        sale_paid = min(paid, total)
+        outstanding = max(0, total - sale_paid)
+        change_amount = max(0, paid - total - donation)
+        member_name = customer["name"] if customer else str(member.get("name", "")).strip()
+        member_address = customer_address(customer) if customer else str(member.get("address", "")).strip()
+        point_redeemed = max(0, parse_int(payload.get("points_redeem", 0)))
+        if point_redeemed and not customer:
+            return jsonify({"ok": False, "error": "Poin hanya dapat digunakan oleh member."}), 400
+        if customer and point_redeemed > int(customer["points"] or 0):
+            return jsonify({"ok": False, "error": "Poin member tidak mencukupi."}), 400
+        point_rate = max(1, parse_int(store_settings().get("point_earn_per", 100000)))
+        point_earned = int(discounted_subtotal // point_rate) if customer else 0
         now = datetime.now(WIB)
-        sale_no = next_sale_no(session["cashier_id"], register_no())
+        locked_cashier = db.execute(
+            "SELECT last_note FROM cashiers WHERE id = ? FOR UPDATE", (session["cashier_id"],)
+        ).fetchone()
+        sale_no = next_sale_no_from_value(locked_cashier["last_note"], register_no())
         note_no = int(sale_no.split("-")[0])
 
         cursor = db.execute(
@@ -627,8 +666,8 @@ def create_app():
             INSERT INTO sales
               (sale_no, register_no, cashier_id, sale_date, member_code, member_name,
                member_address, subtotal, discount, donation, rounding, total, paid,
-               change_amount, print_receipt, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0, ?, ?, ?, ?, ?, 'paid')
+               change_amount, print_receipt, status, point_earned, point_redeemed)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             RETURNING id
             """,
             (
@@ -641,11 +680,15 @@ def create_app():
                 member_address or None,
                 subtotal,
                 sale_discount,
+                donation,
                 rounding,
                 total,
-                paid,
-                paid - total,
+                sale_paid,
+                change_amount,
                 1 if payload.get("receipt_action", "print") == "print" else 0,
+                "credit" if outstanding else "paid",
+                point_earned,
+                point_redeemed,
             ),
         )
         sale_id = cursor.fetchone()["id"]
@@ -672,10 +715,28 @@ def create_app():
                     item["subtotal"],
                 ),
             )
-            db.execute(
-                "UPDATE products SET stock = stock - ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
-                (item["qty"], product["id"]),
-            )
+            if product["id"]:
+                db.execute(
+                    "UPDATE products SET stock = stock - ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+                    (item["qty"], product["id"]),
+                )
+
+        if customer:
+            if outstanding:
+                db.execute("UPDATE customers SET balance = balance + ? WHERE code = ?", (outstanding, member_code))
+            if point_earned or point_redeemed:
+                db.execute(
+                    "UPDATE customers SET points = points + ? - ? WHERE code = ?",
+                    (point_earned, point_redeemed, member_code),
+                )
+                db.execute(
+                    """
+                    INSERT INTO customer_point_ledger
+                      (customer_code, sale_id, trans_date, points_in, points_out, description)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    (member_code, sale_id, now.date().isoformat(), point_earned, point_redeemed, f"Penjualan {sale_no}"),
+                )
 
         db.execute(
             "UPDATE cashiers SET last_note = ? WHERE id = ?",
@@ -704,8 +765,11 @@ def create_app():
             discount=sale_discount,
             rounding=rounding,
             total=total,
-            paid=paid,
-            change_amount=paid - total,
+            paid=sale_paid,
+            change_amount=change_amount,
+            donation=donation,
+            outstanding=outstanding,
+            point_earned=point_earned,
         )
         return jsonify(
             {
@@ -760,7 +824,8 @@ def create_app():
 
         db = get_db()
         try:
-            sale_items, subtotal = prepare_sale_items(db, raw_items)
+            member_code = str((payload.get("member") or {}).get("code", "")).strip()
+            sale_items, subtotal = prepare_sale_items(db, raw_items, is_member=bool(member_code))
         except ValueError as exc:
             return jsonify({"ok": False, "error": str(exc)}), 400
 
@@ -780,8 +845,10 @@ def create_app():
                 "qty": item["qty"],
                 "price": item["price"],
                 "discount": item["discount"],
+                "custom": item["product"]["id"] is None,
+                "manual_price": bool(raw_items[index].get("manual_price")),
             }
-            for item in sale_items
+            for index, item in enumerate(sale_items)
         ]
         cursor = db.execute(
             """
@@ -865,6 +932,132 @@ def create_app():
         get_db().commit()
         return jsonify({"ok": True})
 
+    @app.route("/kasir/rekap")
+    @cashier_required
+    def rekap_kasir():
+        trans_date = request.args.get("tanggal", date.today().isoformat())
+        rows = get_db().execute(
+            """
+            SELECT s.id, s.sale_no, s.member_name, s.subtotal, s.discount, s.donation,
+                   s.rounding, s.total, s.paid, s.change_amount, s.status, s.created_at,
+                   COUNT(si.id) AS item_count
+            FROM sales s
+            LEFT JOIN sale_items si ON si.sale_id = s.id
+            WHERE s.sale_date = ? AND s.cashier_id = ?
+            GROUP BY s.id
+            ORDER BY s.id DESC
+            """,
+            (trans_date, session["cashier_id"]),
+        ).fetchall()
+        summary = {
+            "sales": sum(row["total"] for row in rows if row["status"] != "void"),
+            "cash": sum(row["paid"] + row["donation"] for row in rows if row["status"] != "void"),
+            "credit": sum(max(0, row["total"] - row["paid"]) for row in rows if row["status"] != "void"),
+        }
+        return render_template("rekap_kasir.html", rows=rows, summary=summary, trans_date=trans_date, date_label=iso_to_dmy(trans_date))
+
+    @app.route("/api/sales/<int:sale_id>/receipt")
+    @cashier_required
+    def api_sale_receipt(sale_id):
+        sale = get_db().execute(
+            "SELECT * FROM sales WHERE id = ? AND cashier_id = ?", (sale_id, session["cashier_id"])
+        ).fetchone()
+        if not sale:
+            return jsonify({"ok": False, "error": "Nota tidak ditemukan."}), 404
+        return jsonify({"ok": True, "receipt": receipt_for_sale(get_db(), sale), "sale": sale_to_json(sale)})
+
+    @app.route("/api/sales/<int:sale_id>/void", methods=["POST"])
+    @cashier_required
+    def api_sale_void(sale_id):
+        db = get_db()
+        sale = db.execute(
+            "SELECT * FROM sales WHERE id = ? AND cashier_id = ? FOR UPDATE", (sale_id, session["cashier_id"])
+        ).fetchone()
+        if not sale:
+            return jsonify({"ok": False, "error": "Nota tidak ditemukan."}), 404
+        if sale["status"] == "void":
+            return jsonify({"ok": False, "error": "Nota sudah dibatalkan."}), 400
+        items = db.execute("SELECT product_id, qty FROM sale_items WHERE sale_id = ?", (sale_id,)).fetchall()
+        for item in items:
+            if item["product_id"]:
+                db.execute("UPDATE products SET stock = stock + ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?", (item["qty"], item["product_id"]))
+        if sale["member_code"]:
+            outstanding = max(0, sale["total"] - sale["paid"])
+            db.execute(
+                "UPDATE customers SET balance = GREATEST(0, balance - ?), points = GREATEST(0, points - ? + ?) WHERE code = ?",
+                (outstanding, sale["point_earned"], sale["point_redeemed"], sale["member_code"]),
+            )
+            if sale["point_earned"] or sale["point_redeemed"]:
+                db.execute(
+                    """INSERT INTO customer_point_ledger
+                       (customer_code, sale_id, trans_date, points_in, points_out, description)
+                       VALUES (?, ?, ?, ?, ?, ?)""",
+                    (sale["member_code"], sale_id, date.today().isoformat(), sale["point_redeemed"], sale["point_earned"], f"Pembatalan {sale['sale_no']}"),
+                )
+        reason = str((request.get_json(silent=True) or {}).get("reason", "Dibatalkan kasir")).strip()[:200]
+        db.execute(
+            "UPDATE sales SET status = 'void', voided_at = CURRENT_TIMESTAMP, voided_by = ?, void_reason = ? WHERE id = ?",
+            (session.get("cashier_name", ""), reason, sale_id),
+        )
+        db.commit()
+        return jsonify({"ok": True})
+
+    @app.route("/api/customer-payments", methods=["POST"])
+    @cashier_required
+    def api_customer_payment():
+        payload = request.get_json(silent=True) or {}
+        code = str(payload.get("customer_code", "")).strip()
+        amount = parse_int(payload.get("amount", 0))
+        if not code or amount <= 0:
+            return jsonify({"ok": False, "error": "Kode pelanggan dan nominal pembayaran wajib diisi."}), 400
+        db = get_db()
+        customer = db.execute("SELECT * FROM customers WHERE code = ? FOR UPDATE", (code,)).fetchone()
+        if not customer:
+            return jsonify({"ok": False, "error": "Pelanggan tidak ditemukan."}), 404
+        accepted = min(amount, int(customer["balance"] or 0))
+        if accepted <= 0:
+            return jsonify({"ok": False, "error": "Pelanggan tidak memiliki piutang."}), 400
+        payment_date = date.today().isoformat()
+        description = str(payload.get("description", "Pembayaran piutang")).strip()[:200]
+        db.execute("UPDATE customers SET balance = balance - ? WHERE code = ?", (accepted, code))
+        db.execute(
+            "INSERT INTO customer_payments (customer_code, cashier_id, payment_date, amount, description) VALUES (?, ?, ?, ?, ?)",
+            (code, session["cashier_id"], payment_date, accepted, description),
+        )
+        db.execute(
+            """INSERT INTO cash_transactions
+               (trans_date, cashier_name, account_code, account_name, description, amount, side, profit_loss)
+               VALUES (?, ?, '10', 'PEMASUKAN', ?, ?, 'D', 'T')""",
+            (payment_date, session.get("cashier_name", ""), f"Piutang {code}: {description}", accepted),
+        )
+        db.commit()
+        return jsonify({"ok": True, "paid": accepted, "balance": int(customer["balance"]) - accepted})
+
+    @app.route("/api/customers/<code>/points/withdraw", methods=["POST"])
+    @cashier_required
+    def api_points_withdraw(code):
+        payload = request.get_json(silent=True) or {}
+        points = parse_int(payload.get("points", 0))
+        cash_value = parse_int(payload.get("cash_value", 0))
+        if points <= 0 and cash_value <= 0:
+            return jsonify({"ok": False, "error": "Jumlah poin atau nilai voucher wajib diisi."}), 400
+        db = get_db()
+        customer = db.execute("SELECT * FROM customers WHERE code = ? FOR UPDATE", (code,)).fetchone()
+        if not customer:
+            return jsonify({"ok": False, "error": "Pelanggan tidak ditemukan."}), 404
+        if points > int(customer["points"] or 0):
+            return jsonify({"ok": False, "error": "Poin pelanggan tidak mencukupi."}), 400
+        description = str(payload.get("description", "Pengambilan poin")).strip()[:200]
+        db.execute("UPDATE customers SET points = points - ? WHERE code = ?", (points, code))
+        db.execute(
+            """INSERT INTO customer_point_ledger
+               (customer_code, trans_date, points_out, cash_value, description)
+               VALUES (?, ?, ?, ?, ?)""",
+            (code, date.today().isoformat(), points, cash_value, description),
+        )
+        db.commit()
+        return jsonify({"ok": True, "points": int(customer["points"]) - points})
+
     return app
 
 
@@ -892,6 +1085,24 @@ def migrate_db(db):
             "member_code": "TEXT",
             "member_name": "TEXT",
             "member_address": "TEXT",
+            "point_earned": "INTEGER NOT NULL DEFAULT 0",
+            "point_redeemed": "INTEGER NOT NULL DEFAULT 0",
+            "voided_at": "TIMESTAMPTZ",
+            "void_reason": "TEXT NOT NULL DEFAULT ''",
+            "voided_by": "TEXT NOT NULL DEFAULT ''",
+        },
+    )
+    ensure_columns(
+        db,
+        "products",
+        {
+            "member_price": "INTEGER NOT NULL DEFAULT 0",
+            "tier3_qty": "REAL NOT NULL DEFAULT 0",
+            "tier3_price": "INTEGER NOT NULL DEFAULT 0",
+            "tier4_qty": "REAL NOT NULL DEFAULT 0",
+            "tier4_price": "INTEGER NOT NULL DEFAULT 0",
+            "tier5_qty": "REAL NOT NULL DEFAULT 0",
+            "tier5_price": "INTEGER NOT NULL DEFAULT 0",
         },
     )
 
@@ -954,6 +1165,10 @@ def import_legacy_stock_if_needed(db):
             row["wholesale_price"],
             row["retail_price"],
             row["supplier_code"],
+            row["member_price"],
+            row["tier3_qty"], row["tier3_price"],
+            row["tier4_qty"], row["tier4_price"],
+            row["tier5_qty"], row["tier5_price"],
         )
         if existing:
             db.execute(
@@ -961,7 +1176,9 @@ def import_legacy_stock_if_needed(db):
                 UPDATE products
                 SET barcode = ?, legacy_code = ?, group_code = ?, name = ?, unit = ?,
                     stock = ?, cost_price = ?, wholesale_price = ?, retail_price = ?,
-                    supplier_code = ?, updated_at = CURRENT_TIMESTAMP
+                    supplier_code = ?, member_price = ?, tier3_qty = ?, tier3_price = ?,
+                    tier4_qty = ?, tier4_price = ?, tier5_qty = ?, tier5_price = ?,
+                    updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
                 """,
                 values + (existing["id"],),
@@ -971,8 +1188,9 @@ def import_legacy_stock_if_needed(db):
                 """
                 INSERT INTO products
                   (barcode, legacy_code, group_code, name, unit, stock, cost_price,
-                   wholesale_price, retail_price, supplier_code)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                   wholesale_price, retail_price, supplier_code, member_price,
+                   tier3_qty, tier3_price, tier4_qty, tier4_price, tier5_qty, tier5_price)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 values,
             )
@@ -1100,6 +1318,13 @@ def read_legacy_stock(path):
                 "wholesale_price": int(round(dbf_number(values.get("HARGA_21")))),
                 "retail_price": int(round(dbf_number(values.get("HARGA_2")))),
                 "supplier_code": values.get("KODE_SPL", "").strip(),
+                "member_price": int(round(dbf_number(values.get("HARGA_21")))),
+                "tier3_qty": dbf_number(values.get("BATAS_3")),
+                "tier3_price": int(round(dbf_number(values.get("HARGA_3")))),
+                "tier4_qty": dbf_number(values.get("BATAS_4")),
+                "tier4_price": int(round(dbf_number(values.get("HARGA_4")))),
+                "tier5_qty": dbf_number(values.get("BATAS_5")),
+                "tier5_price": int(round(dbf_number(values.get("HARGA_5")))),
             }
         )
     return rows
@@ -1230,6 +1455,7 @@ def seed(db):
     settings = [
         ("store_name", "DUA PUTRA JAYA"),
         ("store_city", "KOTA TEGAL"),
+        ("point_earn_per", "100000"),
     ]
     db.executemany(
         """
@@ -1318,6 +1544,7 @@ def store_settings():
     return {
         "name": values.get("store_name", "DUA PUTRA JAYA"),
         "city": values.get("store_city", "KOTA TEGAL"),
+        "point_earn_per": values.get("point_earn_per", "100000"),
     }
 
 
@@ -1331,6 +1558,13 @@ def product_to_json(row):
         "unit": row["unit"] or "PCS",
         "stock": row["stock"],
         "price": row["retail_price"] or 0,
+        "member_price": row.get("member_price", 0) or 0,
+        "tier3_qty": row.get("tier3_qty", 0) or 0,
+        "tier3_price": row.get("tier3_price", 0) or 0,
+        "tier4_qty": row.get("tier4_qty", 0) or 0,
+        "tier4_price": row.get("tier4_price", 0) or 0,
+        "tier5_qty": row.get("tier5_qty", 0) or 0,
+        "tier5_price": row.get("tier5_price", 0) or 0,
     }
 
 
@@ -1365,19 +1599,114 @@ def customer_to_json(row):
     }
 
 
-def prepare_sale_items(db, raw_items):
+def sale_to_json(row):
+    return {
+        "id": row["id"],
+        "sale_no": row["sale_no"],
+        "total": row["total"],
+        "paid": row["paid"],
+        "donation": row["donation"],
+        "status": row["status"],
+        "member_code": row["member_code"] or "",
+        "created_at": row["created_at"],
+    }
+
+
+def receipt_for_sale(db, sale):
+    rows = db.execute(
+        """
+        SELECT si.*, p.legacy_code
+        FROM sale_items si
+        LEFT JOIN products p ON p.id = si.product_id
+        WHERE si.sale_id = ? ORDER BY si.id
+        """,
+        (sale["id"],),
+    ).fetchall()
+    items = [
+        {
+            "product": {
+                "name": row["product_name"],
+                "barcode": row["barcode"] or row["legacy_code"] or "",
+            },
+            "qty": row["qty"],
+            "price": row["price"],
+            "discount": row["discount"],
+            "subtotal": row["subtotal"],
+        }
+        for row in rows
+    ]
+    created_at = sale["created_at"]
+    if isinstance(created_at, str):
+        created_at = datetime.fromisoformat(created_at)
+    return build_receipt(
+        sale_no=sale["sale_no"],
+        cashier=db.execute("SELECT name FROM cashiers WHERE id = ?", (sale["cashier_id"],)).fetchone()["name"],
+        register=sale["register_no"],
+        store=store_settings(),
+        trans_time=created_at,
+        member={"code": sale["member_code"] or "", "name": sale["member_name"] or "", "address": sale["member_address"] or ""},
+        items=items,
+        subtotal=sale["subtotal"],
+        discount=sale["discount"],
+        rounding=sale["rounding"],
+        total=sale["total"],
+        paid=sale["paid"],
+        change_amount=sale["change_amount"],
+        donation=sale["donation"],
+        outstanding=max(0, sale["total"] - sale["paid"]),
+        point_earned=sale["point_earned"],
+    )
+
+
+def sale_price(product, qty, is_member=False):
+    price = int(product["member_price"] or 0) if is_member else int(product["retail_price"] or 0)
+    if price <= 0:
+        price = int(product["retail_price"] or 0)
+    for quantity_field, price_field in (("tier3_qty", "tier3_price"), ("tier4_qty", "tier4_price"), ("tier5_qty", "tier5_price")):
+        threshold = parse_float(product[quantity_field])
+        tier_price = parse_int(product[price_field])
+        if threshold > 0 and qty >= threshold and tier_price > 0:
+            price = tier_price
+    return price
+
+
+def prepare_sale_items(db, raw_items, is_member=False):
     sale_items = []
     subtotal = 0
     for raw in raw_items:
         product_id = raw.get("id")
         qty = parse_float(raw.get("qty", 1))
         discount = parse_int(raw.get("discount", 0))
-        if not product_id or qty <= 0:
+        if qty <= 0:
             raise ValueError("Item transaksi tidak valid.")
+
+        if raw.get("custom"):
+            name = str(raw.get("name", "")).strip().upper()
+            price = parse_int(raw.get("price", 0))
+            if not name or price < 0:
+                raise ValueError("Nama dan harga item bebas wajib diisi.")
+            product = {
+                "id": None,
+                "barcode": str(raw.get("barcode", "")).strip(),
+                "legacy_code": "",
+                "name": name,
+                "unit": str(raw.get("unit", "PCS")).strip().upper() or "PCS",
+                "cost_price": 0,
+                "retail_price": price,
+            }
+            line_total = max(0, int(round(qty * price)) - discount)
+            subtotal += line_total
+            sale_items.append({"product": product, "qty": qty, "price": price, "discount": discount, "subtotal": line_total})
+            continue
+
+        if not product_id:
+            raise ValueError("Produk transaksi tidak valid.")
 
         product = db.execute(
             """
-            SELECT id, barcode, legacy_code, name, unit, cost_price, retail_price
+            SELECT id, barcode, legacy_code, name, unit, cost_price, retail_price,
+                   member_price, tier3_qty, tier3_price, tier4_qty, tier4_price,
+                   tier5_qty, tier5_price
             FROM products
             WHERE id = ?
             """,
@@ -1386,7 +1715,12 @@ def prepare_sale_items(db, raw_items):
         if not product:
             raise ValueError("Produk tidak ditemukan.")
 
-        price = int(product["retail_price"] or 0)
+        price = sale_price(product, qty, is_member)
+        if raw.get("manual_price"):
+            manual_price = parse_int(raw.get("price", 0))
+            if manual_price < 0:
+                raise ValueError("Harga manual tidak valid.")
+            price = manual_price
         line_total = max(0, int(round(qty * price)) - discount)
         subtotal += line_total
         sale_items.append(
@@ -1415,6 +1749,9 @@ def build_receipt(
     total,
     paid,
     change_amount,
+    donation=0,
+    outstanding=0,
+    point_earned=0,
 ):
     width = 42
     lines = [
@@ -1454,12 +1791,15 @@ def build_receipt(
             f"{'Pembulatan':<28}{format_rupiah(rounding):>14}",
             f"{'Total':<28}{format_rupiah(total):>14}",
             f"{'Bayar':<28}{format_rupiah(paid):>14}",
+            f"{'Donasi':<28}{format_rupiah(donation):>14}" if donation else "",
+            f"{'Piutang':<28}{format_rupiah(outstanding):>14}" if outstanding else "",
+            f"{'Poin didapat':<28}{format_rupiah(point_earned):>14}" if point_earned else "",
             f"{'Kembali':<28}{format_rupiah(change_amount):>14}",
             "-" * width,
             "TERIMA KASIH".center(width),
         ]
     )
-    return "\n".join(lines)
+    return "\n".join(line for line in lines if line)
 
 
 def cashier_required(view):
@@ -1533,10 +1873,20 @@ def next_sale_no(cashier_id, current_register_no):
         "SELECT last_note FROM cashiers WHERE id = ?",
         (cashier_id,),
     ).fetchone()
-    next_no = int(row["last_note"] if row else 0) + 1
+    return next_sale_no_from_value(row["last_note"] if row else 0, current_register_no)
+
+
+def next_sale_no_from_value(last_note, current_register_no):
+    next_no = int(last_note or 0) + 1
     if next_no > 99999:
         next_no = 1
     return f"{next_no:05d}-{current_register_no}"
+
+
+def customer_address(customer):
+    if not customer:
+        return ""
+    return " ".join(part for part in (customer["address"], customer["city"]) if part)
 
 
 def round_total(total):

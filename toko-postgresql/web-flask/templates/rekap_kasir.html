@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}{{ app_name }} - Rekap Kasir{% endblock %}
+{% block content %}
+<section class="workarea">
+  <div class="section-title"><span>Rekap Kasir {{ date_label }}</span><a href="{{ url_for('kasir') }}">ESC=Kasir</a></div>
+  <form method="get" class="toolbar">
+    <label>Tanggal <input type="date" name="tanggal" value="{{ trans_date }}"></label>
+    <button type="submit">Tampilkan</button>
+    <button type="button" onclick="window.print()">Cetak</button>
+    <button type="button" onclick="payReceivable()">Bayar Piutang</button>
+  </form>
+  <div class="summary-grid">
+    <div>Total Penjualan<strong>Rp {{ summary.sales|rupiah }}</strong></div>
+    <div>Uang Kas<strong>Rp {{ summary.cash|rupiah }}</strong></div>
+    <div>Piutang Baru<strong>Rp {{ summary.credit|rupiah }}</strong></div>
+  </div>
+  <table class="data-table">
+    <thead><tr><th>Nota</th><th>Waktu</th><th>Member</th><th>Item</th><th>Total</th><th>Bayar</th><th>Status</th><th>Struk</th><th>Batal</th></tr></thead>
+    <tbody>
+    {% for row in rows %}
+      <tr>
+        <td>{{ row.sale_no }}</td><td>{{ row.created_at }}</td><td>{{ row.member_name or '-' }}</td><td>{{ row.item_count }}</td>
+        <td>Rp {{ row.total|rupiah }}</td><td>Rp {{ row.paid|rupiah }}</td><td>{{ row.status }}</td>
+        <td><button type="button" onclick="receipt({{ row.id }})">Cetak ulang</button></td>
+        <td>{% if row.status != 'void' %}<button type="button" onclick="voidSale({{ row.id }})">Batal</button>{% endif %}</td>
+      </tr>
+    {% else %}<tr><td colspan="9">Belum ada transaksi.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</section>
+<script>
+async function receipt(id) {
+  const response = await fetch(`/api/sales/${id}/receipt`); const data = await response.json();
+  if (!response.ok) return alert(data.error || 'Struk tidak ditemukan');
+  const win = window.open('', '_blank', 'width=420,height=640');
+  win.document.write(`<pre>${data.receipt.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</pre>`); win.document.close(); win.print();
+}
+async function voidSale(id) {
+  const reason = prompt('Alasan pembatalan nota:', 'Salah input'); if (reason === null) return;
+  const response = await fetch(`/api/sales/${id}/void`, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({reason})});
+  const data = await response.json(); if (!response.ok) return alert(data.error || 'Nota tidak dapat dibatalkan'); window.location.reload();
+}
+async function payReceivable() {
+  const customer_code = prompt('Kode pelanggan'); if (!customer_code) return;
+  const amount = prompt('Nominal pembayaran'); if (!amount) return;
+  const response = await fetch('/api/customer-payments', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({customer_code, amount})});
+  const data = await response.json();
+  if (!response.ok) return alert(data.error || 'Pembayaran piutang gagal');
+  alert(`Pembayaran diterima. Sisa piutang: Rp ${new Intl.NumberFormat('id-ID').format(data.balance)}`);
+}
+</script>
+{% endblock %}

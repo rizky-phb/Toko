@@ -29,6 +29,12 @@ Jalankan Flask sekali agar schema terbentuk, hentikan aplikasi, lalu:
 Migrator mengosongkan tabel target sebelum menyalin data. Selalu backup kedua
 database sebelum menjalankannya di lingkungan produksi.
 
+Untuk memasukkan transaksi kasir DTA lama setelah master data tersedia:
+
+`py tools/migrate_legacy_cashier_to_postgres.py DATABASE_URL PATH_FOLDER_DTA`
+
+Lihat `CASHIER-MIGRATION.md` untuk pemetaan fitur kasir dan prosedur impor yang aman.
+
 ## Status Harbour
 
 Flask sudah diarahkan ke PostgreSQL. Harbour belum sepenuhnya dikonversi; source
