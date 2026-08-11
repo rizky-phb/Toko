@@ -3,3 +3,11 @@ web-flask/.venv/
 web-flask/__pycache__/
 web-flask/storage/
 web-flask/.env
+harbor-online-installer-v2.14.4.tgz
+PROGRAM_IPOS/
+Master/
+tools/
+toko-harbour-build/_arsip-file-lama
+toko-cliper-32bit/
+*.zip
+*.rar
