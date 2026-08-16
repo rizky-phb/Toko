@@ -1,0 +1,209 @@
+
+ Ksr:     Tgl: 01-01-23 s/d 03-06-26 // Hal:369
+ÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ
+Tgl. ³Nota-Ks-Ksr.³Nama Barang                 ³Jml.Barang³    @Harga³ Jumlah Rp
+ÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄ
+06/01³030-2-MAKSUM³TELOR 1/2KG                      1 PCS      13.500³    13.500
+06/01³031-2-MAKSUM³TELOR 1/4KG                      1 PCS       7.000³     7.000
+06/01³031-2-MAKSUM³PEPSODENT 75G                    1 PCS       4.500³     4.500
+06/01³031-2-MAKSUM³JAZ1 SEMERBAK CINTA 6SCT         1 PCS       5.000³     5.000
+06/01³031-2-MAKSUM³MOLTTO    PURE                   2 PCS       5.000³    10.000
+06/01³032-2-MAKSUM³SOUN POHON KURMA                 2 PCS      36.000³    72.000
+06/01³032-2-MAKSUM³ROYCO AYAM 100G                  5 PCS       4.800³    24.000
+06/01³032-2-MAKSUM³GARAM TEPAK KECIL               10 PCS       3.300³    33.000
+06/01³032-2-MAKSUM³TOYA KECIL 1IKET                 3 PCS      18.000³    54.000
+06/01³033-2-MAKSUM³TELOR 1/4KG                      1 PCS       7.000³     7.000
+06/01³033-2-MAKSUM³BAWANG PTH                       1 PCS       5.500³     5.500
+06/01³033-2-MAKSUM³LIFEBUOY TOTAL10 80G             1 PCS       4.000³     4.000
+06/01³033-2-MAKSUM³MAMA LIME                        2 PCS       1.000³     2.000
+06/01³033-2-MAKSUM³EKONOMI 500/2000                 2 PCS       2.000³     4.000
+06/01³033-2-MAKSUM³SOKLIN LIQUID 24ML 24SCT         1 PCS      10.000³    10.000
+06/01³034-2-MAKSUM³SEGI TIGA BIRU 1KG               1 PCS      12.000³    12.000
+06/01³034-2-MAKSUM³FF KALENG PUTIH 370G             2 PCS      12.000³    24.000
+06/01³034-2-MAKSUM³KOPIKO CAPPUCINO 150G            1 PCS       8.500³     8.500
+06/01³034-2-MAKSUM³AIR M LAKA LAKA                  1 PCS      14.000³    14.000
+06/01³035-2-MAKSUM³BERAS SELERA KITA PER/KG         6 PCS      12.000³    72.000
+06/01³035-2-MAKSUM³MINYAK MALINDA                   1 PCS      15.200³    15.200
+06/01³035-2-MAKSUM³TRIGU /KG                     0,50 PCS      10.000³     5.000
+06/01³035-2-MAKSUM³TEPUNG SA PCS                    1 PCS       3.500³     3.500
+06/01³035-2-MAKSUM³SEDAP KECAP REF 65ML             4 PCS       1.750³     7.000
+06/01³035-2-MAKSUM³KRUPUK ORANGE 1/4KG              1 PCS       4.000³     4.000
+06/01³035-2-MAKSUM³EKOMIE RENCENG                   5 PCS       2.200³    11.000
+06/01³035-2-MAKSUM³BIHUN PADAMU MRH /PCS            1 PCS       6.500³     6.500
+06/01³035-2-MAKSUM³SASA 10000                       1 PCS       9.500³     9.500
+06/01³035-2-MAKSUM³TOYA ECERAN KCL/TG               2 PCS       2.000³     4.000
+06/01³035-2-MAKSUM³KERTAS MINYAK 1/4KG              1 PCS       8.500³     8.500
+06/01³036-2-MAKSUM³BERAS LELE HIJOU /KG             2 PCS      11.000³    22.000
+06/01³036-2-MAKSUM³TEH 2 TANG HIJAU                 1 PCS       5.000³     5.000
+06/01³036-2-MAKSUM³DJARUM SUPER 12                  1 PCS      22.000³    22.000
+06/01³036-2-MAKSUM³SOKLIN LIKUIT24 SST              1 PCS      10.000³    10.000
+06/01³036-2-MAKSUM³JUMBO KINGKONG                   1 PCS       4.500³     4.500
+06/01³036-2-MAKSUM³DNDOMIE GORENG                   2 PCS       3.200³     6.400
+06/01³036-2-MAKSUM³MINYAK MALINDA                0,50 PCS      15.200³     7.600
+06/01³037-2-MAKSUM³TUTON SUPER                      1 PCS      15.000³    15.000
+06/01³037-2-MAKSUM³MENARA IJO                       1 PCS       7.500³     7.500
+06/01³037-2-MAKSUM³GULA JAWA COIN                   1 KLG      15.000³    15.000
+06/01³038-2-MAKSUM³MASAKO AYAM 12SCT                2 PCS       4.800³     9.600
+06/01³038-2-MAKSUM³ACI ALUS/KG                      6 PCS       9.000³    54.000
+06/01³038-2-MAKSUM³MINYAK MALINDA                   5 PCS      14.800³    74.000
+06/01³038-2-MAKSUM³BERAS RAMOS /KG                  2 PCS      11.300³    22.600
+06/01³039-2-MAKSUM³TUTON SPR /SLOP                  0 PCS           0³         0
+06/01³039-2-MAKSUM³SODIUM TIGA T PCS                1 PCS       3.000³     3.000
+06/01³039-2-MAKSUM³SAMBAL ULEG 10SCT                0 PCS           0³         0
+06/01³039-2-MAKSUM³BERAS ROSE BRAND 500G            1 PCS       6.500³     6.500
+06/01³039-2-MAKSUM³SEDAP MIE AYAM BAWANG            2 PCS       3.000³     6.000
+06/01³039-2-MAKSUM³GULA PASIR KG                 2,50 PCS      12.900³    32.250
+06/01³040-2-MAKSUM³MOLTTO    PURE                   2 PCS       5.000³    10.000
+06/01³040-2-MAKSUM³EMERON HF 12SCT                  1 PCS       5.500³     5.500
+06/01³040-2-MAKSUM³TEH RIO/DUS                      1 PCS      20.000³    20.000
+06/01³040-2-MAKSUM³RINSO MOLTO 44G 6SCT             2 PCS       5.000³    10.000
+06/01³041-2-MAKSUM³GULA PASIR KG                   15 PCS      12.800³   192.000
+06/01³041-2-MAKSUM³CHOCOLATOS CKLT 10SCT            1 PCS      17.000³    17.000
+06/01³042-2-MAKSUM³VIPER /SLOP                      1 PCS     164.000³   164.000
+06/01³042-2-MAKSUM³SURYA 16 SLOP                    1 PCS     277.000³   277.000
+06/01³042-2-MAKSUM³GG MERAH SLOP                    1 SLOP    138.000³   138.000
+06/01³042-2-MAKSUM³GG JAYA SLOP                     1 SLOP    129.000³   129.000
+06/01³042-2-MAKSUM³GPU OIL 30ML                     6 PCS       8.500³    51.000
+06/01³043-2-MAKSUM³EKOMIE PAK                       1 PCS      10.500³    10.500
+06/01³043-2-MAKSUM³TOYA KECIL 1IKET                 1 PCS      18.000³    18.000
+06/01³043-2-MAKSUM³PLASTIK BIASA 1/4KG              2 PCS       8.500³    17.000
+06/01³043-2-MAKSUM³WHITE KOFFIE 10SCT               1 PCS      11.500³    11.500
+06/01³043-2-MAKSUM³BERAS SELERA KITA WARING         1 PCS     285.000³   285.000
+06/01³043-2-MAKSUM³TRIGU /KG                        1 PCS      10.000³    10.000
+06/01³043-2-MAKSUM³TEH 2TANG SUPER                  1 PCS       6.000³     6.000
+06/01³044-2-MAKSUM³TEH JUS PAK                      1 PCS      18.500³    18.500
+06/01³044-2-MAKSUM³TELOR 1/4KG                      1 PCS       7.000³     7.000
+06/01³044-2-MAKSUM³GG SURYA 16                      2 PCS      27.800³    55.600
+06/01³044-2-MAKSUM³GG SIGNATUR                      3 PCS      19.600³    58.800
+06/01³044-2-MAKSUM³MAGNUM FILTER 12                 2 PCS      20.200³    40.400
+06/01³044-2-MAKSUM³TUTON SUPER                      2 PCS      14.200³    28.400
+06/01³045-2-MAKSUM³MASAKO AYAM 12SCT               12 PCS       4.500³    54.000
+06/01³045-2-MAKSUM³RACIK SAYUR ASEM 20G             2 PCS      16.000³    32.000
+06/01³045-2-MAKSUM³SAORI SAUS TIRAM 23ML            1 PCS      22.000³    22.000
+06/01³045-2-MAKSUM³LADAKU 4G 12SCT                  1 PCS      10.000³    10.000
+06/01³045-2-MAKSUM³SASA 500/PAK                     1 PCS      13.500³    13.500
+06/01³046-2-MAKSUM³YUPI STROBERI KISS 120G          1 PCS       7.500³     7.500
+06/01³046-2-MAKSUM³KOPIKO CANDY 150G                1 PCS       8.500³     8.500
+06/01³047-2-MAKSUM³GG SIGNATUR                      5 PCS      19.600³    98.000
+06/01³047-2-MAKSUM³GG SURYA 16                      5 PCS      27.800³   139.000
+06/01³047-2-MAKSUM³TUTON SUPER                      5 PCS      14.200³    71.000
+06/01³047-2-MAKSUM³SIDIA MAWAR 85ML                 1 PCS      10.000³    10.000
+06/01³047-2-MAKSUM³SUN KARA 65ML                    5 PCS       2.800³    14.000
+06/01³047-2-MAKSUM³INDOCAFE MIX 10SCT               2 PCS      13.000³    26.000
+06/01³047-2-MAKSUM³RACIK TEMPE GORENG 20G           1 PCS      16.000³    16.000
+06/01³047-2-MAKSUM³SAORI SAUS TIRAM 23ML            1 PCS      11.500³    11.500
+06/01³047-2-MAKSUM³ROYCO AYAM 12SCT                 2 PCS       4.800³     9.600
+06/01³047-2-MAKSUM³BAGAS KRETEK                     5 PCS       6.200³    31.000
+06/01³047-2-MAKSUM³TELOR /KG                        1 KG       26.500³    26.500
+06/01³047-2-MAKSUM³KRIPIK SINGKONG/BAL              1 PCS      34.500³    34.500
+06/01³047-2-MAKSUM³GERY SEREAL 30G                  1 PCS       9.000³     9.000
+06/01³047-2-MAKSUM³DUOSUSBLUEBERY                   5 PCS       1.800³     9.000
+06/01³047-2-MAKSUM³YUPI DINO LAND BOX               1 PCS      10.500³    10.500
+06/01³047-2-MAKSUM³GERY SALUUT                      1 PCS      10.500³    10.500
+06/01³047-2-MAKSUM³PADIMAS/PAK                      2 PCS       4.500³     9.000
+06/01³048-2-MAKSUM³BERAS RAMOS /KG                  1 PCS      11.300³    11.300
+06/01³048-2-MAKSUM³BERAS MEDALI /KG                 2 KGS      10.500³    21.000
+06/01³048-2-MAKSUM³TELOR /KG                        1 KG       40.000³    40.000
+06/01³048-2-MAKSUM³ KRESEK MR BEAN KCL              1 PCS       2.000³     2.000
+06/01³048-2-MAKSUM³EKOMIE RENCENG                   3 PCS       2.500³     7.500
+06/01³048-2-MAKSUM³SASA 130G 5000                   1 PCS       5.000³     5.000
+06/01³048-2-MAKSUM³GULA PASIR 1/2KG                 1 PCS       6.500³     6.500
+06/01³048-2-MAKSUM³CUKA PRIMA SARI 80ML             2 PCS       2.000³     4.000
+06/01³048-2-MAKSUM³GG FILTER 12                     1 PCS      22.000³    22.000
+06/01³049-2-MAKSUM³POCARI SWEAT 350ML               0 PCS           0³         0
+06/01³049-2-MAKSUM³TRIGU /KG                        3 PCS      10.000³    30.000
+06/01³049-2-MAKSUM³SASA 45G 2000                    1 PCS       2.000³     2.000
+06/01³049-2-MAKSUM³MINYAK MALINDA                   2 PCS      15.200³    30.400
+06/01³049-2-MAKSUM³TELOR 1/4KG                      1 PCS       7.000³     7.000
+06/01³049-2-MAKSUM³KRIPIK SINGKONG/BAL              1 PCS       2.000³     2.000
+06/01³050-2-MAKSUM³SURYA KLNG                       1 PCS      82.000³    82.000
+06/01³050-2-MAKSUM³GG SURYA 16                      4 PCS      27.800³   111.200
+06/01³050-2-MAKSUM³GG SURYA 12                      4 PCS      21.300³    85.200
+06/01³050-2-MAKSUM³BAGAS KRETEK                     5 PCS       6.200³    31.000
+06/01³050-2-MAKSUM³TUTON SUPER                      2 PCS      14.200³    28.400
+06/01³051-2-MAKSUM³TEPUNG S A / BAL                 1 PCS      60.000³    60.000
+06/01³051-2-MAKSUM³EKOMI  ISI 6PK                   1 PCS      61.000³    61.000
+06/01³051-2-MAKSUM³HEBAT MERAH                      1 PCS      27.500³    27.500
+06/01³051-2-MAKSUM³TELOR /KG                        5 KG       26.500³   132.500
+06/01³051-2-MAKSUM³MINYAK MALINDA                  10 PCS      14.800³   148.000
+06/01³051-2-MAKSUM³GULA JAWA COIN                   1 KLG      15.000³    15.000
+06/01³051-2-MAKSUM³GULA PASIR KG                    2 PCS      12.900³    25.800
+06/01³051-2-MAKSUM³MASAKO AYAM 12SCT                3 PCS       4.800³    14.400
+06/01³051-2-MAKSUM³SASA 250G                        2 PCS      12.500³    25.000
+06/01³051-2-MAKSUM³SUN KARA 65ML                    2 PCS       2.800³     5.600
+06/01³051-2-MAKSUM³FF PUTIH 6SCT                    4 PCS       8.000³    32.000
+06/01³051-2-MAKSUM³KAPAL MIX                        2 PCS      12.000³    24.000
+06/01³051-2-MAKSUM³INDOCAFE MIX 10SCT               1 PCS      13.000³    13.000
+06/01³051-2-MAKSUM³KEMIRI PECAH 1/2 KG              1 KG       19.500³    19.500
+06/01³051-2-MAKSUM³BAWANG PUTIH BERSIH/KG        1,50 PCS      20.500³    30.750
+06/01³051-2-MAKSUM³KECAP DELIMAS 260ML              4 PCS       6.200³    24.800
+06/01³053-2-MAKSUM³CONFIDENCE PANTS L1              6 PCS       6.000³    36.000
+06/01³053-2-MAKSUM³TELOR /KG                        1 KG       26.500³    26.500
+06/01³054-2-MAKSUM³SOKLIN LIQUID 24ML 24SCT         1 PCS      10.000³    10.000
+06/01³054-2-MAKSUM³RINSO MOLTO 44G 6SCT             1 PCS       5.000³     5.000
+06/01³054-2-MAKSUM³MARIMAS ALL VARIANT 10SCT        1 PCS       3.300³     3.300
+06/01³054-2-MAKSUM³ENERGEN VANILA 10SCT             1 PCS      17.500³    17.500
+06/01³055-2-MAKSUM³ACI ALUS/KG                      1 PCS       9.000³     9.000
+06/01³055-2-MAKSUM³MASAKO SAPI 12SCT                1 PCS       4.800³     4.800
+06/01³055-2-MAKSUM³TRIGU /KG                        1 PCS       3.000³     3.000
+06/01³055-2-MAKSUM³MINYAK KITA 1 LTR                1 PCS      13.500³    13.500
+06/01³056-2-MAKSUM³AIR M LAKA LAKA                  1 PCS      14.000³    14.000
+06/01³056-2-MAKSUM³TEH JUS PAK                      1 PCS      18.500³    18.500
+06/01³056-2-MAKSUM³MARIMAS ALL VARIANT 10SCT        3 PCS       3.300³     9.900
+06/01³056-2-MAKSUM³MINYAK MALINDA                   1 PCS      15.200³    15.200
+07/01³001-1-ROYANI³CLAS MILD 16                     1 PCS      24.000³    24.000
+07/01³002-1-ROYANI³DJI SAM SOE KRETEK 12            4 PCS      17.600³    70.400
+07/01³002-1-ROYANI³SAMP0ERNA MILD 16                4 PCS      27.800³   111.200
+07/01³002-1-ROYANI³DJI SAM SOE REFIL 12             5 PCS      18.800³    94.000
+07/01³002-1-ROYANI³DAIA VIOLET 27G 6SCT             4 PCS       2.500³    10.000
+07/01³003-1-ROYANI³LARUTAN KK3 BTL ANAK 200ML/I     2 PCS       3.500³     7.000
+07/01³003-1-ROYANI³KIS SAK                          1 PCS       6.000³     6.000
+07/01³004-1-ROYANI³LADAKU 4G 12SCT                  1 PCS      10.000³    10.000
+07/01³004-1-ROYANI³DOVE                             1 PCS       9.500³     9.500
+07/01³004-1-ROYANI³GULA PASIR KG                    2 PCS      12.900³    25.800
+07/01³004-1-ROYANI³SEGI TIGA BIRU 0.5KG             4 PCS       7.000³    28.000
+07/01³004-1-ROYANI³TRIGU /KG                        2 PCS      10.000³    20.000
+07/01³004-1-ROYANI³ACI ALUS/KG                      1 PCS       9.000³     9.000
+07/01³004-1-ROYANI³ACI KASAR/KG                     1 PCS      10.000³    10.000
+07/01³004-1-ROYANI³BIO 500 /PAK                     1 PCS      20.500³    20.500
+07/01³004-1-ROYANI³SWEETY BRONZE L1                 1 PCS      12.500³    12.500
+07/01³004-1-ROYANI³GG SURYA 12                      3 PCS      21.300³    63.900
+07/01³004-1-ROYANI³MAKARONI BUNDA                   1 PCS       7.500³     7.500
+07/01³004-1-ROYANI³GOOD DAY CAPUCINO 10SCT          1 PCS      16.500³    16.500
+07/01³004-1-ROYANI³RACIK AYAM GORENG 20G         0,50 PCS      17.000³     8.500
+07/01³004-1-ROYANI³SAJIKU TPG SERBAGUNA 80G         2 PCS       2.500³     5.000
+07/01³004-1-ROYANI³HIT MAT                          1 PCS      10.000³    10.000
+07/01³004-1-ROYANI³RAPIKA 12SCT                     1 PCS       5.000³     5.000
+07/01³004-1-ROYANI³KAPAL MIX                        1 PCS      12.000³    12.000
+07/01³004-1-ROYANI³SOFFEL APEL 12SCT                2 PCS      10.000³    20.000
+07/01³004-1-ROYANI³PADIMAS/PAK                      1 PCS       4.500³     4.500
+07/01³004-1-ROYANI³YUPI AQUARIUM BOX                1 PCS      10.500³    10.500
+07/01³004-1-ROYANI³RELAXA BARLEY 125G               1 PCS       6.500³     6.500
+07/01³004-1-ROYANI³TEH TANG IJO BOS                 1 PCS      47.500³    47.500
+07/01³004-1-ROYANI³TEH 2 TANG SPR SLOP              1 PCS      28.000³    28.000
+07/01³004-1-ROYANI³MINYAK MALINDA                   1 PCS      15.200³    15.200
+07/01³005-1-ROYANI³GG JAYA 12                       2 PCS      13.000³    26.000
+07/01³005-1-ROYANI³GG FILTER 12                     4 PCS      21.300³    85.200
+07/01³005-1-ROYANI³GG SURYA 12                      4 PCS      21.300³    85.200
+07/01³005-1-ROYANI³GG SIGNATUR                      4 PCS      19.600³    78.400
+07/01³006-1-ROYANI³ZAM 330                          2 PCS      26.500³    53.000
+07/01³006-1-ROYANI³GG SIGNATUR SLOP                 0 PCS           0³         0
+07/01³007-1-ROYANI³SEDAP RBS DUS                    1 PCS     105.000³   105.000
+07/01³007-1-ROYANI³TEH 2 TANG SPR SLOP              2 PCS      28.000³    56.000
+07/01³008-1-ROYANI³TOLAK ANGIN CAIR 15ML            1 PCS      39.500³    39.500
+07/01³008-1-ROYANI³TEH 2 TANG HIJAU                 1 PCS       5.000³     5.000
+07/01³009-1-ROYANI³BERAS MEDALI /WARING             1 KGS     247.500³   247.500
+07/01³010-1-ROYANI³ROMA SANDWICH CKLT 216G          1 PCS       7.000³     7.000
+07/01³010-1-ROYANI³PALMIA 200G                      1 PCS       6.500³     6.500
+07/01³010-1-ROYANI³DOVE                             1 PCS       9.500³     9.500
+07/01³010-1-ROYANI³MINYAK KITA 1 LTR                1 PCS      14.000³    14.000
+07/01³010-1-ROYANI³FF COKLAT 6SCT                   1 PCS       8.000³     8.000
+07/01³010-1-ROYANI³BATRE ABC BIRU KECIL             1 PCS       9.000³     9.000
+07/01³010-1-ROYANI³KOREK DURIAN                     1 PCS       4.000³     4.000
+07/01³010-1-ROYANI³TELOR /KG                     0,50 KG       27.000³    13.500
+07/01³010-1-ROYANI³RINSO MOLTO 40ML 12SASET         1 PCS      10.500³    10.500
+07/01³010-1-ROYANI³MILO  UHT ISI 4                  1 PCS      10.000³    10.000
+ÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ
+                                                           JUAL =Rp3.111.746.115
+                                   Margin=Rp534.861.335    POKOK=Rp2.576.884.780
+                                   Donasi     =       0

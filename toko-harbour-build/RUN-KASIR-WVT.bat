@@ -1,12 +1,12 @@
 @echo off
 cd /d "%~dp0"
 rem Program kasir mencetak langsung ke LPT1.
-rem Pastikan printer Windows sudah dibagikan dengan nama: minipos-80
+rem Pastikan printer Windows sudah dibagikan dengan nama: POS-80C
 net use LPT1: /delete /y >nul 2>&1
 net use LPT1: "\\%COMPUTERNAME%\POS-80C" /persistent:no
 if errorlevel 1 (
   echo.
-  echo Printer "minipos-80" tidak dapat dipetakan ke LPT1.
+  echo Printer "POS-80C" tidak dapat dipetakan ke LPT1.
   echo Pastikan printer sudah di-share dengan nama tersebut lalu jalankan ulang file ini.
   pause
   exit /b 1

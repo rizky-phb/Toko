@@ -1,0 +1,48 @@
+
+ Ksr:     Tgl: 01-01-23 s/d 03-06-26 // Hal:381
+ÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ
+Tgl. ³Nota-Ks-Ksr.³Nama Barang                 ³Jml.Barang³    @Harga³ Jumlah Rp
+ÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄ
+10/01³040-2-MAKSUM³TRIGU /KG                     0,50 PCS      10.000³     5.000
+10/01³040-2-MAKSUM³MINYAK MALINDA                0,50 PCS      15.200³     7.600
+10/01³041-2-MAKSUM³WHITE KOFFIE 10SCT               1 PCS      11.500³    11.500
+10/01³041-2-MAKSUM³BAWANG PTH                       1 PCS       6.000³     6.000
+10/01³041-2-MAKSUM³ROYCO SAPI 12SCT                 1 PCS       4.800³     4.800
+10/01³041-2-MAKSUM³BIO 500                          1 PCS       2.800³     2.800
+10/01³042-2-MAKSUM³FORMULA SG TRENDY BLING          6 PCS       2.900³    17.400
+10/01³042-2-MAKSUM³ABC SUSU 10SCT                   2 PCS      12.000³    24.000
+10/01³042-2-MAKSUM³BIO 500 /PAK                     1 PCS      20.500³    20.500
+10/01³042-2-MAKSUM³LILIN SUPER T                    2 PCS       7.500³    15.000
+10/01³042-2-MAKSUM³SEDAP KECAP 16MLX12SCT           3 PCS       5.300³    15.900
+10/01³042-2-MAKSUM³MKP 15 ML /LSN                   1 PCS      66.000³    66.000
+10/01³042-2-MAKSUM³BOG 10G BALSEM K                 6 PCS       4.800³    28.800
+10/01³042-2-MAKSUM³ULTRAFLU                         5 PCS       3.200³    16.000
+10/01³042-2-MAKSUM³SUPERTETRA                       1 PCS       9.500³     9.500
+10/01³042-2-MAKSUM³BAWANG PUTIH BERSIH/KG        0,50 PCS      22.000³    11.000
+10/01³042-2-MAKSUM³TELOR /KG                        1 KG       26.500³    26.500
+10/01³042-2-MAKSUM³ACI ALUS/KG                      3 PCS       9.000³    27.000
+10/01³042-2-MAKSUM³TRIGU /KG                        2 PCS      10.000³    20.000
+10/01³043-2-MAKSUM³AQUA 600ML DUS                   1 PCS      43.500³    43.500
+10/01³043-2-MAKSUM³TELOR 1/2KG                      1 PCS      13.500³    13.500
+10/01³043-2-MAKSUM³GG JAYA 12                       1 PCS      13.500³    13.500
+10/01³044-2-MAKSUM³DJARUM COKLAT EXTRA 12           0 PCS           0³         0
+10/01³044-2-MAKSUM³BERAS SELERA KITA PER/KG         2 PCS      12.000³    24.000
+10/01³044-2-MAKSUM³TRIGU /KG                     0,50 PCS      10.000³     5.000
+10/01³044-2-MAKSUM³MASAKO AYAM 12SCT                1 PCS       4.800³     4.800
+10/01³044-2-MAKSUM³MINYAK MALINDA                   1 PCS      15.200³    15.200
+10/01³044-2-MAKSUM³SEDAP KECAP REF 65ML             5 PCS       1.750³     8.750
+10/01³045-2-MAKSUM³MINYAK MALINDA                   5 PCS      14.800³    74.000
+10/01³045-2-MAKSUM³ROMA SARI GANDUM CKLT 115G       1 PCS       7.000³     7.000
+10/01³045-2-MAKSUM³SITRUN RENCENG                   2 PCS      13.000³    26.000
+10/01³046-2-MAKSUM³SAMP0ERNA MILD 16                5 PCS      27.800³   139.000
+10/01³046-2-MAKSUM³DJI SAM SOE REFIL 12             5 PCS      18.800³    94.000
+10/01³046-2-MAKSUM³GG SURYA 12                      5 PCS      21.400³   107.000
+10/01³046-2-MAKSUM³GG SIGNATUR                      5 PCS      19.800³    99.000
+10/01³046-2-MAKSUM³TUTON SUPER                      5 PCS      14.200³    71.000
+10/01³046-2-MAKSUM³ARES BOLD                        6 PCS      12.200³    73.200
+10/01³047-2-MAKSUM³LARUTAN KK3 BTL ANAK 200ML/I     0 PCS           0³         0
+10/01³047-2-MAKSUM³TELOR 1/2KG                      0 PCS           0³         0
+10/01³047-2-MAKSUM³KAPAL MIX                        1 PCS      12.000³    12.000
+10/01³047-2-MAKSUM³INDOCAFE MIX 10SCT               1 PCS      13.000³    13.000
+10/01³047-2-MAKSUM³MINYAK MALINDA                   1 PCS      15.200³    15.200
+10/01³047-2-MAKSUM³GULA PASIR KG                    1 PCS      12.900³    12.900

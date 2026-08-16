@@ -1,0 +1,209 @@
+
+ Ksr:     Tgl: 01-09-22 s/d 03-06-26 // Hal:109
+ÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄÂÄÄÄÄÄÄÄÄÄÄ
+Tgl. ³Nota-Ks-Ksr.³Nama Barang                 ³Jml.Barang³    @Harga³ Jumlah Rp
+ÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÅÄÄÄÄÄÄÄÄÄÄ
+05/09³048-1-ROYANI³RINSO MOLTO ROSE FRESH 12+2S     2 PCS       5.500³    11.000
+05/09³048-1-ROYANI³TONG TJI CELUP 25'S              1 PCS       9.500³     9.500
+05/09³048-1-ROYANI³GULA PASIR KG                    1 PCS      12.300³    12.300
+05/09³048-1-ROYANI³ABC SAMBAL EXT.PDS 75G           0 PCS           0³         0
+05/09³048-1-ROYANI³JAJAN                            1 PCS       1.000³     1.000
+05/09³049-1-ROYANI³PEPSODENT 190G                   1 PCS      12.000³    12.000
+05/09³049-1-ROYANI³MAGNUM FILTER 12                 2 PCS      19.000³    38.000
+05/09³049-1-ROYANI³GG FILTER 12                     2 PCS      21.000³    42.000
+05/09³049-1-ROYANI³BERAS BEO /PANDA /JEMPOL /KG    10 PCS       9.800³    98.000
+05/09³050-1-ROYANI³TUTON KRETEK                     5 PCS       5.200³    26.000
+05/09³050-1-ROYANI³GULA PASIR KG                   15 PCS      12.300³   184.500
+05/09³050-1-ROYANI³GG FILTER 12                     2 PCS      20.300³    40.600
+05/09³050-1-ROYANI³NUVO NATURE 76G                  6 PCS       2.600³    15.600
+05/09³050-1-ROYANI³ABC SAMBAL EXT.PDS 75G           2 PCS       2.750³     5.500
+05/09³050-1-ROYANI³TONG TJI CELUP 5SCT              1 PCS      17.500³    17.500
+05/09³050-1-ROYANI³TEH 2 TANG SPR SLOP              1 PCS      28.000³    28.000
+06/09³001-1-ROYANI³TERIGU /KG                       4 PCS       9.800³    39.200
+06/09³001-1-ROYANI³ACI                              3 PCS      10.500³    31.500
+06/09³001-1-ROYANI³MINYAK MALINDA                   1 PCS      12.300³    12.300
+06/09³001-1-ROYANI³KACANG TANAH SUDAN/KG            1 PCS      26.000³    26.000
+06/09³001-1-ROYANI³ROYCO AYAM 12SCT                 1 PCS       4.800³     4.800
+06/09³001-1-ROYANI³GARAM DAUN 250G                  1 PCS       1.800³     1.800
+06/09³001-1-ROYANI³MIWON 50 GRM                     1 PCS       3.000³     3.000
+06/09³002-1-ROYANI³ROYCO AYAM 12SCT                 2 PCS       4.800³     9.600
+06/09³002-1-ROYANI³SEDAP KECAP REF 65ML            15 PCS       1.700³    25.500
+06/09³002-1-ROYANI³JAJAN                            1 PCS       1.500³     1.500
+06/09³002-1-ROYANI³GULA JAWA BATOK                  1 KGS      14.000³    14.000
+06/09³003-1-ROYANI³GG MERAH SLOP                    2 SLOP    132.500³   265.000
+06/09³004-1-ROYANI³KOPIKAP CUP                      1 PCS      25.500³    25.500
+06/09³004-1-ROYANI³GULA PASIR KG                    1 PCS      12.300³    12.300
+06/09³004-1-ROYANI³MARIMAS ALL VARIANT 10SCT        4 PCS       3.300³    13.200
+06/09³004-1-ROYANI³TEH JUS PAK                      1 PCS       3.000³     3.000
+06/09³004-1-ROYANI³JAJAN                            1 PCS       4.500³     4.500
+06/09³004-1-ROYANI³FF PUTIH 6SCT                    1 PCS       8.000³     8.000
+06/09³004-1-ROYANI³SOFFEL KULIT JERUK 24SCT         2 PCS      10.000³    20.000
+06/09³004-1-ROYANI³TIRSA CUP/DUS                    1 PCS      14.500³    14.500
+06/09³005-1-ROYANI³NABATI WFR COKLAT 50G            6 PCS       1.750³    10.500
+06/09³005-1-ROYANI³TEA JUS ALL VARIANT 10SCT        3 PCS       3.000³     9.000
+06/09³005-1-ROYANI³MARIMAS ALL VARIANT 10SCT        1 PCS       3.300³     3.300
+06/09³005-1-ROYANI³SUSU MILK LIFE                   5 PCS       2.300³    11.500
+06/09³005-1-ROYANI³TIRSA CUP/DUS                    1 PCS      14.500³    14.500
+06/09³006-1-ROYANI³SUNLIGHT 105ML                  10 PCS       1.750³    17.500
+06/09³006-1-ROYANI³EKONOMI 500/2000                10 PCS       1.800³    18.000
+06/09³006-1-ROYANI³DOWNY SUNRISE 12SCT              2 PCS       5.000³    10.000
+06/09³006-1-ROYANI³SITRUN  PAK                      1 PCS      50.000³    50.000
+06/09³007-1-ROYANI³MARLBORO RED 20                  0 PCS           0³         0
+06/09³007-1-ROYANI³GG FILTER SLOP                   1 PCS     402.000³   402.000
+06/09³007-1-ROYANI³SAMSU SLOP                       1 PCS     175.000³   175.000
+06/09³007-1-ROYANI³TUTON SPR /SLOP                  1 PCS     134.000³   134.000
+06/09³007-1-ROYANI³TELOR                            5 KG       25.750³   128.750
+06/09³008-1-ROYANI³SEDAP MIE SOTO                  10 PCS       2.800³    28.000
+06/09³008-1-ROYANI³MAMA LEMON JERUK NIPIS 55ML     10 PCS         900³     9.000
+06/09³008-1-ROYANI³GG SIGNATUR                      3 PCS      18.300³    54.900
+06/09³008-1-ROYANI³GG MERAH 12                      2 PCS      13.300³    26.600
+06/09³008-1-ROYANI³SOFFEL BUNGA GERANIUM 24SCT      1 PCS      10.000³    10.000
+06/09³008-1-ROYANI³DAIA HIJAB 53GR 6SCT             1 PCS       5.000³     5.000
+06/09³008-1-ROYANI³MASAKO AYAM 12SCT                1 PCS       4.800³     4.800
+06/09³008-1-ROYANI³SUNSILK SOFT SMOOTH 12SCT        1 PCS       9.500³     9.500
+06/09³008-1-ROYANI³TELOR                            1 KG       13.000³    13.000
+06/09³008-1-ROYANI³LAZERY YOGURT                    1 PCS       6.500³     6.500
+06/09³009-1-ROYANI³WAFELO BUTER CARAMEL             1 PCS       9.000³     9.000
+06/09³009-1-ROYANI³JAJAN 4500                       3 PCS       4.500³    13.500
+06/09³009-1-ROYANI³MARIMAS ALL VARIANT 10SCT        1 PCS       3.300³     3.300
+06/09³009-1-ROYANI³TEA JUS ALL VARIANT 10SCT        3 PCS       3.000³     9.000
+06/09³010-1-ROYANI³TEH PUCUK 350ML /DUS             1 PCS      58.000³    58.000
+06/09³010-1-ROYANI³LARUTAN BADAK KLG JAMBU 320M    10 PCS       5.500³    55.000
+06/09³010-1-ROYANI³LAURIER SUPER MAXI NW 8P         3 PCS       4.000³    12.000
+06/09³010-1-ROYANI³SUN KARA 65ML                    5 PCS       2.800³    14.000
+06/09³010-1-ROYANI³SEDAP KECAP REF 65ML             5 PCS       1.700³     8.500
+06/09³010-1-ROYANI³SEDOTAN KCL                      1 PCS       3.000³     3.000
+06/09³011-1-ROYANI³JUMBO KINGKONG                   2 PCS       4.200³     8.400
+06/09³011-1-ROYANI³LARUTAN KK3 BTL DWS 200ML        3 PCS       3.200³     9.600
+06/09³011-1-ROYANI³SUNLIGHT 105ML                   6 PCS       1.750³    10.500
+06/09³011-1-ROYANI³SEDAP KECAP REF 65ML             5 PCS       1.700³     8.500
+06/09³011-1-ROYANI³GG SIGNATUR                      3 PCS      18.300³    54.900
+06/09³012-1-ROYANI³HIT MAGIC EXPERT LILY            1 PCS      10.000³    10.000
+06/09³012-1-ROYANI³MERICA 1 ONS                     1 PCS      12.000³    12.000
+06/09³012-1-ROYANI³KEMIRI PECAH 1 ONS               1 PCS       4.000³     4.000
+06/09³012-1-ROYANI³BAWANG PUTIH 1 ONS               1 PCS       3.000³     3.000
+06/09³012-1-ROYANI³TIRSA CUP/DUS                    1 PCS      14.500³    14.500
+06/09³013-1-ROYANI³GG MERAH 12                      3 PCS      13.300³    39.900
+06/09³013-1-ROYANI³GG SURYA 16                      2 PCS      25.800³    51.600
+06/09³013-1-ROYANI³DJI SAM SOE REFIL 12             2 PCS      18.800³    37.600
+06/09³013-1-ROYANI³DJARUM SUPER 12                  2 PCS      20.300³    40.600
+06/09³013-1-ROYANI³LE MINERAL 600ML                 1 PCS      43.500³    43.500
+06/09³013-1-ROYANI³OKI JELI                         2 PCS      25.500³    51.000
+06/09³013-1-ROYANI³FF PUTIH 6SCT                    1 PCS       8.000³     8.000
+06/09³013-1-ROYANI³EKONOMI 1/2POT                   0 PCS           0³         0
+06/09³013-1-ROYANI³EKONOMI E2K KUNING               1 PCS      22.000³    22.000
+06/09³013-1-ROYANI³MKP 60ML                         1 PCS      19.500³    19.500
+06/09³013-1-ROYANI³PEPSODENT HERBAL 120G            1 PCS      13.000³    13.000
+06/09³013-1-ROYANI³LIFEBUOY MILD CARE 80G           6 PCS       3.600³    21.600
+06/09³013-1-ROYANI³DAIA PUTIH 300G                  2 PCS       4.750³     9.500
+06/09³013-1-ROYANI³KIS  CHERRI SAK                  3 PCS       6.000³    18.000
+06/09³013-1-ROYANI³PANTENE ANTI KETOMBE 12SCT       1 PCS       9.500³     9.500
+06/09³014-1-ROYANI³ACI                           1,50 PCS      10.500³    15.750
+06/09³014-1-ROYANI³BERAS LELE DELANGU               1 PCS     230.000³   230.000
+06/09³014-1-ROYANI³JAJAN                            1 PCS       2.000³     2.000
+06/09³015-1-ROYANI³HILO SCOL                        1 PCS      28.000³    28.000
+06/09³015-1-ROYANI³HILO CHOCOLATE 14G               0 PCS           0³         0
+06/09³015-1-ROYANI³BOLA SALJU TERIGU 1KG            3 PCS       9.800³    29.400
+06/09³015-1-ROYANI³KECAP DELIMAS 260ML              5 PCS       6.300³    31.500
+06/09³015-1-ROYANI³GG SIGNATUR                      4 PCS      18.300³    73.200
+06/09³015-1-ROYANI³DJI SAM SOE KRETEK 12            2 PCS      17.600³    35.200
+06/09³016-1-ROYANI³SAMBAL ULEG 10SCT                1 PCS      12.000³    12.000
+06/09³016-1-ROYANI³SAORI SAUS TIRAM 23ML            1 PCS      22.000³    22.000
+06/09³016-1-ROYANI³ABC SAMBAL EXT PDS 18G 10SCT     1 PCS       7.000³     7.000
+06/09³016-1-ROYANI³ROYCO SAPI 12SCT                 2 PCS       4.800³     9.600
+06/09³016-1-ROYANI³FF PUTIH 6SCT                    1 PCS       8.000³     8.000
+06/09³016-1-ROYANI³KAPAL MIX                        1 PCS      12.000³    12.000
+06/09³016-1-ROYANI³INDOCAFE MIX 10SCT               2 PCS      13.000³    26.000
+06/09³016-1-ROYANI³LIFEBUOY SAMPO SHINY 12SCT       2 PCS       5.000³    10.000
+06/09³016-1-ROYANI³ZINC BLACK SHINE 12SCT           2 PCS       5.500³    11.000
+06/09³016-1-ROYANI³GG SIGNATUR SLOP                 1 PCS     182.000³   182.000
+06/09³016-1-ROYANI³SURYA 16 SLOP                    1 PCS     257.000³   257.000
+06/09³016-1-ROYANI³DAIA VIOLET 55G 6SCT             4 PCS       5.000³    20.000
+06/09³016-1-ROYANI³TELOR                            1 KG       26.000³    26.000
+06/09³017-1-ROYANI³MASAKO AYAM 12SCT                2 PCS       4.800³     9.600
+06/09³017-1-ROYANI³MINYAK MALINDA                   5 PCS      11.900³    59.500
+06/09³018-1-ROYANI³GULA PASIR KG                    1 PCS      12.300³    12.300
+06/09³018-1-ROYANI³DANCOW INSTANT 27G               2 PCS       4.000³     8.000
+06/09³019-1-ROYANI³TISU NEABEAUTY                   1 PCS       6.500³     6.500
+06/09³019-1-ROYANI³TELOR 1/4KG                      1 PCS       7.000³     7.000
+06/09³019-1-ROYANI³ISABELLA KRIPIK 10SCT            1 PCS       5.000³     5.000
+06/09³019-1-ROYANI³JAJAN                            1 PCS       1.500³     1.500
+06/09³019-1-ROYANI³ROYCO AYAM 12SCT                 1 PCS       4.800³     4.800
+06/09³020-1-ROYANI³WHITE KOFFIE 10SCT               1 PCS      11.500³    11.500
+06/09³020-1-ROYANI³SEDAP MIE GORENG                 5 PCS       2.900³    14.500
+06/09³020-1-ROYANI³SUPERMI AYAM BAWANG              5 PCS       2.800³    14.000
+06/09³020-1-ROYANI³SOFFEL KULIT JERUK 24SCT         1 PCS      10.000³    10.000
+06/09³020-1-ROYANI³SUNLIGHT 105ML                   5 PCS       1.750³     8.750
+06/09³020-1-ROYANI³TEA JUS ALL VARIANT 10SCT        1 PCS      17.000³    17.000
+06/09³020-1-ROYANI³GULA MERAH AHEN 10SCT            1 PCS       7.000³     7.000
+06/09³020-1-ROYANI³GORIORIO  500                    1 PCS       4.500³     4.500
+06/09³020-1-ROYANI³SHINZUI KIREI 85G                2 PCS       4.200³     8.400
+06/09³020-1-ROYANI³ABC TRASI UDANG 84G              1 PCS       7.000³     7.000
+06/09³020-1-ROYANI³LA LIGHT 16                      2 PCS      24.800³    49.600
+06/09³020-1-ROYANI³ROMA BISKUIT KELAPA 300G         1 PCS       8.500³     8.500
+06/09³021-1-ROYANI³GG SIGNATUR                      2 PCS      18.300³    36.600
+06/09³021-1-ROYANI³GG FILTER 12                     2 PCS      20.300³    40.600
+06/09³021-1-ROYANI³TUTON SUPER                      2 PCS      13.600³    27.200
+06/09³021-1-ROYANI³FF PUTIH 6SCT                    2 PCS       8.000³    16.000
+06/09³021-1-ROYANI³EKONOMI 500/2000                 5 PCS       1.800³     9.000
+06/09³021-1-ROYANI³PUYER 16                         1 PCS       8.500³     8.500
+06/09³021-1-ROYANI³ADEM SARI PER HANGER             1 PCS      23.000³    23.000
+06/09³021-1-ROYANI³TOLAK ANGIN CAIR 15ML         0,50 PCS      37.000³    18.500
+06/09³021-1-ROYANI³CHARM NIGHT 2P 29CM 10SCT        1 PCS      21.500³    21.500
+06/09³021-1-ROYANI³BETTER 22G 10SCT                 1 PCS      13.000³    13.000
+06/09³021-1-ROYANI³MAKARONI BUNDA                   2 PCS       7.500³    15.000
+06/09³021-1-ROYANI³SISRI CUP                        1 PCS      20.000³    20.000
+06/09³021-1-ROYANI³TIRSA CUP/DUS                    1 PCS      14.500³    14.500
+06/09³021-1-ROYANI³JAJAN                            1 PCS       4.000³     4.000
+06/09³022-1-ROYANI³GG SURYA PRO MERAH 16            0 PCS           0³         0
+06/09³022-1-ROYANI³BERAS BEO /PANDA /JEMPOL /KG     5 PCS      10.700³    53.500
+06/09³022-1-ROYANI³ISABELLA KRIPIK 10SCT            2 PCS       5.000³    10.000
+06/09³022-1-ROYANI³TEH 2TANG SUPER                  1 PCS       6.000³     6.000
+06/09³023-1-ROYANI³KETAN AW /WARING                 1 PCS     325.000³   325.000
+06/09³023-1-ROYANI³MINYAK MALINDA                   1 PCS      12.300³    12.300
+06/09³023-1-ROYANI³GULA PASIR 1/2KG                 1 PCS       6.300³     6.300
+06/09³024-1-ROYANI³RESTO 10SCT                      6 PCS      11.000³    66.000
+06/09³025-1-ROYANI³RESTO 10SCT                      6 PCS      11.000³    66.000
+06/09³026-1-ROYANI³TERIGU DAHLIA /WARING            1 PCS     227.500³   227.500
+06/09³026-1-ROYANI³SEDAP KECAP SPESIAL 550ML       12 PCS      20.000³   240.000
+06/09³026-1-ROYANI³BANGGO SST / C                   1 PCS     264.000³   264.000
+06/09³026-1-ROYANI³KECAP SEDAP DUS                  1 PCS      75.000³    75.000
+06/09³026-1-ROYANI³GARAM DAUN 250G                  1 PCS      60.000³    60.000
+06/09³026-1-ROYANI³GARAM KEONG / BAL                2 PCS      16.500³    33.000
+06/09³026-1-ROYANI³TEPUNG SA PCS                    2 PCS      57.500³   115.000
+06/09³026-1-ROYANI³SUN KARA 65ML                    1 PCS      95.000³    95.000
+06/09³026-1-ROYANI³RACIK                            5 PCS      15.500³    77.500
+06/09³027-1-ROYANI³BERAS BEO /PANDA /JEMPOL /KG     5 PCS      10.700³    53.500
+06/09³027-1-ROYANI³JUMBO KINGKONG                   1 PCS       4.500³     4.500
+06/09³027-1-ROYANI³MINYAK MALINDA                   1 PCS      12.300³    12.300
+06/09³027-1-ROYANI³GG SIGNATUR                      2 PCS      19.000³    38.000
+06/09³027-1-ROYANI³KAPAL MIX                        1 PCS      12.000³    12.000
+06/09³027-1-ROYANI³ROYCO AYAM 12SCT                 1 PCS       4.800³     4.800
+06/09³027-1-ROYANI³KAPAL API CANDY                  1 PCS       5.500³     5.500
+06/09³027-1-ROYANI³SASA 50G                         1 PCS       3.500³     3.500
+06/09³027-1-ROYANI³KEMIRI PECAH 1 ONS               1 PCS       4.000³     4.000
+06/09³027-1-ROYANI³BAWANG PTH                       1 PCS       5.000³     5.000
+06/09³027-1-ROYANI³GULA PASIR KG                    1 PCS      12.300³    12.300
+06/09³027-1-ROYANI³DAIA VIOLET 300G                 1 PCS       5.000³     5.000
+06/09³027-1-ROYANI³EKONOMI LIQUID 132ML             1 PCS       3.500³     3.500
+06/09³027-1-ROYANI³SEDAP MIE AYAM BAWANG            5 PCS       2.800³    14.000
+06/09³028-1-ROYANI³SEDAP MIE GORENG                10 PCS       2.900³    29.000
+06/09³028-1-ROYANI³SEDAP MIE SOTO                   5 PCS       2.800³    14.000
+06/09³028-1-ROYANI³INDOMIE GORENG GEPREK            5 PCS       3.000³    15.000
+06/09³028-1-ROYANI³KAPAL MIX                        1 PCS      12.000³    12.000
+06/09³028-1-ROYANI³EKONOMI LIQUID 132ML             1 PCS       3.500³     3.500
+06/09³028-1-ROYANI³GULA PASIR KG                    1 PCS      12.500³    12.500
+06/09³028-1-ROYANI³GIV HIJAB 60ML                   3 PCS       2.600³     7.800
+06/09³028-1-ROYANI³PANTENE ANTI KETOMBE 12SCT       1 PCS       9.500³     9.500
+06/09³028-1-ROYANI³SOKLIN LIQUID 24ML 24SCT         1 PCS      10.000³    10.000
+06/09³028-1-ROYANI³DOWNY SPORT FRESH 12SCT          2 PCS       5.000³    10.000
+06/09³028-1-ROYANI³TEH JUS PAK                      1 PCS      17.500³    17.500
+06/09³028-1-ROYANI³MARIMAS ALL VARIANT 10SCT        4 PCS       3.300³    13.200
+06/09³028-1-ROYANI³MASAKO AYAM 12SCT                1 PCS       4.800³     4.800
+06/09³028-1-ROYANI³ABC SUSU 10SCT                   1 PCS      12.000³    12.000
+06/09³028-1-ROYANI³WHITE KOFFIE 10SCT               1 PCS      11.500³    11.500
+06/09³028-1-ROYANI³MILO 20G SCT                     1 PCS      19.500³    19.500
+ÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÄÁÄÄÄÄÄÄÄÄÄÄ
+                                                           JUAL =Rp  892.293.805
+                                   Margin=Rp192.370.426    POKOK=Rp  699.923.379
+                                   Donasi     =       0
