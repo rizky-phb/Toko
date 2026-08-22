@@ -180,7 +180,7 @@ Retu
 
 Proc cp
 Do whil .t.
-   If .not. isprinter()
+   If .not. PrinterReady()
       Tone(700,1)
       Tone(499,1)
       Do pesan with 'Printer belum siap,  ESC=Batal  F10=Coba Lagi'
@@ -196,7 +196,7 @@ Do whil .t.
             Cc=0
             Exit
          Case i=-9
-            If isprinter()
+            If PrinterReady()
                Cc=1
                Exit
             Endi
@@ -208,6 +208,18 @@ Do whil .t.
 Endd
 Do pesan with 'Tunggu, sedang dicetak'
 Retu
+
+* Cek kesiapan printer melalui device LPT1.
+* Menghindari isprinter() yang dapat salah membaca LPT1
+* yang sudah di-redirection ke printer Windows/LAN.
+Func PrinterReady
+Local nHandle
+nHandle = Fopen("LPT1",1)
+If (Ferror() != 0) .or. nHandle < 0
+   Return .F.
+Endi
+Fclose(nHandle)
+Return .T.
 
 Proc bacafile
 Nf0='J-'+&blnthn+'.DTA'

@@ -58,7 +58,7 @@ Useidx('KASSA.SET')
 Loca for no_kassa=ksa
 If .not. foun()
    Appe blan
-   Repl no_kassa with ksa,mode_kasir with 'A',jark_nota with 4,jark_tepi with 0,lebr_roll with '5',cari_kode with '0',;
+   Repl no_kassa with ksa,mode_kasir with 'A',jark_nota with 4,jark_tepi with 0,lebr_roll with '8',cari_kode with '0',;
         id_komp with 'S',id_data with '0',id_prin with 'T',id_drwr with 'T',id_cut with 'T',id_disp with '2',id_poin with '0',tanggal with tgl
    Commit
 Endi   
@@ -1709,24 +1709,38 @@ If lr='5'
    Endi
    Close
 Else
+   * ============================================================
+   * 80 MM THERMAL TEMPLATE - 45 CHARACTERS
+   * Layout mengikuti nota thermal 80mm: header tengah,
+   * nama barang di baris sendiri, qty x harga di kiri,
+   * subtotal di kanan, lalu TOTAL/BAYAR dan pesan kaki.
+   * ============================================================
    If idCut='Y'
       Set marg to jt
-      @prow()+1,0 say chr(27)+chr(33)+chr(4)+chr(27)+'a'+'1'+'TOKO SEMBAKO DAN SNACK'
-      @prow()+1,0 say chr(27)+chr(33)+chr(32)+chr(27)+'a'+'1'+aidi1+chr(27)+chr(33)+chr(4)
-      @prow()+1,0 say chr(27)+'a'+'1'+rtri(alm1)
+      * Header toko
+      @prow()+1,0 say chr(27)+'a'+'1'+chr(27)+chr(33)+chr(4)+ltri('TOKO SEMBAKO DAN SNACK')
+      @prow()+1,0 say chr(27)+'a'+'1'+chr(27)+chr(33)+chr(32)+ltri(aidi1)+chr(27)+chr(33)+chr(4)
+      If aidi2#spac(40)
+         @prow()+1,0 say chr(27)+'a'+'1'+ltri(rtri(aidi2))
+      Endi
+      @prow()+1,0 say chr(27)+'a'+'1'+ltri(rtri(alm1))
       If alm2#spac(40)
-         @prow()+1,0 say chr(27)+'a'+'1'+rtri(alm2)
+         @prow()+1,0 say chr(27)+'a'+'1'+ltri(rtri(alm2))
+      Endi
+      If .not. empty(alm3)
+         @prow()+1,0 say chr(27)+'a'+'1'+ltri(rtri(alm3))
       Endi
       @prow()+1,0 say chr(27)+'a'+'0'+repl('-',45)
    Endi
-   *
+   * Cash drawer
    If idrw='Y' .and. byr#0 .and. ulang=.f.
       @prow(),0 say chr(27)+chr(64)+chr(27)+'p'+'0'+'5'+'   '
    Endi
    If ulang
-      @prow()+1,0 say chr(27)+chr(33)+chr(4)+'* REPRINT *'
+      @prow()+1,0 say chr(27)+'a'+'1'+chr(27)+chr(33)+chr(4)+'* REPRINT *'
    Endi
    Stor 0 to dis2,totr,totpn,totpn2
+   * -------------------- ITEM --------------------
    Do whil .not. eof() .and. (faktur=fkt .and. (nama_ksr=nsls .or. nama_ksr=nsls2))
       If jumlah#0 .and. uppe(left(nama_brg,6))#'DISKON'
          Jml =jumlah
@@ -1735,100 +1749,110 @@ Else
          Ipn =id_point
          Ipn2=id_point2
          Jhg =&brs13
-         xAda2=xada2+1
-         *
+         xAda2=xAda2+1
          Do hitpoin
-         *
+         * Format qty
          Jml=tran(jumlah,'@e 99,999')
          If (jumlah>0 .and. jumlah<1) .or. (jumlah<0 .and. jumlah>-1)
             Jml=tran(jumlah,'@e 999.99')
          Elseif mod(jumlah,int(jumlah))>0
             Jml=tran(jumlah,'@e 999.99')
          Endi
-         If jumlah=1
-            @prow()+1,0 say left(rtri(nama_brg),25)+', 1 '+rtri(satuan)
-            If diskon#0
-               @prow()+1,4 say 'Diskon:'+tran(diskon,'@e 99.99 % (')+ltri(tran((jumlah*harga_2)*(diskon/100),'@e 999,999 '))+')'
-            Endi
-            @prow(),34  say tran(jhg,'@e 999,999,999')
-         Else
-            @prow()+1,0 say left(nama_brg,30)
-            @prow()+1,2 say ltri(jml)+' '+rtri(satuan)+iif(left(satuan,1)#' ',' X ',' ')+ltri(tran(harga_2,'@e 9,999,999'))
-            If diskon#0
-               @prow()+1,2 say 'Diskon:'+tran(diskon,'@e 99.99 % (')+tran((jumlah*harga_2)*(diskon/100),'@e 999,999 ')+')'
-            Endi
-            @prow(),34  say tran(jhg,'@e 999,999,999')
+         * Nama barang - satu baris sendiri
+         @prow()+1,0 say left(rtri(nama_brg),45)
+         * Qty x satuan x harga, subtotal di kanan
+         @prow()+1,0 say ' '+ltri(Jml)+' '+rtri(satuan)+iif(left(satuan,1)#' ',' X ',' ')+ltri(tran(harga_2,'@e 9,999,999'))
+         @prow(),34 say tran(jhg,'@e 999,999,999')
+         If diskon#0
+            @prow()+1,2 say 'Diskon:'+tran(diskon,'@e 99.99 % (')+tran((jumlah*harga_2)*(diskon/100),'@e 999,999 ')+')'
          Endi
          If jumlah_rtr#0
             Jml3=tran(jumlah_rtr,'@e 99,999')
-            If jumlah_rtr#0
-               If (jumlah_rtr>0 .and. jumlah_rtr<1) .or. (jumlah_rtr<0 .and. jumlah_rtr>-1)
-                  Jml3=tran(jumlah_rtr,'@e 999.99')
-               Elseif mod(jumlah_rtr,int(jumlah_rtr))>0
-                  Jml3=tran(jumlah_rtr,'@e 999.99')
-               Endi
+            If (jumlah_rtr>0 .and. jumlah_rtr<1) .or. (jumlah_rtr<0 .and. jumlah_rtr>-1)
+               Jml3=tran(jumlah_rtr,'@e 999.99')
+            Elseif mod(jumlah_rtr,int(jumlah_rtr))>0
+               Jml3=tran(jumlah_rtr,'@e 999.99')
             Endi
             @prow()+1,0 say ' RETUR='+jml3+'x @'+tran(harga_2,'@e 9,999,999')
-            @prow(),34 say tran(0-(jumlah_rtr*harga_2),'@e   99,999,999')
+            @prow(),34 say tran(0-(jumlah_rtr*harga_2),'@e 999,999,999')
             Totr=totr+(jumlah_rtr*harga_2)
+         Endi
+         No=no+1
+         If no>50
+            @prow(),0 say ' '
+            Set devi to scre
+            Do pesan with 'ENTER=Halaman_Selanjutnya'
+            Inkey(5)
+            No=1
+            Do pesan with 'Tunggu, sedang diCetak'
+            Set devi to prin
+            @prow(),0 say chr(27)+chr(33)+chr(4)
          Endi
       Endi
       Skip
    Endd
+   * -------------------- TOTAL --------------------
    If dis2>0
-      @prow()+2,0 say 'JUMLAH DISKON ITEM = ( Rp'+tran(dis2,'@e 99,999,999')+' )'
+      @prow()+1,0 say 'DISKON ITEM Rp.'+tran(dis2,'@e 99,999,999')
    Endi
    If blt#0
-      @prow()+1,22 say 'PEMBULATAN  '+tran(blt,'@e 999,999,999')
+      @prow()+1,0 say 'PEMBULATAN '+tran(blt,'@e 999,999,999')
    Endi
-   *
    @prow()+1,0 say repl('-',45)
    If totr#0
-      @prow()+1,22 say 'SUB TOTAL   '+tran(tot,'@e 999,999,999')
-      @prow()+1,22 say 'RETUR       '+tran(0-totr,'@e 999,999,999')
+      @prow()+1,20 say 'SUB TOTAL  '+tran(tot,'@e 999,999,999')
+      @prow()+1,20 say 'RETUR      '+tran(0-totr,'@e 999,999,999')
    Endi
-   @prow()+1,0 say tran(no,'9999 itm. ')+chr(27)+chr(33)+chr(32)+'  TOTAL'+tran(tot-totr, '@e 999,999,999')+chr(27)+chr(33)+chr(4)
+   @prow()+1,0 say ltri(str(no))+' itm.'
+   @prow(),22 say 'TOTAL  '+tran(tot-totr,'@e 999,999,999')
    If tot3#0
-      @prow()+1,22 say 'KURANGAN    '+tran(tot3,'@e 999,999,999')
-      @prow()+1,22 say '            -----------'
-      @prow()+1,22 say 'TOTAL RP    '+tran(tot+tot3,'@e 999,999,999')
+      @prow()+1,20 say 'KURANGAN   '+tran(tot3,'@e 999,999,999')
+      @prow()+1,20 say 'TOTAL RP   '+tran(tot+tot3,'@e 999,999,999')
    Endi
    If dis31>0
-      @prow()+1,7 say 'DISKON '+tran(dis3,'@e 99.99 % ')+tran(dis31,'@e 999,999,999')
+      @prow()+1,20 say 'DISKON '+tran(dis3,'@e 99.99 % ')+tran(dis31,'@e 999,999,999')
    Endi
    If dns>0
-      @prow()+1,22  say 'UNTUK DONASI'+tran(dns, '@e 999,999,999')
+      @prow()+1,20 say 'DONASI     '+tran(dns,'@e 999,999,999')
    Endi
-   @prow()+1,22  say 'B A Y A R   '+tran(byr, '@e 999,999,999')
+   @prow()+1,20 say 'BAYAR      '+tran(byr,'@e 999,999,999')
    If kbl#0
-      @prow()+1,22 say iif(kbl>0,'KEMBALI     ','K U R A N G ')+tran(abs(kbl),'@e 999,999,999')
+      @prow()+1,20 say iif(kbl>0,'KEMBALI    ','KURANG     ')+tran(abs(kbl),'@e 999,999,999')
    Endi
+   * -------------------- TRANSAKSI --------------------
    Kata=hr+', '+dtoc(tgl)+' '+tran(time(),'XX:XX')+' '+fkt+'/'+nsls
-   @prow()+2,0 say chr(27)+chr(33)+chr(4)+left(kata,45)
-   *
-   If plg#spac(10) &&.and. ( rpoin>0 .or. rpoin2>0 ) .and. idp=' '
-      @prow()+1,0 say repl('-',42)
+   @prow()+1,0 say chr(27)+chr(33)+chr(4)+left(Kata,45)
+   * -------------------- PELANGGAN/POIN --------------------
+   If plg#spac(10)
+      @prow()+1,0 say repl('-',45)
       @prow()+1,0 say 'Nama: '+rtri(nsp)+' ('+rtri(plg)+')'
-      @prow()+1,0 say '    : '+jab
+      @prow()+1,0 say '    : '+rtri(jab)
       If iPoin#'0'
          @prow()+1,0 say 'Poin: '+ltri(tran(pnskr+pnskr2,'@e 999,999 '))+iif(iPoin='2','   Total: '+ltri(tran(xPoin+(pnskr+pnskr2),'@e 999,999')),'')
       Endi
    Endi
-   *
+   * -------------------- FOOTER --------------------
    Sele 1
    Uselan('DATA.SET','','','','','')
    If promo1#spac(40)
       @prow()+1,0 say repl('-',45)
-      @prow()+1,0 say promo1
+      @prow()+1,0 say left(rtri(promo1),45)
    Endi
    If promo2#spac(40)
-      @prow()+1,0 say promo2
+      @prow()+1,0 say left(rtri(promo2),45)
    Endi
    If promo3#spac(40)
-      @prow()+1,0 say promo3
+      @prow()+1,0 say left(rtri(promo3),45)
    Endi
    If promo4#spac(40)
-      @prow()+1,0 say promo4
+      @prow()+1,0 say left(rtri(promo4),45)
+   Endi
+   * Default footer mengikuti contoh nota 80mm bila promo kosong.
+   If promo1=spac(40) .and. promo2=spac(40) .and. promo3=spac(40) .and. promo4=spac(40)
+      @prow()+1,0 say repl('-',45)
+      @prow()+1,0 say 'KOMPLAIN HARUS MEMBAWA NOTA.'
+      @prow()+1,0 say 'MAKSIMAL DALAM WAKTU 1 HARI'
+      @prow()+1,0 say 'TERIMA KASIH'
    Endi
 Endi
 @prow()+jn+1,1 say ''

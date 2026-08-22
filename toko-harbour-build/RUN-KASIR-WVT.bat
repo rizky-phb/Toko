@@ -1,5 +1,6 @@
 @echo off
 cd /d "%~dp0"
+<<<<<<< Updated upstream
 rem Program kasir mencetak langsung ke LPT1.
 rem Pastikan printer Windows sudah dibagikan dengan nama: POS-80C
 net use LPT1: /delete /y >nul 2>&1
@@ -11,6 +12,9 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
+=======
+in /n "POS-80C"
+>>>>>>> Stashed changes
 set PATH=C:\hb30\bin;C:\hb30\comp\mingw\bin;%PATH%
 set KASSA=1
 start "" "%~dp0cr-wvt.exe"
