@@ -282,19 +282,21 @@ Do whil .t.
          Endi
          Stor .f. to lihat,memsusul
          *
-         If .not. lihat
-            Set key -1 to xlihat
-         Endi
-         *
-         Set key  5 to xubahjml
-         *
-         If jj=' '
-            Set key -8 to notunda
-         Endi
-         *
-         Set key 42 to xubahjml2
-         Set key 43 to xubahjml2
-         Set key 28 to xadamem
+          If .not. lihat
+             Set key -1 to xadamem
+             Set key 28 to xadamem
+          Endi
+          *
+          Set key  5 to xubahjml
+          *
+          If jj=' '
+             Set key -8 to notunda
+          Endi
+          *
+          Set key 42 to xubahjml2
+          Set key 43 to xubahjml2
+          Set key 28 to xadamem
+          Set key -1 to xadamem
          Do nomor with tot,1,56
          Set colo to &warna1
          @b,0 say spac(8)+tl+spac(30)+tl+spac(12)+tl+spac(10)+tl+spac(5)+tl+spac(10)
@@ -320,7 +322,7 @@ Do whil .t.
          Sele 3
          Set colo to &warna1
          @b,0 get kdb pict '@!S8'
-         Do pesan with 'BarCode?   n*=Qty   '+chr(24)+'=Koreksi   F1=Member   F2=Cek_Hrg   F9=Tunda   ESC=Selesai'
+         Do pesan with 'BarCode?   n*=Qty   '+chr(24)+'=Koreksi   F2/F1=Member   F9=Tunda   ESC=Selesai'
          Read
          Set key  42 to
          Set key  43 to
@@ -628,6 +630,7 @@ Do whil .t.
          Batal=.f.
          Stor .f. to batal,adadis,member,donasi
          Set key  28 to xadamem
+         Set key  -1 to xadamem
          Set key  46 to nol3
          Set key  68 to xadadis
          Set key 100 to xadadis
@@ -646,10 +649,11 @@ Do whil .t.
          @21,63 say dis3  pict '@e 99.99'
          @21,69 say dis31 pict '@e 999,999,999'
          @22,69 get byr pict '@e   999999999' &&valid byr>=tot
-         Do pesan with 'Bayar?     +_=Donasi     D=Diskon     F1=Member     Total Riil =Rp '+ltri(tran(tot3+((tot+blt)-dis31),'@e 999,999,999'))
+         Do pesan with 'Bayar?     +_=Donasi     D=Diskon     F2/F1=Member     Total Riil =Rp '+ltri(tran(tot3+((tot+blt)-dis31),'@e 999,999,999'))
          Set colo to &warna4
          Read
          Set key  28 to
+         Set key  -1 to
          Set key  46 to
          Set key  68 to
          Set key 100 to
@@ -1447,6 +1451,7 @@ Do cp
 If lastkey()=27
    Retu
 Endi
+Set printer to "STRUK.TMP"
 Set devi to prin
 Set marg to jt
 If iprn='D'
@@ -1473,6 +1478,8 @@ Else
    @prow(),0   say ' '
 Endi
 Set devi to scre
+Set printer to
+KirimKePrinter("STRUK.TMP")
 Retu
 
 Proc ctknota
@@ -1486,6 +1493,7 @@ If iprn='T'
    Retu
 Endi
 ***
+Set printer to "STRUK.TMP"
 Set devi to prin
 If idrw='Y' .and. byr#0 .and. ulang=.f.
    @prow(),0 say chr(27)+chr(64)+chr(27)+'p'+'0'+'5'+'   '
@@ -1608,9 +1616,12 @@ Close
 @prow()+jn,1 say ''
 Ulang=.f.
 Set devi to scre
+Set printer to
+KirimKePrinter("STRUK.TMP")
 Retu
 
 Proc ctknotath
+Set printer to "STRUK.TMP"
 Set devi to prin
 If lr='5'
    If idCut='Y'
@@ -1861,6 +1872,8 @@ If idcut='Y' .and. tot#0
    @prow(),0 say chr(27)+chr(33)+chr(4)+''
 Endi
 Set devi to scre
+Set printer to
+KirimKePrinter("STRUK.TMP")
 Ulang=.f.
 Retu
 
@@ -1896,3 +1909,15 @@ Keyboard chr(13)
 Retu
 
 * EOF CR
+
+Func KirimKePrinter(cFile)
+Local cPrinter, nRes
+cPrinter := "POS-80C"
+nRes := win_PrintFileRaw(cPrinter, cFile, "Nota Kasir")
+If nRes <= 0
+   cPrinter := win_PrinterGetDefault()
+   If !empty(cPrinter)
+      win_PrintFileRaw(cPrinter, cFile, "Nota Kasir")
+   Endif
+Endif
+Return .T.

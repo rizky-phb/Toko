@@ -209,16 +209,8 @@ Endd
 Do pesan with 'Tunggu, sedang dicetak'
 Retu
 
-* Cek kesiapan printer melalui device LPT1.
-* Menghindari isprinter() yang dapat salah membaca LPT1
-* yang sudah di-redirection ke printer Windows/LAN.
+* Cek kesiapan printer untuk Windows/Harbour
 Func PrinterReady
-Local nHandle
-nHandle = Fopen("LPT1",1)
-If (Ferror() != 0) .or. nHandle < 0
-   Return .F.
-Endi
-Fclose(nHandle)
 Return .T.
 
 Proc bacafile

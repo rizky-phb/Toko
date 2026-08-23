@@ -772,16 +772,8 @@ Endd
 Do pesan with 'Tunggu, sedang dicetak'
 Retu
 
-* Cek kesiapan printer melalui device LPT1.
-* Menghindari isprinter() yang dapat salah membaca LPT1
-* yang sudah di-redirection ke printer Windows/LAN.
+* Cek kesiapan printer untuk Windows/Harbour
 Func PrinterReady
-Local nHandle
-nHandle = Fopen("LPT1",1)
-If (Ferror() != 0) .or. nHandle < 0
-   Return .F.
-Endi
-Fclose(nHandle)
 Return .T.
 
 ***Buka File di LAN
@@ -876,16 +868,28 @@ Unlock
 Return(.T.)
 
 Proc daflgn
-If plg#spac(5) .and. val(rtri(plg))=0
+Local cSearch
+cSearch := upper(alltrim(plg))
+If !empty(cSearch) .and. val(cSearch) == 0
    Set order to 2
-   Set filter to AT(rtri(plg),nama_lgn)>0
-Elseif plg#spac(5) .and. val(rtri(plg))>0
+   Seek cSearch
+   If !found()
+      Set filter to cSearch $ upper(nama_lgn)
+      Go top
+   Endif
+Elseif !empty(cSearch) .and. val(cSearch) > 0
    Set order to 1
-   Set filter to AT(rtri(plg),kode_lgn)>0
-Endi
-Go top
+   Seek cSearch
+   If !found()
+      Set filter to cSearch $ alltrim(kode_lgn)
+      Go top
+   Endif
+Else
+   Set order to 2
+   Go top
+Endif
 Save scre to sdaf
-Do pesan with 'Cari Kode/Nama Pelanggan, tekan A--Z  atau  0--9     ENTER=Pilih'
+Do pesan with 'Pilih Pelanggan: Panah u/ Pilih, Huruf u/ Cari, ENTER=Pilih, ESC=Batal'
 Set colo to w+/br   &&&&warna4
 @1,16 clea to 22,79
 @1,16 to 1,79 doub
@@ -913,9 +917,9 @@ Do case
    Case lastkey()=27
       Retu 0
    Case lastkey()=13
-      Plg=kode_lgn
+      Plg=alltrim(kode_lgn)
       Retu 0
-   Case (lastkey()>=65 .and. lastkey()<=90) .or. (lastkey()>=97 .and.  lastkey()<=122).or. (lastkey()>=48 .and.  lastkey()<=57)
+   Case (lastkey()>=65 .and. lastkey()<=90) .or. (lastkey()>=97 .and. lastkey()<=122) .or. (lastkey()>=48 .and. lastkey()<=57)
       Set order to 2
       Seek uppe(chr(lastkey()))
       Retu 2
@@ -993,51 +997,51 @@ Awl=1
 Akr=len(chtot)
 Do whil awl<=len(chtot)
    If awl=4 .or. awl=7
-      @br+2,klm+1 say ' Ü'
+      @br+2,klm+1 say ' Ãœ'
       Klm=klm-2
    Endi
    Do case
       Case subs(chtot,akr,1)='1'
-         @br  ,klm+2 say 'Ü'
-         @br+1,klm+2 say 'Û'
-         @br+2,klm+2 say 'Û'
+         @br  ,klm+2 say 'Ãœ'
+         @br+1,klm+2 say 'Ã›'
+         @br+2,klm+2 say 'Ã›'
          Klm=klm+2
       Case subs(chtot,akr,1)='2'
-         @br  ,klm say 'ÜÜÜ'
-         @br+1,klm say 'ÜÜÛ'
-         @br+2,klm say 'ÛÜÜ'
+         @br  ,klm say 'ÃœÃœÃœ'
+         @br+1,klm say 'ÃœÃœÃ›'
+         @br+2,klm say 'Ã›ÃœÃœ'
       Case subs(chtot,akr,1)='3'
-         @br  ,klm say 'ÜÜÜ'
-         @br+1,klm say ' ÜÛ'
-         @br+2,klm say 'ÜÜÛ'
+         @br  ,klm say 'ÃœÃœÃœ'
+         @br+1,klm say ' ÃœÃ›'
+         @br+2,klm say 'ÃœÃœÃ›'
       Case subs(chtot,akr,1)='4'
-         @br  ,klm say 'Ü Ü'
-         @br+1,klm say 'ÛÜÛ'
-         @br+2,klm say '  Û'
+         @br  ,klm say 'Ãœ Ãœ'
+         @br+1,klm say 'Ã›ÃœÃ›'
+         @br+2,klm say '  Ã›'
       Case subs(chtot,akr,1)='5'
-         @br  ,klm say 'ÜÜÜ'
-         @br+1,klm say 'ÛÜÜ'
-         @br+2,klm say 'ÜÜÛ'
+         @br  ,klm say 'ÃœÃœÃœ'
+         @br+1,klm say 'Ã›ÃœÃœ'
+         @br+2,klm say 'ÃœÃœÃ›'
       Case subs(chtot,akr,1)='6'
-         @br  ,klm say 'ÜÜÜ'
-         @br+1,klm say 'ÛÜÜ'
-         @br+2,klm say 'ÛÜÛ'
+         @br  ,klm say 'ÃœÃœÃœ'
+         @br+1,klm say 'Ã›ÃœÃœ'
+         @br+2,klm say 'Ã›ÃœÃ›'
       Case subs(chtot,akr,1)='7'
-         @br  ,klm say 'ÜÜÜ'
-         @br+1,klm say '  Û'
-         @br+2,klm say '  Û'
+         @br  ,klm say 'ÃœÃœÃœ'
+         @br+1,klm say '  Ã›'
+         @br+2,klm say '  Ã›'
       Case subs(chtot,akr,1)='8'
-         @br  ,klm say 'ÜÜÜ'
-         @br+1,klm say 'ÛÜÛ'
-         @br+2,klm say 'ÛÜÛ'
+         @br  ,klm say 'ÃœÃœÃœ'
+         @br+1,klm say 'Ã›ÃœÃ›'
+         @br+2,klm say 'Ã›ÃœÃ›'
       Case subs(chtot,akr,1)='9'
-         @br  ,klm say 'ÜÜÜ'
-         @br+1,klm say 'ÛÜÛ'
-         @br+2,klm say 'ÜÜÛ'
+         @br  ,klm say 'ÃœÃœÃœ'
+         @br+1,klm say 'Ã›ÃœÃ›'
+         @br+2,klm say 'ÃœÃœÃ›'
       Case subs(chtot,akr,1)='0'
-         @br  ,klm say 'ÜÜÜ'
-         @br+1,klm say 'Û Û'
-         @br+2,klm say 'ÛÜÛ'
+         @br  ,klm say 'ÃœÃœÃœ'
+         @br+1,klm say 'Ã› Ã›'
+         @br+2,klm say 'Ã›ÃœÃ›'
    Endc
    Awl=awl+1
    Akr=akr-1
@@ -1160,33 +1164,85 @@ If member .or. byr<(tot-dis31)
    Uselan('CUST.DTA','CUST.NDX','CUST2.NDX','','','')
    Do whil .t.
       Set key 28 to daflgn
+      Set key -1 to daflgn
       @20,7 get plg pict '@!'
-      Do pesan with 'Masukan Kode Pelanggan,    F1=Daftar Pelanggan     0=Cash'
+      Do pesan with 'Masukan Kode/Nama Pelanggan,    F2/F1=Daftar Pelanggan     0=Cash'
       Set colo to w+/b,/w
       Read
       Set key 28 to
+      Set key -1 to
       If lastkey()=27
          Exit
       Endi
-      Plgz=rtri(plg)
-      If plg=spac(11)
+      cInput=alltrim(plg)
+      lFound=.f.
+      If empty(cInput) .or. cInput=='0'
          Plg=spac(10)
-      Elseif plg#spac(11)
-         If val(right(rtri(plg),3))#0
-            *Plg=iif(val(right(rtri(plg),2))>0, idtx+right('000000'+rtri(plg),pdt-len(idtx))+spac(10-pdt) , left(plg,10))
-            Plg=idtx+right('000000'+rtri(plg),pdt-len(idtx))+spac(10-pdt)
+         lFound=.t.
+      Elseif val(cInput)>0
+         * Pencarian berdasarkan Kode Pelanggan (1, 2, 10, 100 dst)
+         Set order to 1
+         Seek padr(cInput, 10)
+         If foun()
+            lFound=.t.
+            Plg=kode_lgn
+         Else
+            * Coba format prefix lama jika ada
+            Seek idtx+right('000000'+cInput,pdt-len(idtx))+spac(10-pdt)
+            If foun()
+               lFound=.t.
+               Plg=kode_lgn
+            Else
+               Seek cInput
+               If foun()
+                  lFound=.t.
+                  Plg=kode_lgn
+               Endi
+            Endi
+         Endi
+         If !lFound
+            Do daflgn
+            If lastkey()=27
+               Loop
+            Endi
+            Set order to 1
+            Seek padr(alltrim(plg), 10)
+            If !foun()
+               Seek alltrim(plg)
+            Endi
+         Endi
+      Else
+         * Pencarian berdasarkan Awalan Nama Pelanggan (misal: RIZ)
+         Set order to 2
+         Seek upper(cInput)
+         If foun()
+            If upper(alltrim(nama_lgn)) == upper(cInput)
+               lFound=.t.
+               Plg=kode_lgn
+            Else
+               Do daflgn
+               If lastkey()=27
+                  Loop
+               Endi
+               Set order to 1
+               Seek padr(alltrim(plg), 10)
+               If !foun()
+                  Seek alltrim(plg)
+               Endi
+            Endi
+         Else
+            Do daflgn
+            If lastkey()=27
+               Loop
+            Endi
+            Set order to 1
+            Seek padr(alltrim(plg), 10)
+            If !foun()
+               Seek alltrim(plg)
+            Endi
          Endi
       Endi
       @20,7 say plg
-      Set order to 1
-      Seek plg
-      If .not. foun()
-         *Plg=plgz
-         Do daflgn
-         If lastkey()=27
-            Loop
-         Endi
-      Endi
       Nsp  =nama_lgn
       Jab  =almt_lgn
       Sop  =so_point
@@ -1202,7 +1258,7 @@ If member .or. byr<(tot-dis31)
       Endi
       Stor 0 to pnsbl,totbl,totmr
       *
-      If left(plg,3)='0  '
+      If left(plg,3)='0  ' .or. empty(alltrim(plg))
          Plg=spac(10)
          Stor spac(30) to nsp,jab
          Stor 0 to tot3,kbl
