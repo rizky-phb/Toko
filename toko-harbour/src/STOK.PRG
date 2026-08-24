@@ -1,3 +1,4 @@
+PROCEDURE MAIN
 * MENU UTAMA
 Save scre to sstok
 Set talk off
@@ -218,14 +219,14 @@ Do whil .t.
    @3,32 to 13,48
    @9,32 say chr(195)+repl(chr(196),15)+chr(180)
    @22,0 
-   @4,33 prom  [ Barang.......¯] mess 'Laporan Stok Barang'
-   @5,33 prom  [ Pembelian....¯] mess 'Laporan Penjualan'
-   @6,33 prom  [ Penjualan....¯] mess 'Laporan Penjualan'
-   @7,33 prom  [ R e t u r....¯] mess 'Laporan Retur Pembelian Barang'
-   @8,33 prom  [ Opname/Mutasi¯] mess 'Laporan Stok Opname dan Mutasi/Pecah Stok Barang'
-   @10,33 prom [ Point Belanja¯] mess 'Laporan Point Belanja'
-   @11,33 prom [ Pelanggan....¯] mess 'Laporan Piutang Pelanggan'
-   @12,33 prom [ Supplier.....¯] mess 'Laporan Hutang Supplier'
+   @4,33 prom  [ Barang.......Â¯] mess 'Laporan Stok Barang'
+   @5,33 prom  [ Pembelian....Â¯] mess 'Laporan Penjualan'
+   @6,33 prom  [ Penjualan....Â¯] mess 'Laporan Penjualan'
+   @7,33 prom  [ R e t u r....Â¯] mess 'Laporan Retur Pembelian Barang'
+   @8,33 prom  [ Opname/MutasiÂ¯] mess 'Laporan Stok Opname dan Mutasi/Pecah Stok Barang'
+   @10,33 prom [ Point BelanjaÂ¯] mess 'Laporan Point Belanja'
+   @11,33 prom [ Pelanggan....Â¯] mess 'Laporan Piutang Pelanggan'
+   @12,33 prom [ Supplier.....Â¯] mess 'Laporan Hutang Supplier'
    Menu to p1
    Set key  4 to
    Set key 19 to

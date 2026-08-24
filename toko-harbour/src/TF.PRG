@@ -25,17 +25,17 @@ If (tgl2 # len(empunya) * 69 + 46)
    @09,32 clea to 15,46
    @09,32 to 15,46 doub
    Set colo to r
-   @10,35 say '  ³\,/³'
-   @11,35 say ' \ ë ë /'
-   @12,35 say ' (  ­  )'
+   @10,35 say '  Â³\,/Â³'
+   @11,35 say ' \ Ã« Ã« /'
+   @12,35 say ' (  Â­  )'
    @13,35 say '   \ /  '
-   @14,35 say '//  ß  \\'
+   @14,35 say '//  ÃŸ  \\'
    Set colo to r+
-   @11,38 say 'ë'
-   @11,40 say 'ë'
-   @13,39 say 'Ü'
+   @11,38 say 'Ã«'
+   @11,40 say 'Ã«'
+   @13,39 say 'Ãœ'
    Set colo to r+*
-   @14,39 say 'ß'
+   @14,39 say 'ÃŸ'
    @15,0  say ''
    @16,0  say ''
    Retu

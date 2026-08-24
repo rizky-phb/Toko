@@ -1,3 +1,4 @@
+PROCEDURE MAIN
 * MENU UTAMA INDEX FILE
 Save scre to sstok
 Set talk off
