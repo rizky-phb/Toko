@@ -1,5 +1,11 @@
 @echo off
 cd /d "%~dp0"
-in /n "POS-80C"
-set PATH=C:\hb30\bin;C:\hb30\comp\mingw\bin;%PATH%
-start "" "%~dp0indek-dpj-fix-wvt.exe"
+if exist "%~dp0indek.exe" (
+    "%~dp0indek.exe"
+) else if exist "%~dp0indek-wvt.exe" (
+    "%~dp0indek-wvt.exe"
+) else (
+    echo [ERROR] File indek.exe tidak ditemukan!
+    pause
+)
+if errorlevel 1 pause

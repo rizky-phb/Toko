@@ -1,5 +1,11 @@
 @echo off
 cd /d "%~dp0"
-in /n "POS-80C"
-set PATH=C:\hb30\bin;C:\hb30\comp\mingw\bin;%PATH%
-start "" "%~dp0stok-dpj-wvt.exe"
+if exist "%~dp0stok.exe" (
+    "%~dp0stok.exe"
+) else if exist "%~dp0stok-wvt.exe" (
+    "%~dp0stok-wvt.exe"
+) else (
+    echo [ERROR] File stok.exe tidak ditemukan!
+    pause
+)
+if errorlevel 1 pause
