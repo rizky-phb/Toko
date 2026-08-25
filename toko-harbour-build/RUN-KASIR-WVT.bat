@@ -10,3 +10,6 @@ if exist "%~dp0cr-wvt.exe" (
     echo File cr-wvt.exe tidak ditemukan!
     pause
 )
+
+
+
