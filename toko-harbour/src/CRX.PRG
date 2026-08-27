@@ -663,7 +663,7 @@ Set colo to &warna5
 @0,71 say time()
 Set curs on
 Set colo to &warna6
-@1,19 clea to  3,59
+@1,19 clea to 3,79
 If diEdit
    Set colo to &warna2
    @1,63 say 'Tgl.: '

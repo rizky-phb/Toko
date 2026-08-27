@@ -323,13 +323,12 @@ Do whil .t.
          Sele 3
          Set colo to &warna1
          @b,0 get kdb pict '@!S8'
-         Do pesan with 'BarCode?   n*=Qty   '+chr(24)+'=Koreksi   F2/F1=Member   F9=Tunda   ESC=Selesai'
+         Do pesan with 'BarCode?   n*=Qty   '+chr(24)+'=Koreksi   F1=Member   F9=Tunda   ESC=Selesai'
          Read
          Set key  42 to
          Set key  43 to
          Set key  28 to
          Set key   5 to
-         Set key  -1 to 
          Set key  -8 to 
          Set colo to &warna3
          If lastkey()=27 .and. (ubahjml=.f. .and. ubahjml2=.f.)
@@ -631,7 +630,6 @@ Do whil .t.
          Batal=.f.
          Stor .f. to batal,adadis,member,donasi
          Set key  28 to xadamem
-         Set key  -1 to xadamem
          Set key  46 to nol3
          Set key  68 to xadadis
          Set key 100 to xadadis
@@ -650,11 +648,10 @@ Do whil .t.
          @21,63 say dis3  pict '@e 99.99'
          @21,69 say dis31 pict '@e 999,999,999'
          @22,69 get byr pict '@e   999999999' &&valid byr>=tot
-         Do pesan with 'Bayar?     +_=Donasi     D=Diskon     F2/F1=Member     Total Riil =Rp '+ltri(tran(tot3+((tot+blt)-dis31),'@e 999,999,999'))
+         Do pesan with 'Bayar?     +_=Donasi     D=Diskon     F1=Member     Total Riil =Rp '+ltri(tran(tot3+((tot+blt)-dis31),'@e 999,999,999'))
          Set colo to &warna4
          Read
          Set key  28 to
-         Set key  -1 to
          Set key  46 to
          Set key  68 to
          Set key 100 to
