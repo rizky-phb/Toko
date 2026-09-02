@@ -477,7 +477,7 @@ Do whil .t.
             *
          Elseif lastkey()=-9
             Sele 4
-            Go nr
+            Seek dtos(tgl)+ksr+fkt
             Do ctknota
             *If iprn='D' .or. (iprn='T' .and. idCut='T')
             *   Do kopnota

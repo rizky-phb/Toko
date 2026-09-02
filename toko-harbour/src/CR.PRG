@@ -1750,6 +1750,8 @@ Else
       @prow()+1,0 say chr(27)+'a'+'1'+chr(27)+chr(33)+chr(4)+'* REPRINT *'
    Endi
    Stor 0 to dis2,totr,totpn,totpn2
+   No=0
+   xAda2=0
    * -------------------- ITEM --------------------
    Do whil .not. eof() .and. (faktur=fkt .and. (nama_ksr=nsls .or. nama_ksr=nsls2))
       If jumlah#0 .and. uppe(left(nama_brg,6))#'DISKON'
@@ -1814,20 +1816,27 @@ Else
       @prow()+1,20 say 'RETUR      '+tran(0-totr,'@e 999,999,999')
    Endi
    @prow()+1,0 say ltri(str(no))+' itm.'
-   @prow(),22 say 'TOTAL  '+tran(tot-totr,'@e 999,999,999')
+   @prow(),20 say 'TOTAL'
+   @prow(),34 say tran(tot-totr,'@e 999,999,999')
    If tot3#0
-      @prow()+1,20 say 'KURANGAN   '+tran(tot3,'@e 999,999,999')
-      @prow()+1,20 say 'TOTAL RP   '+tran(tot+tot3,'@e 999,999,999')
+      @prow()+1,20 say 'KURANGAN'
+      @prow(),34 say tran(tot3,'@e 999,999,999')
+      @prow()+1,20 say 'TOTAL RP'
+      @prow(),34 say tran(tot+tot3,'@e 999,999,999')
    Endi
    If dis31>0
-      @prow()+1,20 say 'DISKON '+tran(dis3,'@e 99.99 % ')+tran(dis31,'@e 999,999,999')
+      @prow()+1,20 say 'DISKON '+tran(dis3,'@e 99.99 % ')
+      @prow(),34 say tran(dis31,'@e 999,999,999')
    Endi
    If dns>0
-      @prow()+1,20 say 'DONASI     '+tran(dns,'@e 999,999,999')
+      @prow()+1,20 say 'DONASI'
+      @prow(),34 say tran(dns,'@e 999,999,999')
    Endi
-   @prow()+1,20 say 'BAYAR      '+tran(byr,'@e 999,999,999')
+   @prow()+1,20 say 'BAYAR'
+   @prow(),34 say tran(byr,'@e 999,999,999')
    If kbl#0
-      @prow()+1,20 say iif(kbl>0,'KEMBALI    ','KURANG     ')+tran(abs(kbl),'@e 999,999,999')
+      @prow()+1,20 say iif(kbl>0,'KEMBALI','KURANG')
+      @prow(),34 say tran(abs(kbl),'@e 999,999,999')
    Endi
    * -------------------- TRANSAKSI --------------------
    Kata=hr+', '+dtoc(tgl)+' '+tran(time(),'XX:XX')+' '+fkt+'/'+nsls
