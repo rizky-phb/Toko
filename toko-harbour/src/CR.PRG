@@ -22,6 +22,7 @@ Stor '' to aidi1,aidi2,empunya
 *
 Do idents
 *
+Private Blnthn
 Blnthn='subs(dtoc(tgl),7,4)+subs(dtoc(tgl),4,2)'
 Tgl   =date()
 Ksa   =gete("KASSA")
@@ -797,7 +798,7 @@ Do whil .t.
          Hj2 =harga_22
          Dis1=diskon
          Dis2=diskon_rp
-         Ket =keterangan
+         Ket = 5->keterangan
          Nrx =rectran
          Ipn =id_point
          Ipn2=id_point2

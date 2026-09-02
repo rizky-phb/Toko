@@ -42,9 +42,17 @@ if errorlevel 1 (
 )
 
 echo.
+if exist "%~dp0..\toko-harbour-build" (
+    echo Mengupdate file di toko-harbour-build...
+    copy /y cr.exe "%~dp0..\toko-harbour-build\cr.exe" >nul
+    copy /y stok.exe "%~dp0..\toko-harbour-build\stok.exe" >nul
+    copy /y indek.exe "%~dp0..\toko-harbour-build\indek.exe" >nul
+)
+
 echo ============================================================
 echo   BUILD SELESAI SUKSES!
 echo   Executable baru telah dibuat di: toko-harbour\src\
+echo   dan diperbarui di: toko-harbour-build\
 echo   - cr.exe    (Kasir + Print POS-80C + Shortcut F2)
 echo   - stok.exe  (Manajemen Stok)
 echo   - indek.exe (Reindex Data)

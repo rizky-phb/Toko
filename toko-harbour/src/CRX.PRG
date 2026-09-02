@@ -663,7 +663,7 @@ Set colo to &warna5
 @0,71 say time()
 Set curs on
 Set colo to &warna6
-@1,19 clea to 3,79
+@1,19 clea to  3,79
 If diEdit
    Set colo to &warna2
    @1,63 say 'Tgl.: '
@@ -772,6 +772,7 @@ Endd
 Do pesan with 'Tunggu, sedang dicetak'
 Retu
 
+
 * Cek kesiapan printer untuk Windows/Harbour
 Func PrinterReady
 Return .T.
@@ -868,28 +869,16 @@ Unlock
 Return(.T.)
 
 Proc daflgn
-Local cSearch
-cSearch := upper(alltrim(plg))
-If !empty(cSearch) .and. val(cSearch) == 0
+If plg#spac(5) .and. val(rtri(plg))=0
    Set order to 2
-   Seek cSearch
-   If !found()
-      Set filter to cSearch $ upper(nama_lgn)
-      Go top
-   Endif
-Elseif !empty(cSearch) .and. val(cSearch) > 0
+   Set filter to AT(rtri(plg),nama_lgn)>0
+Elseif plg#spac(5) .and. val(rtri(plg))>0
    Set order to 1
-   Seek cSearch
-   If !found()
-      Set filter to cSearch $ alltrim(kode_lgn)
-      Go top
-   Endif
-Else
-   Set order to 2
-   Go top
-Endif
+   Set filter to AT(rtri(plg),kode_lgn)>0
+Endi
+Go top
 Save scre to sdaf
-Do pesan with 'Pilih Pelanggan: Panah u/ Pilih, Huruf u/ Cari, ENTER=Pilih, ESC=Batal'
+Do pesan with 'Cari Kode/Nama Pelanggan, tekan A--Z  atau  0--9     ENTER=Pilih'
 Set colo to w+/br   &&&&warna4
 @1,16 clea to 22,79
 @1,16 to 1,79 doub
@@ -917,9 +906,9 @@ Do case
    Case lastkey()=27
       Retu 0
    Case lastkey()=13
-      Plg=alltrim(kode_lgn)
+      Plg=kode_lgn
       Retu 0
-   Case (lastkey()>=65 .and. lastkey()<=90) .or. (lastkey()>=97 .and. lastkey()<=122) .or. (lastkey()>=48 .and. lastkey()<=57)
+   Case (lastkey()>=65 .and. lastkey()<=90) .or. (lastkey()>=97 .and.  lastkey()<=122).or. (lastkey()>=48 .and.  lastkey()<=57)
       Set order to 2
       Seek uppe(chr(lastkey()))
       Retu 2
@@ -990,63 +979,69 @@ Retu 0
 ***NOMOR YG GEDE-2
 Proc nomor
 Para tot,br,klm
+Local cBox := Chr(219)
+Local cHalf := Chr(220)
+If ValType(tot) == "C"
+   tot := Val(tot)
+EndIf
+tot = Round(tot, 0)
 Set colo to &warna6
 @br,klm-iif(br=20,20,38) clea to br+2,klm+3
-Chtot=ltri(str(tot))
+Chtot=ltri(str(tot, 14, 0))
 Awl=1
 Akr=len(chtot)
-Do whil awl<=len(chtot)
-   If awl=4 .or. awl=7
-      @br+2,klm+1 say ' Ã'
-      Klm=klm-2
-   Endi
-   Do case
-      Case subs(chtot,akr,1)='1'
-         @br  ,klm+2 say 'Ã'
-         @br+1,klm+2 say 'Ã'
-         @br+2,klm+2 say 'Ã'
-         Klm=klm+2
-      Case subs(chtot,akr,1)='2'
-         @br  ,klm say 'ÃÃÃ'
-         @br+1,klm say 'ÃÃÃ'
-         @br+2,klm say 'ÃÃÃ'
-      Case subs(chtot,akr,1)='3'
-         @br  ,klm say 'ÃÃÃ'
-         @br+1,klm say ' ÃÃ'
-         @br+2,klm say 'ÃÃÃ'
-      Case subs(chtot,akr,1)='4'
-         @br  ,klm say 'Ã Ã'
-         @br+1,klm say 'ÃÃÃ'
-         @br+2,klm say '  Ã'
-      Case subs(chtot,akr,1)='5'
-         @br  ,klm say 'ÃÃÃ'
-         @br+1,klm say 'ÃÃÃ'
-         @br+2,klm say 'ÃÃÃ'
-      Case subs(chtot,akr,1)='6'
-         @br  ,klm say 'ÃÃÃ'
-         @br+1,klm say 'ÃÃÃ'
-         @br+2,klm say 'ÃÃÃ'
-      Case subs(chtot,akr,1)='7'
-         @br  ,klm say 'ÃÃÃ'
-         @br+1,klm say '  Ã'
-         @br+2,klm say '  Ã'
-      Case subs(chtot,akr,1)='8'
-         @br  ,klm say 'ÃÃÃ'
-         @br+1,klm say 'ÃÃÃ'
-         @br+2,klm say 'ÃÃÃ'
-      Case subs(chtot,akr,1)='9'
-         @br  ,klm say 'ÃÃÃ'
-         @br+1,klm say 'ÃÃÃ'
-         @br+2,klm say 'ÃÃÃ'
-      Case subs(chtot,akr,1)='0'
-         @br  ,klm say 'ÃÃÃ'
-         @br+1,klm say 'Ã Ã'
-         @br+2,klm say 'ÃÃÃ'
-   Endc
-   Awl=awl+1
-   Akr=akr-1
-   Klm=klm-4
-Endd
+DO WHILE awl <= LEN(chtot)
+   IF awl = 4 .OR. awl = 7
+      @br+2, klm+1 SAY ' ' + cHalf
+      klm = klm - 2
+   ENDIF
+   DO CASE
+      CASE SUBSTR(chtot, akr, 1) = '1'
+         @br  , klm+2 SAY cHalf
+         @br+1, klm+2 SAY cBox
+         @br+2, klm+2 SAY cBox
+         klm = klm + 2
+      CASE SUBSTR(chtot, akr, 1) = '2'
+         @br  , klm SAY cHalf + cHalf + cHalf
+         @br+1, klm SAY cHalf + cHalf + cBox
+         @br+2, klm SAY cBox  + cHalf + cHalf
+      CASE SUBSTR(chtot, akr, 1) = '3'
+         @br  , klm SAY cHalf + cHalf + cHalf
+         @br+1, klm SAY ' '   + cHalf + cBox
+         @br+2, klm SAY cHalf + cHalf + cBox
+      CASE SUBSTR(chtot, akr, 1) = '4'
+         @br  , klm SAY cHalf + ' '   + cHalf
+         @br+1, klm SAY cBox  + cHalf + cBox
+         @br+2, klm SAY '  '  + cBox
+      CASE SUBSTR(chtot, akr, 1) = '5'
+         @br  , klm SAY cHalf + cHalf + cHalf
+         @br+1, klm SAY cBox  + cHalf + cHalf
+         @br+2, klm SAY cHalf + cHalf + cBox
+      CASE SUBSTR(chtot, akr, 1) = '6'
+         @br  , klm SAY cHalf + cHalf + cHalf
+         @br+1, klm SAY cBox  + cHalf + cHalf
+         @br+2, klm SAY cBox  + cHalf + cBox
+      CASE SUBSTR(chtot, akr, 1) = '7'
+         @br  , klm SAY cHalf + cHalf + cHalf
+         @br+1, klm SAY '  '  + cBox
+         @br+2, klm SAY '  '  + cBox
+      CASE SUBSTR(chtot, akr, 1) = '8'
+         @br  , klm SAY cHalf + cHalf + cHalf
+         @br+1, klm SAY cBox  + cHalf + cBox
+         @br+2, klm SAY cBox  + cHalf + cBox
+      CASE SUBSTR(chtot, akr, 1) = '9'
+         @br  , klm SAY cHalf + cHalf + cHalf
+         @br+1, klm SAY cBox  + cHalf + cBox
+         @br+2, klm SAY cHalf + cHalf + cBox
+      CASE SUBSTR(chtot, akr, 1) = '0'
+         @br  , klm SAY cHalf + cHalf + cHalf
+         @br+1, klm SAY cBox  + ' '   + cBox
+         @br+2, klm SAY cBox  + cHalf + cBox
+   ENDCASE
+   awl = awl + 1
+   akr = akr - 1
+   klm = klm - 4
+ENDDO
 Set colo to &warna3
 Retu
 
@@ -1164,85 +1159,33 @@ If member .or. byr<(tot-dis31)
    Uselan('CUST.DTA','CUST.NDX','CUST2.NDX','','','')
    Do whil .t.
       Set key 28 to daflgn
-      Set key -1 to daflgn
       @20,7 get plg pict '@!'
-      Do pesan with 'Masukan Kode/Nama Pelanggan,    F2/F1=Daftar Pelanggan     0=Cash'
+      Do pesan with 'Masukan Kode Pelanggan,    F1=Daftar Pelanggan     0=Cash'
       Set colo to w+/b,/w
       Read
       Set key 28 to
-      Set key -1 to
       If lastkey()=27
          Exit
       Endi
-      cInput=alltrim(plg)
-      lFound=.f.
-      If empty(cInput) .or. cInput=='0'
+      Plgz=rtri(plg)
+      If plg=spac(11)
          Plg=spac(10)
-         lFound=.t.
-      Elseif val(cInput)>0
-         * Pencarian berdasarkan Kode Pelanggan (1, 2, 10, 100 dst)
-         Set order to 1
-         Seek padr(cInput, 10)
-         If foun()
-            lFound=.t.
-            Plg=kode_lgn
-         Else
-            * Coba format prefix lama jika ada
-            Seek idtx+right('000000'+cInput,pdt-len(idtx))+spac(10-pdt)
-            If foun()
-               lFound=.t.
-               Plg=kode_lgn
-            Else
-               Seek cInput
-               If foun()
-                  lFound=.t.
-                  Plg=kode_lgn
-               Endi
-            Endi
-         Endi
-         If !lFound
-            Do daflgn
-            If lastkey()=27
-               Loop
-            Endi
-            Set order to 1
-            Seek padr(alltrim(plg), 10)
-            If !foun()
-               Seek alltrim(plg)
-            Endi
-         Endi
-      Else
-         * Pencarian berdasarkan Awalan Nama Pelanggan (misal: RIZ)
-         Set order to 2
-         Seek upper(cInput)
-         If foun()
-            If upper(alltrim(nama_lgn)) == upper(cInput)
-               lFound=.t.
-               Plg=kode_lgn
-            Else
-               Do daflgn
-               If lastkey()=27
-                  Loop
-               Endi
-               Set order to 1
-               Seek padr(alltrim(plg), 10)
-               If !foun()
-                  Seek alltrim(plg)
-               Endi
-            Endi
-         Else
-            Do daflgn
-            If lastkey()=27
-               Loop
-            Endi
-            Set order to 1
-            Seek padr(alltrim(plg), 10)
-            If !foun()
-               Seek alltrim(plg)
-            Endi
+      Elseif plg#spac(11)
+         If val(right(rtri(plg),3))#0
+            *Plg=iif(val(right(rtri(plg),2))>0, idtx+right('000000'+rtri(plg),pdt-len(idtx))+spac(10-pdt) , left(plg,10))
+            Plg=idtx+right('000000'+rtri(plg),pdt-len(idtx))+spac(10-pdt)
          Endi
       Endi
       @20,7 say plg
+      Set order to 1
+      Seek plg
+      If .not. foun()
+         *Plg=plgz
+         Do daflgn
+         If lastkey()=27
+            Loop
+         Endi
+      Endi
       Nsp  =nama_lgn
       Jab  =almt_lgn
       Sop  =so_point
@@ -1258,7 +1201,7 @@ If member .or. byr<(tot-dis31)
       Endi
       Stor 0 to pnsbl,totbl,totmr
       *
-      If left(plg,3)='0  ' .or. empty(alltrim(plg))
+      If left(plg,3)='0  '
          Plg=spac(10)
          Stor spac(30) to nsp,jab
          Stor 0 to tot3,kbl
