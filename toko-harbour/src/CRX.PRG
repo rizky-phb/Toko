@@ -869,26 +869,35 @@ Unlock
 Return(.T.)
 
 Proc daflgn
-If plg#spac(5) .and. val(rtri(plg))=0
-   Set order to 2
-   Set filter to AT(rtri(plg),nama_lgn)>0
-Elseif plg#spac(5) .and. val(rtri(plg))>0
-   Set order to 1
-   Set filter to AT(rtri(plg),kode_lgn)>0
-Endi
-Go top
+Local cSearch := Upper(AllTrim(plg))
 Save scre to sdaf
-Do pesan with 'Cari Kode/Nama Pelanggan, tekan A--Z  atau  0--9     ENTER=Pilih'
-Set colo to w+/br   &&&&warna4
-@1,16 clea to 22,79
-@1,16 to 1,79 doub
-@22,16 to 22,79
+Set order to 2
+Set filter to
+If !Empty(cSearch) .and. cSearch != '0'
+   Set filter to (cSearch $ Upper(nama_lgn)) .or. (cSearch $ Upper(kode_lgn))
+   Go top
+   If Eof()
+      Set filter to
+      Go top
+      Do pesan with 'Data tdk ditemukan, menampilkan semua.  ENTER=Pilih  ESC=Batal'
+   Else
+      Do pesan with 'Pilih Pelanggan: Panah u/ Pilih, Huruf u/ Cari, ENTER=Pilih, ESC=Batal'
+   EndIf
+Else
+   Go top
+   Do pesan with 'Pilih Pelanggan: Panah u/ Pilih, Huruf u/ Cari, ENTER=Pilih, ESC=Batal'
+EndIf
+
+Set colo to w+/br
+@1,10 clea to 22,70
+@1,10 to 1,70 doub
+@22,10 to 22,70
 Declare field[4],kop[4],bts[4]
-Field[1]="left(NAMA_LGN,25)+tl+KODE_LGN+tl+left(ALMT_LGN,25)"
-Kop[1]='Nama Pelanggan            Kode       Alamat'
-Bts[1]=''
-Dbedit(2,17,21,78,field,'flgn','',kop,gl,bts)
-*
+field[1] := "KODE_LGN + tl + Left(NAMA_LGN, 24) + tl + Left(ALMT_LGN, 20)"
+kop[1]   := "Kode      Nama Pelanggan           Alamat"
+bts[1]   := ""
+dbedit(2, 11, 21, 69, field, "flgn", "", kop, gl, bts)
+
 Set filter to
 Set order to 1
 Rest scre from sdaf
@@ -896,26 +905,24 @@ Set colo to &warna1
 Set curs on
 Retu
 
-Function flgn
-Parameter mode,pointer
-Private fds
-Fds=field[pointer]
+Function flgn(mode, pointer)
 Do case
-   Case mode<4
-      Retu 1
-   Case lastkey()=27
-      Retu 0
-   Case lastkey()=13
-      Plg=kode_lgn
-      Retu 0
-   Case (lastkey()>=65 .and. lastkey()<=90) .or. (lastkey()>=97 .and.  lastkey()<=122).or. (lastkey()>=48 .and.  lastkey()<=57)
+   Case mode < 4
+      Return 1
+   Case lastkey() == 27
+      Return 0
+   Case lastkey() == 13
+      Plg := kode_lgn
+      Keyboard Chr(13)
+      Return 0
+   Case (lastkey() >= 65 .and. lastkey() <= 90) .or. (lastkey() >= 97 .and. lastkey() <= 122) .or. (lastkey() >= 48 .and. lastkey() <= 57)
       Set order to 2
-      Seek uppe(chr(lastkey()))
-      Retu 2
-   Othe
-      Retu 1
-Endc
-Retu 0
+      Seek Upper(Chr(lastkey()))
+      Return 2
+   Otherwise
+      Return 1
+EndCase
+Return 0
 
 Proc dafbrg
 Save scre to sdaf

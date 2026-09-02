@@ -1,0 +1,10 @@
+=== Dir: C:\Users\User\Toko\toko-harbour\src\ ===
+LastRec:          3
+[001       ] [CUSTOMER1                     ] [TEGAL                         ]
+[002       ] [OZI                           ] [TEGAL                         ]
+[003       ] [RIZKY                         ] [TEGAL                         ]
+=== Dir: C:\Users\User\Toko\toko-harbour-build\ ===
+LastRec:          3
+[001       ] [CUSTOMER1                     ] [TEGAL                         ]
+[002       ] [OZI                           ] [TEGAL                         ]
+[003       ] [RIZKY                         ] [TEGAL                         ]
