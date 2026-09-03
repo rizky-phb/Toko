@@ -1622,6 +1622,8 @@ Retu
 Proc ctknotath
 Set printer to "STRUK.TMP"
 Set devi to prin
+No=0
+xAda2=0
 If lr='5'
    If idCut='Y'
       Set marg to jt
@@ -1750,8 +1752,6 @@ Else
       @prow()+1,0 say chr(27)+'a'+'1'+chr(27)+chr(33)+chr(4)+'* REPRINT *'
    Endi
    Stor 0 to dis2,totr,totpn,totpn2
-   No=0
-   xAda2=0
    * -------------------- ITEM --------------------
    Do whil .not. eof() .and. (faktur=fkt .and. (nama_ksr=nsls .or. nama_ksr=nsls2))
       If jumlah#0 .and. uppe(left(nama_brg,6))#'DISKON'
