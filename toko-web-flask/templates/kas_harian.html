@@ -40,7 +40,7 @@
     <a href="{{ url_for('kasir') }}">ESC=Selesai</a>
     <a href="{{ url_for('laporan_kas_harian', tanggal=trans_date) }}">Laporan Kas</a>
     <a href="{{ url_for('perkiraan_kas') }}">Daftar Perkiraan</a>
-    <span id="cash-message">{{ "Kode Perkiraan Tidak Ada. Ulangi!" if error == "kode" else "Up=Edit/Hapus   ESC=Selesai" }}</span>
+    <span id="cash-message">{{ "Kode Perkiraan Tidak Ada. Ulangi!" if error == "kode" else "Jumlah harus lebih dari nol." if error == "amount" else "Up=Edit/Hapus   ESC=Selesai" }}</span>
   </div>
 </section>
 

@@ -156,6 +156,8 @@ def create_app():
                 return redirect(url_for("kas_harian", tanggal=trans_date, error="kode"))
 
             amount = parse_int(request.form.get("amount", "0"))
+            if amount <= 0:
+                return redirect(url_for("kas_harian", tanggal=trans_date, error="amount"))
             db.execute(
                 """
                 INSERT INTO cash_transactions
@@ -199,6 +201,9 @@ def create_app():
     @cashier_required
     def kas_harian_edit(transaction_id):
         trans_date = request.form.get("tanggal", date.today().isoformat())
+        amount = parse_int(request.form.get("amount", "0"))
+        if amount <= 0:
+            return redirect(url_for("kas_harian", tanggal=trans_date, error="amount"))
         get_db().execute(
             """
             UPDATE cash_transactions
@@ -207,7 +212,7 @@ def create_app():
             """,
             (
                 request.form.get("description", "").strip(),
-                parse_int(request.form.get("amount", "0")),
+                amount,
                 transaction_id,
                 session.get("cashier_name", ""),
             ),
@@ -1540,7 +1545,10 @@ def format_rupiah(value):
 
 
 def parse_int(value):
-    return int(str(value or "0").replace(".", "").replace(",", "") or 0)
+    try:
+        return int(str(value or "0").replace(".", "").replace(",", "") or 0)
+    except (TypeError, ValueError):
+        return 0
 
 
 def parse_float(value):
