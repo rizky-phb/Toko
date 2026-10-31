@@ -86,3 +86,11 @@ Application Internal Error - C:\Users\User\Toko\toko-harbour-build\cr.exe
 Terminated at: 2026.09.02 22:07:53
 Unrecoverable error 9012: Can't locate the starting procedure: 'MAIN'
 ------------------------------------------------------------------------
+Application Internal Error - C:\Users\User\Downloads\Toko\workspace-recovered\toko-harbour-build\cr-wvt.exe
+Terminated at: 2026.11.01 02:48:39
+Unrecoverable error 9012: Can't locate the starting procedure: 'MAIN'
+------------------------------------------------------------------------
+Application Internal Error - C:\Users\User\Downloads\Toko\workspace-recovered\toko-harbour-build\cr-wvt.exe
+Terminated at: 2026.11.01 02:48:42
+Unrecoverable error 9012: Can't locate the starting procedure: 'MAIN'
+------------------------------------------------------------------------
