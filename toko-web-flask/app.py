@@ -144,7 +144,7 @@ def create_app():
     @cashier_required
     def kas_harian():
         db = get_db()
-        trans_date = request.values.get("tanggal", date.today().isoformat())
+        trans_date = request.values.get("tanggal", current_wib_date().isoformat())
         cashier_name = session.get("cashier_name", "")
 
         if request.method == "POST":
@@ -200,7 +200,7 @@ def create_app():
     @app.route("/kasir/kas/<int:transaction_id>/edit", methods=["POST"])
     @cashier_required
     def kas_harian_edit(transaction_id):
-        trans_date = request.form.get("tanggal", date.today().isoformat())
+        trans_date = request.form.get("tanggal", current_wib_date().isoformat())
         amount = parse_int(request.form.get("amount", "0"))
         if amount <= 0:
             return redirect(url_for("kas_harian", tanggal=trans_date, error="amount"))
@@ -223,7 +223,7 @@ def create_app():
     @app.route("/kasir/kas/<int:transaction_id>/delete", methods=["POST"])
     @cashier_required
     def kas_harian_delete(transaction_id):
-        trans_date = request.form.get("tanggal", date.today().isoformat())
+        trans_date = request.form.get("tanggal", current_wib_date().isoformat())
         get_db().execute(
             "DELETE FROM cash_transactions WHERE id = ? AND cashier_name = ?",
             (transaction_id, session.get("cashier_name", "")),
@@ -235,7 +235,7 @@ def create_app():
     @cashier_required
     def laporan_kas_harian():
         db = get_db()
-        trans_date = request.args.get("tanggal", date.today().isoformat())
+        trans_date = request.args.get("tanggal", current_wib_date().isoformat())
         cashier_name = session.get("cashier_name", "")
         sale_total = db.execute(
             """
@@ -1534,6 +1534,10 @@ def next_sale_no(cashier_id, current_register_no):
 def round_total(total):
     rounded = int(round(total / 100) * 100)
     return rounded, rounded - total
+
+
+def current_wib_date():
+    return datetime.now(WIB).date()
 
 
 def format_rupiah(value):
